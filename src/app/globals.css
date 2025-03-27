@@ -1,0 +1,162 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+@font-face {
+  font-family: 'Specify';
+  src: url('/fonts/Specify-expandedBold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Specify';
+  src: url('/fonts/Specify-ExpandedMedium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --background: 0 0% 98%;
+  --foreground: 20 3% 15%;
+  --card: 0 0% 100%;
+  --card-foreground: 20 3% 15%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 20 3% 15%;
+  --primary: 215 57% 43%;
+  --primary-foreground: 0 0% 98%;
+  --secondary: 20 87% 54%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 0 0% 96%;
+  --muted-foreground: 20 2% 40%;
+  --accent: 165 25% 51%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 20 3% 90%;
+  --input: 20 3% 90%;
+  --ring: 14 25% 51%;
+  --radius: 0.5rem;
+
+  --chart-1: 14 25% 51%;
+  --chart-2: 165 25% 41%;
+  --chart-3: 197 37% 24%;
+  --chart-4: 43 74% 66%;
+  --chart-5: 27 87% 67%;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+body {
+  background-color: hsl(var(--background));
+  font-family: 'Specify', system-ui, sans-serif;
+  font-weight: 500; /* Medium for all body text */
+  color: hsl(var(--foreground));
+
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Specify', system-ui, sans-serif;
+  font-weight: 700; /* Bold for all headers */
+    font-size: auto;
+    font-weight: 700 !important;
+    letter-spacing: 0.05em !important;
+    line-height: 1.3 !important; 
+}
+
+/* Ensure all text elements use the correct font weights */
+p, span, div, a, li, button, input, textarea, select, label {
+  font-weight: 500; /* Medium for all body text elements */
+}
+
+/* Override Tailwind font weight utilities */
+.font-medium, .font-normal, .font-light, .font-regular, .font-semibold {
+  font-weight: 500 !important; /* Force Medium for body text */
+}
+
+.font-bold, .font-black, .font-extrabold {
+  font-weight: 700 !important; /* Force Bold for headers */
+}
+
+.container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 1320px;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container {
+    max-width: 640px;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 768px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1024px;
+    padding-left: 4rem;
+    padding-right: 4rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container {
+    max-width: 1280px;
+    padding-left: 5rem;
+    padding-right: 5rem;
+  }
+}
+
+@media (min-width: 1336px) {
+  .container {
+    max-width: 1336px;
+    padding-left: 6rem;
+    padding-right: 6rem;
+  }
+}
+
+.btn-primary {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  padding: 0.75rem 1.5rem;
+  border-radius: calc(var(--radius) - 2px);
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.btn-primary:hover {
+  background-color: hsl(var(--secondary));
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: hsl(var(--primary));
+  padding: 0.75rem 1.5rem;
+  border: 1px solid hsl(var(--primary));
+  border-radius: calc(var(--radius) - 2px);
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.btn-outline:hover {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}

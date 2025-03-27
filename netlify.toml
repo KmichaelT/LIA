@@ -1,0 +1,17 @@
+[build]
+  command = "bun run build"
+  publish = ".next"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[images]
+  remote_images = [
+    "https://ext.same-assets.com/**"
+  ]
+
+[functions]
+  directory = "netlify/functions"
+
+[headers]
+  /* Custom headers can be added here */
