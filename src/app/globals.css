@@ -2,11 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-
-
 @font-face {
   font-family: 'Specify';
-  src: url('/fonts/Specify-expandedBold.otf') format('opentype');
+  src: url('/fonts/Specify-ExpandedBold.otf') format('opentype');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -18,6 +16,11 @@
   font-weight: 500;
   font-style: normal;
   font-display: swap;
+}
+
+/* Temporary test rule - remove after confirming fonts work */
+* {
+  font-family: 'Specify', system-ui, sans-serif !important;
 }
 
 :root {
