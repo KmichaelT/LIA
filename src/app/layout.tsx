@@ -38,7 +38,7 @@ export default function RootLayout({
         <ClientBody>
           <PopupAlert />
           <Header />
-          <main className="min-h-screen pt-16">
+          <main className="min-h-screen pt-16 container">
             {children}
           </main>
           <Footer />

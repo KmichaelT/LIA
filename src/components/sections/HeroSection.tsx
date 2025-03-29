@@ -13,7 +13,7 @@ export default function HeroSection() {
   return (
     <>
       <section className="bg-cover bg-center py-12 md:py-28">
-        <div className="container">
+        <div className="container sm:px-12">
           <div className="flex flex-col justify-between gap-12 lg:flex-row lg:gap-8">
             <div className="mx-auto flex max-w-[43.75rem] flex-col gap-2 lg:mx-0">
               <div className="flex flex-col gap-6">
@@ -21,11 +21,12 @@ export default function HeroSection() {
                   Changing lives one child at a time!
                 </h1>
               </div>
-              <p className="text-muted-foreground text-lg mb-4 max-w-xl">
+              <p className="text-muted-foreground text-base mb-4 max-w-xl">
                 Join us in supporting underprivileged children in Boreda,
                 Ethiopia by providing education, financial support, and
                 spiritual guidance.
               </p>
+
               <div>
                 <div className="w-fit lg:mx-0">
                   <div className="flex flex-wrap gap-4">
@@ -98,21 +99,27 @@ export default function HeroSection() {
       </section>
 
       {isVideoOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80" onClick={() => setIsVideoOpen(false)}>
-          <div className="relative w-full max-w-4xl" onClick={(e) => e.stopPropagation()}>
-            <button 
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
+          onClick={() => setIsVideoOpen(false)}
+        >
+          <div
+            className="relative w-full max-w-4xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
               className="absolute -top-10 right-0 text-white"
               onClick={() => setIsVideoOpen(false)}
             >
               Close
             </button>
             <div className="aspect-video rounded-lg overflow-hidden">
-              <video 
-                width="100%" 
-                height="100%" 
+              <video
+                width="100%"
+                height="100%"
                 controls
                 autoPlay
-                src="/video/lia_video.mp4" 
+                src="/video/lia_video.mp4"
                 className="w-full h-full object-cover"
               >
                 Your browser does not support the video tag.

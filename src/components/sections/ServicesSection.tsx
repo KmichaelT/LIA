@@ -15,7 +15,7 @@ const ServiceCard = ({ icon, title, description, color }: ServiceCardProps) => {
       <div className="mb-4 text-lia-brown-dark">
         {icon}
       </div>
-      <h3 className="text-xl font-semibold mb-3 text-lia-brown-dark">{title}</h3>
+      <h3 className="text-xl font-bold mb-3 text-lia-brown-dark">{title}</h3>
       <p className="text-lia-brown-dark/80 text-sm">{description}</p>
     </div>
   );
