@@ -2,6 +2,7 @@
 
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 import { Button } from "@/components/button";
 import {
@@ -200,13 +201,17 @@ const Gallery4 = ({
                           ></div>
                         </div>
                       </div>
-                      <Button 
+                                  <Link href="https://www.zeffy.com/en-US/donation-form/d7a24fa2-5425-4e72-b337-120c4f0b8c64">
+                                  <Button 
                         size="sm" 
                         className="mt-2 bg-white/20 hover:bg-white/30 text-white border-white/30 backdrop-blur-sm group-hover:translate-y-0"
+                        
                       >
                         Support this cause
                         <ArrowRight className="ml-2 size-4 transition-transform group-hover:translate-x-1" />
                       </Button>
+                                  </Link>
+
                     </div>
                   </div>
                 </a>

@@ -29,9 +29,13 @@ const Banner5 = ({
   if (!isVisible) return null;
 
   return (
-    <section className="fixed top-4 right-0 left-0 z-50 mx-auto max-w-2xl animate-fade-in">
+    <section className="mx-auto max-w-4xl animate-fade-in pt-8">
       <div className="mx-4">
-        <div className="w-full rounded-lg border bg-white p-4 shadow-md">
+        <div 
+          className="w-full rounded-lg border-2 border-transparent p-4 shadow-md
+          [background:linear-gradient(45deg,#f8fafc,theme(colors.white)_50%,#f8fafc)_padding-box,conic-gradient(from_var(--border-angle),theme(colors.slate.300/.48)_80%,_theme(colors.orange.500)_86%,_theme(colors.orange.300)_90%,_theme(colors.orange.500)_94%,_theme(colors.slate.300/.48))_border-box] 
+          animate-border"
+        >
           <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <Button
               variant="ghost"
@@ -43,7 +47,7 @@ const Banner5 = ({
             </Button>
 
             <div className="flex flex-col items-start gap-3 pt-2 md:flex-row md:items-center md:pt-0">
-              <Sparkles className="h-5 w-5 flex-shrink-0" />
+              <Sparkles className="h-5 w-5 flex-shrink-0 text-orange-500" />
               <div className="flex flex-col gap-1 md:flex-row md:items-center">
                 <p className="text-sm font-medium">{title}</p>
                 <p className="text-sm text-muted-foreground">{description}</p>
@@ -54,7 +58,7 @@ const Banner5 = ({
               <Button
                 variant="outline"
                 size="sm"
-                className="w-full md:w-auto"
+                className="w-full bg-secondary text-white hover:bg-secondary-50 hover:text-secondary hover:border-secondary hover:bg-white md:w-auto"
                 asChild
               >
                 <a href={buttonUrl} target="_blank">

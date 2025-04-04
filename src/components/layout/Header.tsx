@@ -5,6 +5,26 @@ import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 
+interface DropdownItem {
+  title: string;
+  path: string;
+}
+
+interface MenuItem {
+  title: string;
+  path: string;
+  hasDropdown: boolean;
+  dropdownItems?: DropdownItem[];
+}
+
+const MENU_ITEMS: MenuItem[] = [
+  {
+    title: "See Your Child's Profile",
+    path: '/profiles',
+    hasDropdown: false,
+  },
+];
+/* 
 const MENU_ITEMS = [
   {
     title: 'Home',
@@ -50,6 +70,7 @@ const MENU_ITEMS = [
     hasDropdown: false,
   },
 ];
+*/
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

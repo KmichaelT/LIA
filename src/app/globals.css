@@ -12,7 +12,7 @@
 
 @font-face {
   font-family: 'Specify';
-  src: url('/fonts/Specify-ExpandedMedium.otf') format('opentype');
+  src: url('/fonts/Specify-NormalMedium.otf') format('opentype');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -162,4 +162,24 @@ p, span, div, a, li, button, input, textarea, select, label {
 .btn-outline:hover {
   background-color: hsl(var(--primary));
   color: hsl(var(--primary-foreground));
+}
+ 
+/* Add this to your global CSS file - Updated with thicker orange border */
+@property --border-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes border-rotate {
+  from {
+    --border-angle: 0deg;
+  }
+  to {
+    --border-angle: 360deg;
+  }
+}
+
+.animate-border {
+  animation: border-rotate 6s linear infinite;
 }

@@ -82,9 +82,9 @@ const Gallery1 = ({ title, description, items = [] }: Gallery1Props) => {
                         {item.description}
                       </div>
                     </div>
-                      <div className="flex size-8 items-center justify-center rounded-full bg-background text-foreground transition-transform group-hover:-translate-y-1 group-hover:translate-x-1 lg:size-10">
+                      {/* <div className="flex size-8 items-center justify-center rounded-full bg-background text-foreground transition-transform group-hover:-translate-y-1 group-hover:translate-x-1 lg:size-10">
                         <ArrowUpRight className="size-4 lg:size-5" />
-                      </div>
+                      </div> */}
                     </div>
                   </div>
  

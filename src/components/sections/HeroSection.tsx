@@ -6,13 +6,21 @@ import { Play, PlayIcon, MoveRight } from "lucide-react";
 import { AspectRatio } from "@/components/aspect-ratio";
 import { Button } from "@/components/button";
 import { useState } from "react";
+import {Banner5} from "@/components/banner";
+
 
 export default function HeroSection() {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
 
   return (
     <>
-      <section className="bg-cover bg-center py-12 md:py-28">
+    <Banner5 
+      title="Don't Miss Out!"
+      description="Join us for the 2nd Annual Christian Sports Tournament"
+      buttonText="Buy Tickets"
+      buttonUrl="https://www.zeffy.com/en-US/embed/ticketing/2025-lia-sports-tournament"
+    />
+      <section className="bg-cover bg-center py-12 md:py-28">  
         <div className="container sm:px-12">
           <div className="flex flex-col justify-between gap-12 lg:flex-row lg:gap-8">
             <div className="mx-auto flex max-w-[43.75rem] flex-col gap-2 lg:mx-0">

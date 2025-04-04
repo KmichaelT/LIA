@@ -71,7 +71,7 @@ export default {
       fontSize: {
         '2xs': ['0.5rem', { lineHeight: '0.75rem' }],    // 8px
         'xs': ['0.625rem', { lineHeight: '1rem' }],      // 10px
-        'sm': ['0.75rem', { lineHeight: '1.25rem' }],    // 12px
+        'sm': ['0.85rem', { lineHeight: '1.25rem' }],    // 12px
         'base': ['1rem', { lineHeight: '1.5rem' }],      // 16px
         'lg': ['1.125rem', { lineHeight: '1.75rem' }],   // 18px
         'xl': ['1.25rem', { lineHeight: '1.75rem' }],    // 20px
