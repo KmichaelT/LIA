@@ -6,32 +6,32 @@ export default function EventsSection() {
   const galleryItems = [
     {
       id: 1,
-      image: "/images/events/sport.png",
-      title: "Love in Action 2nd Annual Christian Sport Tournament",
-      description: "Join us on May 31 from 8 AM to 11 PM for our 2nd Annual Christian Sport Tournament—compete in games, fellowship in faith, and strengthen community bonds.",
-      date: "31 May",
+      image: "/images/events/run.png",
+      title: "Heart & Sole Street Run 2025",
+      description: "Join us May 31 for the 2nd Annual Heart & Sole Street Run—spread love, support our mission, and enjoy community fun.",
+      date: "31 May 2025",
+      href:"https://www.zeffy.com/en-US/ticketing/2025-lia-5k-run"
+    },
+    {
+      id: 3,
+      image: "/images/events/jub.jpg",
+      title: "ESFNA 2025",
+      description: "On July 2025, visit our booth at the ESFNA to explore cool merch and join us in empowering underprivileged children.",
+      date: "Jul 2025",
     },
     {
       id: 2,
       image: "/images/events/com_weekend.png",
       title: "Empower The Community Weekend",
-      description: "This July 27, swing by our booth at the Walter E. Washington Convention Center to support our mission—grab a t‑shirt or gadget and help uplift underprivileged children.",
-      date: "27 Jul",
+      description: "Swing by our booth at the Empower The Community Weekend to support our mission. Grab a t‑shirt or gadget and help uplift underprivileged children.",
+      date: "Sep 2025",
     },
-    {
-      id: 3,
-      image: "/images/events/jub.jpg",
-      title: "Jubilee",
-      description: "On July 27, visit our Jubilee booth at the Walter E. Washington Convention Center to explore cool merch and join us in empowering underprivileged children.",
-      date: "27 Jul",
-    },
-
         {
       id: 4,
       image: "/images/events/meet.jpg",
       title: "Love in Action Annual Staff Meeting",
-      description: "Join us on December 21 for the Love in Action Annual Staff Meeting to reflect on our achievements, plan ahead, and celebrate our impact together.",
-      date: "21 Dec",
+      description: "The Love in Action Annual Staff Meeting to reflect on our achievements, plan ahead, and celebrate our impact together.",
+      date: "Dec 2025",
     },
   ];
 
