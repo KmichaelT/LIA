@@ -77,11 +77,11 @@ export default function HeroSection() {
                 />
                 <div className="mt-4 flex items-center gap-16">
                   <div>
-                    <h3 className="text-4xl font-bold mb-1">200+</h3>
+                    <h3 className="text-4xl font-bold mb-1">120+</h3>
                     <p className="text-muted-foreground">Children Sponsered</p>
                   </div>
                   <div>
-                    <h3 className="text-4xl font-bold mb-1">9+</h3>
+                    <h3 className="text-4xl font-bold mb-1">4+</h3>
                     <p className="text-muted-foreground">Years On Mission</p>
                   </div>
                 </div>

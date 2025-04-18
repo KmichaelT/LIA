@@ -19,7 +19,12 @@ interface MenuItem {
 
 const MENU_ITEMS: MenuItem[] = [
   {
-    title: "See Your Child's Profile",
+    title: "About Us",
+    path: '/about',
+    hasDropdown: false,
+  },
+  {
+    title: "Children Profile",
     path: '/profiles',
     hasDropdown: false,
   },

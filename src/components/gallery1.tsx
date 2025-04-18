@@ -31,7 +31,7 @@ const Gallery1 = ({ title, description, items = [] }: Gallery1Props) => {
     <div>
       {(title || description) && (
  <div className="flex flex-col max-w-2xl gap-4 mb-8">
- <span className="text-secondary font-medium mb-4 inline-block">Case Studies</span>
+ <span className="text-secondary font-medium mb-4 inline-block">Events</span>
  <h2 className="text-3xl md:text-4xl font-bold mb-6">
  {title}
  </h2>

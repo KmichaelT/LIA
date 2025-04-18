@@ -6,25 +6,32 @@ export default function EventsSection() {
   const galleryItems = [
     {
       id: 1,
-      image: "/images/blog/blog-1.jpg",
-      title: "Annual Charity Fundraising Gala",
-      description: "Join us for an evening of giving, entertainment, and community support at our flagship fundraising event.", 
-      date: "15 Apr", 
-      featured: true,
+      image: "/images/events/sport.png",
+      title: "Love in Action 2nd Annual Christian Sport Tournament",
+      description: "Join us on May 31 from 8 AM to 11 PM for our 2nd Annual Christian Sport Tournament—compete in games, fellowship in faith, and strengthen community bonds.",
+      date: "31 May",
     },
     {
       id: 2,
-      image: "/images/blog/blog-2.jpg",
-      title: "Community Outreach Day",
-      description: "Volunteer with us as we provide essential services and fellowship to local communities in need.",
-      date: "22 May",
+      image: "/images/events/com_weekend.png",
+      title: "Empower The Community Weekend",
+      description: "This July 27, swing by our booth at the Walter E. Washington Convention Center to support our mission—grab a t‑shirt or gadget and help uplift underprivileged children.",
+      date: "27 Jul",
     },
     {
       id: 3,
-      image: "https://ext.same-assets.com/2459100695/674975058.jpeg",
-      title: "Youth Mentorship Workshop",
-      description: "A special workshop connecting experienced mentors with youth who are seeking guidance and support.", 
-      date: "10 Jun", 
+      image: "/images/events/jub.jpg",
+      title: "Jubilee",
+      description: "On July 27, visit our Jubilee booth at the Walter E. Washington Convention Center to explore cool merch and join us in empowering underprivileged children.",
+      date: "27 Jul",
+    },
+
+        {
+      id: 4,
+      image: "/images/events/meet.jpg",
+      title: "Love in Action Annual Staff Meeting",
+      description: "Join us on December 21 for the Love in Action Annual Staff Meeting to reflect on our achievements, plan ahead, and celebrate our impact together.",
+      date: "21 Dec",
     },
   ];
 
