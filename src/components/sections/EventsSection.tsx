@@ -14,7 +14,7 @@ export default function EventsSection() {
     },
     {
       id: 3,
-      image: "/images/events/jub.jpg",
+      image: "/images/events/jub.JPG",
       title: "ESFNA 2025",
       description: "On July 2025, visit our booth at the ESFNA to explore cool merch and join us in empowering underprivileged children.",
       date: "Jul 2025",
@@ -28,7 +28,7 @@ export default function EventsSection() {
     },
         {
       id: 4,
-      image: "/images/events/meet.jpg",
+      image: "/images/events/meet.JPG",
       title: "Love in Action Annual Staff Meeting",
       description: "The Love in Action Annual Staff Meeting to reflect on our achievements, plan ahead, and celebrate our impact together.",
       date: "Dec 2025",
