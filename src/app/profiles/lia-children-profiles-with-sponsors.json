@@ -4,13 +4,18 @@
     "fullName": "Abinet Esayas Chare",
     "dateOfBirth": "2016-08-24",
     "joinedSponsorshipProgram": "2022-02-20",
+    "ageAtJoining": 6,
+    "gradeAtJoining": "kg",
+    "currentGrade": "Grade 3",
+    "school": "Gamo Primary School",
+    "walkToSchool": "45 minutes",
     "family": "Lives with his stepmother and father after losing his mother.",
     "location": "Tonkora, Boreda, Arbaminch, Southern Ethiopia",
     "education": "Grade 2 at Misola full Primary School",
     "aspiration": "Doctor",
     "hobby": "Playing with his peers",
-    "bioSummary": "Abinet is a resilient young boy facing emotional and educational challenges after the loss of his mother. He lives in a region known for agriculture but affected by outdated methods and lack of healthcare. Despite family struggles and social traditions, he is determined to continue his education and achieve his dream of becoming a doctor.",
-    "sponsor": null
+    "about": "Abinet is a resilient young boy facing emotional and educational challenges after the loss of his mother. He lives in a region known for agriculture but affected by outdated methods and lack of healthcare. Despite family struggles and social traditions, he is determined to continue his education and achieve his dream of becoming a doctor.",
+    "sponsor": "Mars Yenesh"
   },
   {
     "id": "LIA-00002",
@@ -321,7 +326,7 @@
   {
     "id": "LIA-00022",
     "fullName": "Kebedech Kafto Kana",
-    "sponsor": "Aregash Abera Tsega",
+    "sponsor": "Aregash Abraha Tsege",
     "dateOfBirth": "2018-06-16",
     "joinedSponsorshipProgram": "2022-02-20",
     "ageAtJoining": 4,
