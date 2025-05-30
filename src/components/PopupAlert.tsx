@@ -37,7 +37,7 @@ export default function PopupAlert() {
         </button>
         
         <div className="text-center">
-          <h3 className="text-2xl font-bold mb-2 text-secondary">Upcoming Sprot Tournament!</h3>
+          <h3 className="text-2xl font-bold mb-2 text-secondary">Upcoming Sport Tournament!</h3>
           <p className="mb-4">Join us for our annual charity tournament on May 15th. All proceeds go directly to supporting children in Boreda.</p>
           <div className="flex justify-center space-x-4">
             <Link href="https://www.zeffy.com/en-US/embed/ticketing/2025-lia-sports-tournament">

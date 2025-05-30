@@ -7,8 +7,8 @@ export default function EventsSection() {
     {
       id: 1,
       image: "/images/events/run.png",
-      title: "Heart & Sole Street Run 2025",
-      description: "Join us May 31 for the 2nd Annual Heart & Sole Street Run—spread love, support our mission, and enjoy community fun.",
+      title: "Run With Purpose 2025",
+      description: "Join us May 31 for the 2nd Annual Run With Purpose, spread love, support our mission, and enjoy community fun.",
       date: "31 May 2025",
       href:"https://www.zeffy.com/en-US/ticketing/2025-lia-5k-run"
     },

@@ -18,7 +18,7 @@ export default function HeroSection() {
       title="Don't Miss Out!"
       description="Join us for the 2nd Annual Christian Sports Tournament"
       buttonText="Buy Tickets"
-      buttonUrl="https://www.zeffy.com/en-US/embed/ticketing/2025-lia-sports-tournament"
+      buttonUrl="https://www.zeffy.com/en-US/ticketing/2025-lia-5k-run"
     />
       <section className="bg-cover bg-center py-12 md:py-28">  
         <div className="container sm:px-12">
@@ -78,7 +78,7 @@ export default function HeroSection() {
                 <div className="mt-4 flex items-center gap-16">
                   <div>
                     <h3 className="text-4xl font-bold mb-1">120+</h3>
-                    <p className="text-muted-foreground">Children Sponsered</p>
+                    <p className="text-muted-foreground">Children Sponsored</p>
                   </div>
                   <div>
                     <h3 className="text-4xl font-bold mb-1">4+</h3>
