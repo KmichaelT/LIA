@@ -17,7 +17,7 @@ interface StrapiBlog {
   SubHeading: string;
   category: string;
   cover?: StrapiMedia;
-  body: any[];
+  body: unknown[];
   createdAt: string;
   updatedAt: string;
   publishedAt: string;
@@ -44,9 +44,10 @@ async function getBlogPost(id: string): Promise<StrapiBlog | null> {
 export default async function BlogPostPage({ 
   params 
 }: { 
-  params: { id: string } 
+  params: Promise<{ id: string }>
 }) {
-  const post = await getBlogPost(params.id);
+  const { id } = await params;
+  const post = await getBlogPost(id);
 
   if (!post) {
     return (

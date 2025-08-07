@@ -17,7 +17,7 @@ interface StrapiBlog {
   SubHeading: string;
   category: string;
   cover?: StrapiMedia;
-  body: any[];
+  body: unknown[];
   createdAt: string;
   updatedAt: string;
   publishedAt: string;

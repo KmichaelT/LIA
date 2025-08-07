@@ -199,7 +199,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const sponsorProfile = await fetchSponsorProfile(user.email, token);
       setUser({
         ...user,
-        sponsor: sponsorProfile
+        sponsor: sponsorProfile || undefined
       });
       console.log('User data refreshed, sponsor profile:', sponsorProfile);
     } catch (error) {

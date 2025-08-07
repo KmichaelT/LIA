@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
@@ -19,7 +20,7 @@ interface StrapiBlog {
   SubHeading: string;
   category: string;
   cover?: StrapiMedia;
-  body: any[];
+  body: unknown[];
   createdAt: string;
   updatedAt: string;
   publishedAt: string;
@@ -30,37 +31,38 @@ interface BlogPostProps {
 }
 
 // Component to render Strapi rich text blocks
-function renderRichTextBlock(block: any, index: number): JSX.Element {
-  switch (block.type) {
+function renderRichTextBlock(block: unknown, index: number): JSX.Element | null {
+  const blockObj = block as { type?: string; children?: unknown[]; level?: number; format?: string; image?: unknown };
+  switch (blockObj.type) {
     case 'paragraph':
       return (
         <p key={index} className="mb-4">
-          {block.children?.map((child: any, childIndex: number) => (
+          {(blockObj.children as any[])?.map((child: any, childIndex: number) => (
             <span key={childIndex}>{child.text}</span>
           ))}
         </p>
       );
     
     case 'heading':
-      const HeadingTag = `h${block.level}` as keyof JSX.IntrinsicElements;
+      const HeadingTag = `h${blockObj.level}` as keyof JSX.IntrinsicElements;
       return (
         <HeadingTag key={index} className={`font-bold mb-4 ${
-          block.level === 2 ? 'text-2xl' : 
-          block.level === 3 ? 'text-xl' : 'text-lg'
+          blockObj.level === 2 ? 'text-2xl' : 
+          blockObj.level === 3 ? 'text-xl' : 'text-lg'
         }`}>
-          {block.children?.map((child: any, childIndex: number) => (
+          {(blockObj.children as any[])?.map((child: any, childIndex: number) => (
             <span key={childIndex}>{child.text}</span>
           ))}
         </HeadingTag>
       );
     
     case 'list':
-      const ListTag = block.format === 'ordered' ? 'ol' : 'ul';
+      const ListTag = blockObj.format === 'ordered' ? 'ol' : 'ul';
       return (
         <ListTag key={index} className={`mb-4 ml-6 ${
-          block.format === 'ordered' ? 'list-decimal' : 'list-disc'
+          blockObj.format === 'ordered' ? 'list-decimal' : 'list-disc'
         }`}>
-          {block.children?.map((item: any, itemIndex: number) => (
+          {(blockObj.children as any[])?.map((item: any, itemIndex: number) => (
             <li key={itemIndex} className="mb-1">
               {item.children?.map((child: any, childIndex: number) => (
                 <span key={childIndex}>{child.text}</span>
@@ -73,26 +75,26 @@ function renderRichTextBlock(block: any, index: number): JSX.Element {
     case 'quote':
       return (
         <blockquote key={index} className="border-l-4 border-primary pl-4 italic text-lg mb-4">
-          {block.children?.map((child: any, childIndex: number) => (
+          {(blockObj.children as any[])?.map((child: any, childIndex: number) => (
             <span key={childIndex}>{child.text}</span>
           ))}
         </blockquote>
       );
     
     case 'image':
-      if (block.image) {
+      if (blockObj.image) {
         return (
           <figure key={index} className="my-8">
             <img
-              src={block.image.url.startsWith('http') ? block.image.url : `https://best-desire-8443ae2768.strapiapp.com${block.image.url}`}
-              alt={block.image.alternativeText || block.image.name}
+              src={(blockObj.image as any).url.startsWith('http') ? (blockObj.image as any).url : `https://best-desire-8443ae2768.strapiapp.com${(blockObj.image as any).url}`}
+              alt={(blockObj.image as any).alternativeText || (blockObj.image as any).name}
               className="w-full rounded-lg"
-              width={block.image.width}
-              height={block.image.height}
+              width={(blockObj.image as any).width}
+              height={(blockObj.image as any).height}
             />
-            {block.image.caption && (
+            {(blockObj.image as any).caption && (
               <figcaption className="text-center text-sm text-muted-foreground mt-2">
-                {block.image.caption}
+                {(blockObj.image as any).caption}
               </figcaption>
             )}
           </figure>
@@ -104,7 +106,7 @@ function renderRichTextBlock(block: any, index: number): JSX.Element {
       return (
         <pre key={index} className="bg-muted p-4 rounded-lg overflow-x-auto mb-4">
           <code className="text-sm">
-            {block.children?.map((child: any, childIndex: number) => (
+            {(blockObj.children as any[])?.map((child: any, childIndex: number) => (
               <span key={childIndex}>{child.text}</span>
             ))}
           </code>
@@ -114,12 +116,12 @@ function renderRichTextBlock(block: any, index: number): JSX.Element {
     default:
       // For debugging unknown block types
       if (process.env.NODE_ENV === 'development') {
-        console.log('Unknown block type:', block.type, block);
+        console.log('Unknown block type:', blockObj.type, blockObj);
       }
       return (
         <div key={index} className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded">
-          <p className="text-sm text-yellow-800">Unknown block type: {block.type}</p>
-          <pre className="text-xs mt-2">{JSON.stringify(block, null, 2)}</pre>
+          <p className="text-sm text-yellow-800">Unknown block type: {blockObj.type}</p>
+          <pre className="text-xs mt-2">{JSON.stringify(blockObj, null, 2)}</pre>
         </div>
       );
   }
