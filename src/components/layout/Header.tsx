@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, LogOut } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface DropdownItem {
   title: string;
@@ -26,6 +27,16 @@ const MENU_ITEMS: MenuItem[] = [
   {
     title: "Children Profile",
     path: '/profiles',
+    hasDropdown: false,
+  },
+  {
+    title: "Blog",
+    path: '/blog',
+    hasDropdown: false,
+  },
+  {
+    title: "Gallery",
+    path: '/gallery',
     hasDropdown: false,
   },
 ];
@@ -81,6 +92,7 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
+  const { user, logout, isAuthenticated } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -171,12 +183,25 @@ export default function Header() {
             ))}
           </ul>
 
-          <Link
-            href="https://docs.google.com/forms/d/e/1FAIpQLScrqmqkKP8I7l3j2IOkXTn8boTsBbgoTbyQPxDvsSSKyvLI9w/viewform"
-            className="btn-primary font-medium"
-          >
-            Sponsor a child
-          </Link>
+          <div className="flex items-center space-x-3">
+            <Link
+              href="/sponsor"
+              className="btn-primary font-medium"
+            >
+              Sponsor a child
+            </Link>
+            
+            {isAuthenticated && (
+              <button
+                onClick={logout}
+                className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900 transition-colors"
+                title="Logout"
+                aria-label="Logout"
+              >
+                <LogOut size={18} />
+              </button>
+            )}
+          </div>
         </nav>
 
         {/* Mobile Menu Button */}
@@ -272,14 +297,27 @@ export default function Header() {
             ))}
           </ul>
 
-          <div className="mt-8">
+          <div className="mt-8 space-y-4">
             <Link
-                          href="https://docs.google.com/forms/d/e/1FAIpQLScrqmqkKP8I7l3j2IOkXTn8boTsBbgoTbyQPxDvsSSKyvLI9w/viewform"
+              href="/sponsor"
               className="btn-primary font-medium block text-center"
               onClick={() => setIsMenuOpen(false)}
             >
               Sponsor a child
             </Link>
+            
+            {isAuthenticated && (
+              <button
+                onClick={() => {
+                  logout();
+                  setIsMenuOpen(false);
+                }}
+                className="flex items-center justify-center space-x-2 mx-auto text-gray-600 hover:text-gray-900 transition-colors py-2 px-4 rounded-md border border-gray-300 hover:bg-gray-50"
+              >
+                <LogOut size={16} />
+                <span>Logout</span>
+              </button>
+            )}
           </div>
         </div>
       </div>

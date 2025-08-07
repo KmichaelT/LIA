@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 export default function ClientBody({ children }: { children: React.ReactNode }) {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -10,8 +11,8 @@ export default function ClientBody({ children }: { children: React.ReactNode }) 
   }, []);
 
   return (
-    <>
+    <AuthProvider>
       {children}
-    </>
+    </AuthProvider>
   );
 }

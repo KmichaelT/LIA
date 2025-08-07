@@ -4,6 +4,7 @@ import ClientBody from "./ClientBody";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import PopupAlert from "@/components/PopupAlert";
+import GlobalRedirectLoader from "@/components/GlobalRedirectLoader";
 
 export const metadata: Metadata = {
   title: "Love In Action – Sponsor a Child & Donate to Charity Online",
@@ -79,6 +80,7 @@ export default function RootLayout({
       </head>
       <body>
         <ClientBody>
+          <GlobalRedirectLoader />
           <PopupAlert />
           <Header />
           <main className="min-h-screen pt-16 container">{children}</main>

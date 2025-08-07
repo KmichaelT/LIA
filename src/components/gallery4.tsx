@@ -173,48 +173,50 @@ const Gallery4 = ({
                 key={item.id}
                 className="max-w-[400px] pl-[20px] lg:max-w-[400px]"
               >
-                <a href={item.href} className="group rounded-xl">
-                  <div className="group relative h-full min-h-[27rem] max-w-full overflow-hidden rounded-xl md:aspect-[5/4] lg:aspect-[16/9]">
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      className="absolute h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 h-full bg-gradient-to-b from-transparent to-[#072a51] mix-blend-multiply" />
-                    <div className="text-primary-foreground absolute inset-x-0 bottom-0 flex flex-col items-start p-6 md:p-8">
-                      <div className="mb-2 pt-4 text-lg font-bold md:mb-3 md:pt-4 lg:pt-4">
-                        {item.title}
-                      </div>
-                      <div className="mb-4 line-clamp-2 text-sm ">
-                        {item.description}
-                      </div>
-                      {/* Progress bar */}
-                      <div className="mb-4 w-full">
-                        <div className="text-xs text-white/70 mb-1 flex justify-between">
-                          <span>${item.amountRaised?.toLocaleString() || '0'}</span>
-                          <span>${item.goalAmount?.toLocaleString() || '0'}</span>
+                <div className="group rounded-xl">
+                  <Link href={item.href} className="block">
+                    <div className="group relative h-full min-h-[27rem] max-w-full overflow-hidden rounded-xl md:aspect-[5/4] lg:aspect-[16/9]">
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        className="absolute h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 h-full bg-gradient-to-b from-transparent to-[#072a51] mix-blend-multiply" />
+                      <div className="text-primary-foreground absolute inset-x-0 bottom-0 flex flex-col items-start p-6 md:p-8">
+                        <div className="mb-2 pt-4 text-lg font-bold md:mb-3 md:pt-4 lg:pt-4">
+                          {item.title}
                         </div>
-                        <div className="h-2 w-full bg-white/20 rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-white rounded-full transition-all duration-500 ease-in-out" 
-                            style={{ width: `${item.progress || 0}%` }}
-                          ></div>
+                        <div className="mb-4 line-clamp-2 text-sm ">
+                          {item.description}
+                        </div>
+                        {/* Progress bar */}
+                        <div className="mb-4 w-full">
+                          <div className="text-xs text-white/70 mb-1 flex justify-between">
+                            <span>${item.amountRaised?.toLocaleString() || '0'}</span>
+                            <span>${item.goalAmount?.toLocaleString() || '0'}</span>
+                          </div>
+                          <div className="h-2 w-full bg-white/20 rounded-full overflow-hidden">
+                            <div 
+                              className="h-full bg-white rounded-full transition-all duration-500 ease-in-out" 
+                              style={{ width: `${item.progress || 0}%` }}
+                            ></div>
+                          </div>
                         </div>
                       </div>
-                                  <Link href="https://www.zeffy.com/en-US/donation-form/d7a24fa2-5425-4e72-b337-120c4f0b8c64">
-                                  <Button 
+                    </div>
+                  </Link>
+                  <div className="px-6 pb-6 md:px-8 md:pb-8 -mt-16 relative z-10">
+                    <Link href="https://www.zeffy.com/en-US/donation-form/d7a24fa2-5425-4e72-b337-120c4f0b8c64">
+                      <Button 
                         size="sm" 
-                        className="mt-2 bg-white/20 hover:bg-white/30 text-white border-white/30 backdrop-blur-sm group-hover:translate-y-0"
-                        
+                        className="mt-2 bg-white/20 hover:bg-white/30 text-white border-white/30 backdrop-blur-sm hover:translate-y-0"
                       >
                         Support this cause
                         <ArrowRight className="ml-2 size-4 transition-transform group-hover:translate-x-1" />
                       </Button>
-                                  </Link>
-
-                    </div>
+                    </Link>
                   </div>
-                </a>
+                </div>
               </CarouselItem>
             ))}
           </CarouselContent>

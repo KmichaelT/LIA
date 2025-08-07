@@ -9,7 +9,12 @@ import { useState } from "react";
 import {Banner5} from "@/components/banner";
 
 
-export default function HeroSection() {
+interface HeroSectionProps {
+  title?: string;
+  description?: string;
+}
+
+export default function HeroSection({ title, description }: HeroSectionProps) {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
 
   return (
@@ -26,13 +31,11 @@ export default function HeroSection() {
             <div className="mx-auto flex max-w-[43.75rem] flex-col gap-2 lg:mx-0">
               <div className="flex flex-col gap-6">
                 <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-6">
-                  Changing lives one child at a time!
+                  {title || "Changing lives one child at a time!"}
                 </h1>
               </div>
               <p className="text-muted-foreground text-base mb-4 max-w-xl">
-                Join us in supporting underprivileged children in Boreda,
-                Ethiopia by providing education, financial support, and
-                spiritual guidance.
+                {description || "Join us in supporting underprivileged children in Boreda, Ethiopia by providing education, financial support, and spiritual guidance."}
               </p>
 
               <div>
