@@ -1,3 +1,5 @@
+import { getStrapiImageUrl } from '@/lib/utils';
+
 // Base Strapi Types
 export interface StrapiImage {
   id: number;
@@ -303,7 +305,9 @@ export function transformEvent(event: Event): EventData {
     location: event.attributes.location,
     registrationLink: event.attributes.registrationLink,
     featured: event.attributes.featured,
-    image: event.attributes.image?.data?.attributes?.url || '/images/events/default.png',
+    image: event.attributes.image?.data?.attributes?.url 
+      ? getStrapiImageUrl(event.attributes.image.data.attributes.url)
+      : '/images/events/default.png',
     href: event.attributes.registrationLink,
   };
 }
@@ -321,7 +325,9 @@ export function transformCause(cause: Cause): CauseData {
     category: cause.attributes.category,
     causeStatus: cause.attributes.causeStatus,
     featured: cause.attributes.featured,
-    image: cause.attributes.image?.data?.attributes?.url || '/images/causes/default.webp',
+    image: cause.attributes.image?.data?.attributes?.url 
+      ? getStrapiImageUrl(cause.attributes.image.data.attributes.url)
+      : '/images/causes/default.webp',
     href: `/causes/${cause.attributes.title.toLowerCase().replace(/\s+/g, '-')}`,
     goal: cause.attributes.description,
     createdAt: new Date(cause.attributes.createdAt).toLocaleDateString('en-US', {

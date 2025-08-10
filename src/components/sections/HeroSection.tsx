@@ -9,7 +9,7 @@ import { useState, useEffect } from "react";
 import {Banner5} from "@/components/banner";
 import { getHomePage, getImpactStats, getCTALinks } from "@/lib/strapi";
 import { HomePage, StatData, LinkData } from "@/types/strapi";
-import { STRAPI_URL } from "@/lib/utils";
+import { STRAPI_URL, getStrapiImageUrl } from "@/lib/utils";
 
 interface HeroSectionProps {
   title?: string;
@@ -122,7 +122,7 @@ export default function HeroSection({ title, description }: HeroSectionProps) {
   const heroTitle = heroData?.heroTitle || title || "Changing lives one child at a time!";
   const heroDescription = heroData?.heroDescription || description || "Join us in supporting underprivileged children in Boreda, Ethiopia by providing education, financial support, and spiritual guidance.";
   const heroImageUrl = heroData?.heroBackgroundImage?.url 
-    ? `${STRAPI_URL}${heroData.heroBackgroundImage.url}`
+    ? getStrapiImageUrl(heroData.heroBackgroundImage.url)
     : "/images/hero/hero-img.png";
   
   const donateLink = ctaLinks.find(link => link.label.toLowerCase().includes('donate')) || fallbackCTALinks[0];

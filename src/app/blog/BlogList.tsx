@@ -4,7 +4,7 @@ import { Calendar, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { format } from "date-fns";
-import { STRAPI_URL } from "@/lib/utils";
+import { STRAPI_URL, getStrapiImageUrl } from "@/lib/utils";
 
 interface StrapiMedia {
   id: number;
@@ -58,7 +58,7 @@ export default function BlogList({ posts }: BlogListProps) {
                 <div className="relative">
                   {post.cover?.url ? (
                     <img
-                      src={`${STRAPI_URL}${post.cover.url}`}
+                      src={getStrapiImageUrl(post.cover.url)}
                       alt={post.Heading}
                       className="aspect-video w-full rounded-lg object-cover"
                     />

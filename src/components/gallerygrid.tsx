@@ -1,7 +1,7 @@
 "use client";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
-import { STRAPI_URL } from "@/lib/utils";
+import { STRAPI_URL, getStrapiImageUrl } from "@/lib/utils";
 
 interface StrapiImage {
   id: number;
@@ -55,7 +55,7 @@ const Card = ({ gallery }: { gallery: StrapiGallery }) => {
     <>
       <div
         onClick={() => setSelectedImage(firstImage)}
-        style={{ backgroundImage: `url(${STRAPI_URL}${imageUrl})` }}
+        style={{ backgroundImage: `url(${getStrapiImageUrl(imageUrl)})` }}
         className="before:content-[] relative min-h-auto w-full overflow-hidden rounded-[.5rem] bg-black/80 bg-cover bg-center bg-no-repeat p-5 transition-all duration-300 before:absolute before:top-0 before:left-0 before:z-10 before:block before:size-full before:bg-black/50 before:transition-all before:duration-300 hover:before:bg-black/30 sm:aspect-square md:aspect-auto md:min-h-[30rem] md:max-w-[30rem] cursor-pointer group"
       >
         <div className="relative z-20 flex flex-col justify-between h-full">
@@ -88,7 +88,7 @@ const Card = ({ gallery }: { gallery: StrapiGallery }) => {
         >
           <div className="relative max-w-4xl max-h-[90vh] w-full">
             <img
-              src={`${STRAPI_URL}${selectedImage.url}`}
+              src={getStrapiImageUrl(selectedImage.url)}
               alt={selectedImage.alternativeText || selectedImage.name}
               className="w-full h-full object-contain rounded-lg"
             />

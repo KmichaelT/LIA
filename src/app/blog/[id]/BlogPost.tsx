@@ -4,7 +4,7 @@
 import React from "react";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
-import { STRAPI_URL } from "@/lib/utils";
+import { STRAPI_URL, getStrapiImageUrl } from "@/lib/utils";
 
 interface StrapiMedia {
   id: number;
@@ -88,7 +88,7 @@ function renderRichTextBlock(block: unknown, index: number): React.ReactElement 
         return (
           <figure key={index} className="my-8">
             <img
-              src={(blockObj.image as any).url.startsWith('http') ? (blockObj.image as any).url : `${STRAPI_URL}${(blockObj.image as any).url}`}
+              src={getStrapiImageUrl((blockObj.image as any).url)}
               alt={(blockObj.image as any).alternativeText || (blockObj.image as any).name}
               className="w-full rounded-lg"
               width={(blockObj.image as any).width}
@@ -148,7 +148,7 @@ export default function BlogPost({ post }: BlogPostProps) {
           </div>
           {post.cover?.url ? (
             <img
-              src={`${STRAPI_URL}${post.cover.url}`}
+              src={getStrapiImageUrl(post.cover.url)}
               alt={post.Heading}
               className="mb-8 mt-4 aspect-video w-full rounded-lg border object-cover"
             />
