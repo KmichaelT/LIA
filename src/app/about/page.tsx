@@ -2,7 +2,7 @@
 import { About1 } from "@/components/about1";
 import { useState, useEffect } from "react";
 import { getAboutUs } from "@/lib/strapi";
-import { STRAPI_URL } from "@/lib/utils";
+import { STRAPI_URL, getStrapiImageUrl } from "@/lib/utils";
 
 // Fallback data
 const fallbackContent = {
@@ -77,7 +77,7 @@ export default function About() {
               description: aboutData.heroDescription || fallbackContent.hero.description
             },
             image: aboutData.heroImage?.url 
-              ? `${STRAPI_URL}${aboutData.heroImage.url}`
+              ? getStrapiImageUrl(aboutData.heroImage.url)
               : fallbackContent.image,
             missionContent: [
               {
