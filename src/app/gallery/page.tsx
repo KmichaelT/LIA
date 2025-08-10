@@ -31,10 +31,15 @@ interface StrapiGallery {
 }
 
 async function getGalleries(): Promise<StrapiGallery[]> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+  
   try {
     const response = await fetch(`${STRAPI_URL}/api/galleries?populate=image&sort=publishedAt:desc`, {
-      cache: 'no-store',
+      next: { revalidate: 60 }, // Cache for 60 seconds
+      signal: controller.signal,
     });
+    clearTimeout(timeoutId);
     
     if (!response.ok) {
       throw new Error('Failed to fetch galleries');
@@ -43,7 +48,12 @@ async function getGalleries(): Promise<StrapiGallery[]> {
     const data = await response.json();
     return data.data || [];
   } catch (error) {
-    console.error('Error fetching galleries:', error);
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === 'AbortError') {
+      console.error('Gallery fetch timeout after 8 seconds');
+    } else {
+      console.error('Error fetching galleries:', error);
+    }
     return [];
   }
 }

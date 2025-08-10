@@ -5,12 +5,17 @@ function getStrapiURL(path = '') {
   return `${STRAPI_URL}${path.startsWith('/') ? path : `/${path}`}`;
 }
 
-// Generic fetch function for Strapi API
+// Generic fetch function for Strapi API with timeout
 async function fetchAPI(path: string, urlParamsObject = {}, options = {}) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+  
   const mergedOptions = {
     headers: {
       'Content-Type': 'application/json',
     },
+    signal: controller.signal,
+    next: { revalidate: 60 }, // Cache for 60 seconds
     ...options,
   };
 
@@ -19,6 +24,7 @@ async function fetchAPI(path: string, urlParamsObject = {}, options = {}) {
 
   try {
     const response = await fetch(requestUrl, mergedOptions);
+    clearTimeout(timeoutId);
     
     if (!response.ok) {
       console.error(`Strapi API error: ${response.status} ${response.statusText}`);
@@ -28,7 +34,12 @@ async function fetchAPI(path: string, urlParamsObject = {}, options = {}) {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('Strapi fetch error:', error);
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === 'AbortError') {
+      console.error('Strapi fetch timeout:', path);
+    } else {
+      console.error('Strapi fetch error:', error);
+    }
     return null;
   }
 }
@@ -177,10 +188,15 @@ export async function getSocialLinks() {
 
 // Single Types API
 export async function getHomePage() {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+  
   try {
     const response = await fetch(`${STRAPI_URL}/api/home-page?populate=*`, {
-      cache: 'no-store',
+      next: { revalidate: 60 }, // Cache for 60 seconds
+      signal: controller.signal,
     });
+    clearTimeout(timeoutId);
     
     if (!response.ok) {
       throw new Error('Failed to fetch home page');
@@ -189,16 +205,26 @@ export async function getHomePage() {
     const data = await response.json();
     return data?.data || null;
   } catch (error) {
-    console.error('Error fetching home page:', error);
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === 'AbortError') {
+      console.error('Homepage fetch timeout after 8 seconds');
+    } else {
+      console.error('Error fetching home page:', error);
+    }
     return null;
   }
 }
 
 export async function getAboutUs() {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+  
   try {
     const response = await fetch(`${STRAPI_URL}/api/about-us?populate=*`, {
-      cache: 'no-store',
+      next: { revalidate: 60 }, // Cache for 60 seconds
+      signal: controller.signal,
     });
+    clearTimeout(timeoutId);
     
     if (!response.ok) {
       throw new Error('Failed to fetch about us');
@@ -207,7 +233,12 @@ export async function getAboutUs() {
     const data = await response.json();
     return data?.data || null;
   } catch (error) {
-    console.error('Error fetching about us:', error);
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === 'AbortError') {
+      console.error('About Us fetch timeout after 8 seconds');
+    } else {
+      console.error('Error fetching about us:', error);
+    }
     return null;
   }
 }

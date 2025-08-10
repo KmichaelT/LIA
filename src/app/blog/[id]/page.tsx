@@ -25,10 +25,15 @@ interface StrapiBlog {
 }
 
 async function getBlogPost(id: string): Promise<StrapiBlog | null> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+  
   try {
     const response = await fetch(`${STRAPI_URL}/api/blogs/${id}?populate=cover`, {
-      cache: 'no-store',
+      next: { revalidate: 60 }, // Cache for 60 seconds
+      signal: controller.signal,
     });
+    clearTimeout(timeoutId);
     
     if (!response.ok) {
       return null;
@@ -37,7 +42,12 @@ async function getBlogPost(id: string): Promise<StrapiBlog | null> {
     const data = await response.json();
     return data.data;
   } catch (error) {
-    console.error('Error fetching blog post:', error);
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === 'AbortError') {
+      console.error('Blog post fetch timeout after 8 seconds');
+    } else {
+      console.error('Error fetching blog post:', error);
+    }
     return null;
   }
 }
