@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { STRAPI_URL } from '@/lib/utils';
 
 interface User {
   id: number;
@@ -34,8 +35,6 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || 'https://best-desire-8443ae2768.strapiapp.com';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);

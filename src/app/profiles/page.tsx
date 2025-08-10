@@ -4,6 +4,7 @@ import React, { Suspense } from "react";
 import ProfilesClient from "./ProfilesClient";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useAuth } from "@/contexts/AuthContext";
+import { STRAPI_URL } from "@/lib/utils";
 
 interface StrapiImage {
   id: number;
@@ -36,7 +37,6 @@ interface ChildProfile {
 
 async function getChildrenProfiles(token: string): Promise<ChildProfile[]> {
   try {
-    const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || 'https://best-desire-8443ae2768.strapiapp.com';
     const response = await fetch(`${STRAPI_URL}/api/children?pagination[pageSize]=200`, {
       cache: 'no-store', // Always fetch fresh data
       headers: {

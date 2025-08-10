@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { STRAPI_URL } from '@/lib/utils';
 
 export default function CompleteProfilePage() {
   const { user, refreshUserData } = useAuth();
@@ -64,7 +65,6 @@ export default function CompleteProfilePage() {
         throw new Error('No authentication token found. Please log in again.');
       }
       
-      const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || 'https://best-desire-8443ae2768.strapiapp.com';
       const response = await fetch(`${STRAPI_URL}/api/sponsors`, {
         method: 'POST',
         headers: {

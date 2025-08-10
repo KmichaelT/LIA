@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import BlogPost from "./BlogPost";
+import { STRAPI_URL } from "@/lib/utils";
 
 interface StrapiMedia {
   id: number;
@@ -25,7 +26,7 @@ interface StrapiBlog {
 
 async function getBlogPost(id: string): Promise<StrapiBlog | null> {
   try {
-    const response = await fetch(`https://best-desire-8443ae2768.strapiapp.com/api/blogs/${id}?populate=cover`, {
+    const response = await fetch(`${STRAPI_URL}/api/blogs/${id}?populate=cover`, {
       cache: 'no-store',
     });
     

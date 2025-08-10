@@ -1,0 +1,1927 @@
+I already created this project, but we're going to treat this as this is the UI that someone provided to you. And
+what you want to do is figure out how to represent this data in your back end for
+which we're going to use Strappy, which is a headless CMS that allows you to
+represent your content and create an API endpoint front end could access to
+render the data to screen. And that's exactly what we're doing in this Astro project. But for beginners, what we want
+to do is take a look at this landing page, which could be a UI that someone
+designed. And how do we think about representing this data in Strappy? For
+instance, if you take a look at the top navigation, the heading here, and we
+scroll all the way to the bottom and take a look at the footer, when we log in into our strappy instance, which we
+will learn how to set up from scratch and do everything ourselves. If you go to our content manager, you're going to
+notice that we have a collection called global. Well, this is a single type, and we'll learn more about them in a detail.
+And notice how here we have our header which has the logo. It has our links
+about blog. It has our call to action link. We also see our banner which is
+our banner data that you see that you see here at the top. It is represented
+inside this global single type. And you could also see that our footer is represented as well. If you take a look
+at the main landing page, where is this data coming from? So for this particular
+view and everything that you see here from this form to these featured blog
+posts to these frequently asked questions to our person data including
+this text, our image with side text, our features and this hero section. It's all
+represented in strappy in our collection type called landing page. As you could see here, all of our data is represented
+via these blocks which are components that represent our strappy data that we're going to learn how to build. And
+the way we're able to access all the data on our front end, we are able to easily expose those endpoints. For
+instance, if I go under users permission roles and take a look at the public. If
+we take a look at the landing page here, you could see that we're making a fine
+request to this endpoint that our front end will consume to get the data. And
+that's exactly what we're doing here. I'm making a call to that endpoint. I'm looking for my landing page and we're
+getting all this landing page data that's coming from Strappy. So to get
+started, we're going to learn how to think about each and one of these sections as strappy components, how to
+break it down into dynamic zones that allows non-technical users easily manage
+content. And if all of that sounds to you like mumbo jumbo, no worries. We will figure it out. We're also going to
+learn how to make dynamic pages. For instance, this page here, about is a dynamic page that's coming from Strappy.
+I could have about page. I could have today is a good time to eat pizza page.
+It doesn't matter because we're going to learn how in Strappy you could create dynamic pages where a nontechnical user
+could easily add them to your front end. So back in our Strappy instance, if we navigate back to the content manager,
+notice that we have a collection called page. For now, we only have one page called about that consists of two
+blocks, which is our person card and a heading. This is exactly what you see
+here. You see the person card and the heading. You know what? This heading, what the hell is it doing here? I'm able
+to go ahead and delete it. If I publish and I restart my application and look,
+the heading is gone. Now we just have this person card. So notice how nontechnical user is able to easily
+manage their website data from this strappy admin. And we will learn more about how to build this as we go along.
+we could easily add additional pages. And because we're using this concept of blocks where we created different blocks
+to represent different data types, we empower the user to be able to create any additional page in our Astro
+website. And we're going to learn how to represent our blog, including our single
+blog view, which has this image, our title, information about the author, and
+the blog post. And if we take a look in our Strappy application, if we look at
+our articles and open one, you could see the data structures that we're using. For instance, we have the title,
+description, the slug, the featured image, content, and to make it more flexible to allow the developer to add
+different types of content. We are also using our blocks concept where we could
+create any different blocks that contain a specific type of data that we're able
+to add. For instance, here we have our featured article block which has our
+featured articles. And that's exactly what you see displayed here on our block featured articles here. For instance, if
+I go ahead and in Strappy remove one of the articles and after I delete one of
+the post, go ahead and republish. Now, because Astro is statically built, in
+order for me to see the changes, I have to redeploy my application. So now, as
+you could see, we only have two items. And again, notice how I didn't have to do any code, but was just able to make
+changes inside my Strappy admin. So, now that we have the basic overview of some
+of the things that we're going to learn, let's actually jump in and get started with Strappy. To get started with
+Getting S=started with Strapi 5 initial setup
+Strappy, navigate to strappy.io and we're going to start by copying this
+command. Now that that's selected, we're going to jump into our terminal and get started. So, here I'm in my terminal.
+I'm going to go ahead and paste that command npx trace champion app at latest and I'm going to call this server
+because this is going to be the server or the back end for my front end. Then we're going to eventually build with
+Astro and then next yes. Go ahead and click enter. It's going to go ahead and do its magic. First thing it's going to
+ask you are you okay to proceed. I guess it's important to ask for permission. So
+we're going to think about it and yeah. Yeah, we're going to say yes. Once this starts, it's going to go ahead and do
+the spinny thing. And once the spinny thing is done, it is going to eventually, depending on your internet,
+which since I'm traveling, as if I'm not working from my cell phone or anything, which is perfectly fine, is going to go
+ahead and do the rest of it magic. It's going to ask you some questions. You could self-host Strappy, but they also
+offer a convenient way where you could just host your Strappy instance on Strappy Cloud, which is not required at
+all. and it's not something we're going to do. So, I'm going to go ahead and click skip for now. So, our first most
+important question, do you want to use the default databases which is SQLite? We're going to say yes because this is a
+perfect database to start locally building our project. Do we want to start with example structured data?
+We're not immature because we're going to create everything from scratch. Start with TypeScript. Hm.
+Yes. Yes. Yes. you going to do Typescript before people get mad at me? Install dependencies with npm. I'm going
+to go ahead and say no because I'm going to use yarn, but I'll let you decide if
+you want to click yes here and initialize git repository. I'm going to say yes or no to do it later. You know
+what? I'm going to be lazy. I'm going to say yes. So, we're going to initialize our Git repository here. Once everything's done, because I didn't
+install dependencies, I'm going to CD into my server folder. This is where a strappy application is. And before
+starting it with here, we could say npm run. Man, I'm probably going to get judged that I want to use yarn, but
+don't worry about it. So, let me install my dependencies first. Once everything's installed to start my strappy instance,
+I'm going to go ahead and run yarn develop. Our project is going to start at localhost 1337. Go ahead and create
+your first strappy admin user. I'm going to go ahead create mine with my super
+cool email. And for password, we're going to say monkey 234 because the
+chances of you guessing this password is going to be very difficult. Now, when we
+click let's start, boom, and we're done. We are now set up with Strappy.
+Literally, if I talk less, we could have actually get this started even faster. So, now that our Strappy instance set
+up, in the next video, we're going to go ahead through all the most important parts of this left sidebar menu before
+getting started and learning about how to model our data in Strappy by building
+out our first collection and taking a look at our application. And once we get
+our bearings around Strappy, we're going to start taking a look at our UI and
+thinking about how we we we can represent this data. Most likely, we're going to start with the top bar, the top
+navigation, and the footer. But with that being said, go ahead, take a break,
+get some cup of tea. Now that we have Strappy set up, we are ready to move on
+to the next part. Hello you wonderful people and welcome to the second part of the epic strappy 5 crash course. In the
+Strapi Admin menu and setting overview
+previous video, we got started with Strappy 5 and we set up our local
+instance. The plan for us for this tutorial is to build a backend for this website. We have a landing page section
+that we briefly talked about in the previous video. We also have our dynamic pages. We have our blog posts with our
+single blog post views. So, in the previous videos, what we did is we started with our basic strappy instance.
+But before we do that, just as a reminder, in this lesson, we're going to learn how to take the data from our
+website that you see here, including everything on our landing page, and represent the data in Strappy, just like
+you could see here. We're going to create different collection types, single types. We're even going to learn
+about our different components that we could create here to represent our data. But this is the completed project. But
+for today, we're going to start with our freshly created project that we did in the last section and go through all the
+menu items that you see on the left. So after starting my project with yarn develop, we're going to be greeted with
+this dashboard area. And for us, we're going to just take a look at the left navigation here. Our home navigation
+item is basically your dashboard here. Our next one is our content manager.
+This is where you're going to see all your content. By default, we just have the user collection type at the moment.
+As we continue building our application, we're going to add our single types and collection types here as we go along. If
+you're wondering what is a single type, single type is just a single type of content that may represent something on
+your website. For instance, taking a look at our website for our single type. We're going to actually create a single
+type called global that's going to represent our top announcement bar, our top navigation as well as the footer
+data that we see here on the bottom. A collection type is a type that we might
+have many of like a products, pages or
+so on. And in our application, we're going to create a collection type for pages, blog posts, tags, and so on. So
+collection type of for something that you're going to have many of and single type is for one type of content. Next,
+we have our media library. This is where you're going to be able to find all your images. What's awesome, you could
+organize everything via folders. For instance, we could create a new folder and we're going to call it icons. This
+is where we're going to put all of our icons. Let's create. And notice how we have this folder. And then we'll create
+another folder. We're going to call it assets. And this is where all of our images will go. So this is where you
+manage your media library files like photos, documents, or videos. Content
+type builder. This is where all of the magic is going to happen. We're going to skip the store because I'm going to show
+you everything you need to know about the content type builder in these video
+series. But for us, for now, you just have to understand this is where we're going to define our different
+collections. Like I mentioned, a single type is a type of a collection that it's going to be one of. A collection type is
+anything that's going to have many items of like for instance you could have many users, you could have many products, you
+could have many articles and so on. And we will finish this video by creating
+our first collection type as an example. But for now, we're just going to
+continue because we'll cover the creation process and all the different
+types of content that Strappy has in greater detail. As you could see here,
+there's a lot. So, we'll create a designated video just to cover that. Next, we have our deploy option. What's
+awesome about Strappy, you can deploy Strappy anywhere where NodeJS environment is supported. You could use
+services like Digital Ocean, AWS, but for those who want to make it easier, we
+do have an offer a Strappy Cloud version. For this tutorial, we're not going to worry about that at the moment
+because first, let's build our application before taking a look at how to deploy it. But in the later videos,
+we take a look how to deploy it either self-hosting using something like Digital Ocean. And we'll also take a
+look how easily you could deploy your application to Strappy Cloud. Here at the marketplace, Strappy comes with a
+huge plug-in ecosystem. So here you could find all these different cool plugins that other community members or
+the Strappy team has created that could add additional functionality to your Strappy app. What's awesome, your
+Strappy application allows you to add any additional functionality via
+plug-in. This is something we're going to cover in future tutorials because building a custom plug-in or a custom
+field is more of intermediate uh strappy concepts and something we're going to
+cover after we build our initial project. And finally, we have our settings page. In this tutorial, we're
+going to take a look at few options here. And but from the start, we're only going to focus on the most important
+areas. If we scroll to the bottom here, we have our admin panel users
+permission. This is for the users for your Strappy application. For instance, here I have my admin user that is
+responsible for being able to log in into the Strappy admin. We could create
+different roles and create role-based access control that will allow different
+editors or authors or super admins have different functionality or abilities of
+what they could do in the admin area. This is again something that we're going to focus in future tutorials, but for
+now we're just going to briefly mention it here. And if your website has users, meaning that they're not going to log in
+through the Strappy admin, but literally will log in through your Strappy
+website, this is where users and permissions plugin comes in. And here we
+have two type of roles, authenticated or public. And what this allows you to do,
+for instance, you could have public access to your endpoints. For now, if I click public, we don't really have too
+many options here. We have our content type builder, email, upload, and users permission. For instance, if we take a
+look at users permission and here you could see some of the permissions that are available for us. And what these do
+is they open an endpoint for us for our front application to consume. So again,
+we'll talk more about users and permissions, but this is basically will allow you to access certain collection
+types that we create via API. I just want to quickly show you here the difference between users permission
+plug-in users and the users that you see here in settings under administration
+panel. Administration panel are the users that get access to this strappy
+panel view and your users permission plugin is if you wanted to have users on your front-end website, not your strappy
+instance where you're able to create users, they'll be able to log in into your front end that you create and have
+access to certain things. And here's an example here where my coding after 30 which is obviously powered by strappy.
+My users of this website are able to log in to the front end of my application.
+Nor is how I was able to do here and they're able to see the courses that they have permission to be able to
+watch. And what's cool about this this way you're able to keep your users separate. You could have your website or
+your product users which is separate from your administration users because
+my product users or users of my SAS or the business whatever it is I'm building
+maybe I don't need to give them access to my admin area and strappy because they're not responsible for adding the
+data. So it's kind of cool that Strappy allows to keep those separate. You have your consumers of your product users and
+then you have your administration users that use Strappy admin, but we'll take a
+look at that in greater detail as we continue through the course. But first, I want to give you a very basic
+Building our first collection type and enabling our first endpoint
+overview. So, now that we have the basic UI overview, let's jump back into our content type builder. And here we are
+actually going to go ahead and create a simple single type collection that we're
+going to build on in the next video. But for now, I just want to show you how easily you could create a collection and
+access it via API and be able to get the data really quick. So taking a look at our application, we want to create a
+page that's going to manage our callout and our top navigation and our footer.
+So let's create the page to accomplish that. So in Strappy we're going to click on create new single type and this one
+we're going to call it global. We're going to cover these data structures in greater detail but for now here's the
+ones that we have. We have our top level fields which means that they're non relational data meaning the data is
+stored in the database where it's created rather than being a relation to another table which includes the text
+field the boolean field rich text blocks the JSON field number email date
+password enum UI ID media image for instance the files relations to other
+collection types components and dynamic zones They are going to be relations and we're going to talk about them in later
+videos. We also have rich text in markdown. So for this first page, we're going to use the text field. First one
+it name is going to be the title which is going to be for the title of our page. Let's add another field. We again
+select text and that's going to be description and that's going to be long text. And
+for now, we'll click finish because we want to get started really quickly just to get a general idea of how you can
+quickly create a single collection type and access it via your API. Now that we have our data, we're going to go ahead
+and click save. So now let's navigate to our content manager. And here you could
+see we have our global page. We could create a title. I'm going to say global
+page. And then description, I'm going to say it will be responsible
+for our header and footer data. And I'm going to go ahead and
+click publish. What's awesome, this allows you to have different states. For
+instance, if I make some change, you could save it. And notice how we're going to have the draft state and the
+publish state. And the publish state is what is going to show be shown to your live audience. So I'm going to go to
+draft. I'm going to just delete this and save it. Now that we have our global
+data, let's navigate back to settings tab. Scroll all the way to the bottom here in users permissions plugin. Click
+rolls. And we want our global data to be accessed publicly. So we're going to go
+roles under public. We're going to select our global page. And we're going to say that we want to find our
+endpoint. Meaning that we want to allow us to be able to hit our API endpoint
+which is found at API global when we make a get request that should get our data. So I'm going to go ahead and save.
+I'm running my project at localhost 1338. By default it's 1337, but I
+updated it because I have another port that's being used. Normally your Strappy application runs on localhost 1337, but
+I have something else running on that port. So I went ahead and changed it to use port 1338. So I went ahead and open
+my project in VS Code. And one thing I want to show you, we just created a
+single type. You could actually see where your content has been created
+inside your Strappy application. So if you navigate to the server to the source folder, if you go to API, you're going
+to see that it automatically created this global folder which has all the necessary controllers, routes, and
+services that make our endpoint functional. If you take a look in the content types, global schema, you will
+see our schema for that content type. Currently, we just have two fields,
+which is title and a description. You can't programmatically create your schema manually in code, but that's only
+when you're doing something when you're building plugins. For a majority of the time, you could create all your content
+from the admin panel like we just did. And to test our endpoint, we're going to use an extension in VS Code called
+Postman. And we're going to make a new request for you. It's going to be 1337,
+but because I changed this on mine, it's going to be port 1338. And it's going to be API/global.
+And if you're wondering where is this coming from, this is from users and permission roles. Taking a look at the
+global endpoint where we enabled find. And notice that this is the endpoint
+that we're hitting. If you didn't save, make sure you save to activate the endpoint. And now when we send the
+request, notice that we're able to get our data. We get our title which is our gloable page and we get our description
+which is this will be responsible for our header and footer data. So notice how quickly we were able to create our
+first single type and we were able to expose that endpoint and with Postman we
+were able to make a get request to that endpoint and get our data. So now we know that our API works and we could
+start in the next video building out our global page to include the data from our
+website. We're going to start with the basics by building out our top navigation first where we're going to
+learn the concept of components and the way to think about structuring data in
+your website. As always, if you have any questions, you could always ask them in the comments to this video. Otherwise, I
+will see you in the next video where we're going to start breaking down this navigation menu into its designated
+components and I'll show you how to represent that data inside our strappy app inside the content type builder by
+adding additional fields components. They're going to represent our website data. So, thanks for watching and I'll
+see you in the next one. So, now moving on to part three of our tutorial. Here
+Building out our Global page for our website header and footer settings
+we are in our Shrappy application and in the previous lesson all we did is create
+our basic global page where we added a title and a description and we were able
+to access this data via API. Now we're going to take a look how to
+continue building out this global page to make it represent the data from the front end of our website.
+Taking a look at our basic mockup, our global page is going to be responsible
+for the top callout section, including our top navigation, which has our logo,
+our links, and our call to action. It is also going to be responsible for
+our footer, which is going to have our logo, our links, our social links, and
+our regular text. Now, one thing that we're going to notice is that when we look at our call
+out here, that could be a link that someone could click. Our links in a menu
+are links that one can click to visit another page. Our CTA here is also a
+link. And if we look in our hero section that we're not going to do today, but notice that we also have our links.
+And what we want to do is kind of think of maybe we could create a component that responsible
+representing our links in our strappy application. And that's exactly what we're going to do.
+Inside our strappy application, we're going to navigate to content type builder.
+And here we're going to create our first component. A component, think of it as a
+box that allows you to encapsulate certain type of data. For instance, our link could have a label href.
+Is it external and other fields that we could do? So, what we're going to do is
+we're going to create a new component that's going to be responsible for representing our link data that's going
+to be found in numerous pages on our website. For instance, here in the top
+navigation, including our call to action, even our hero section. So go
+ahead and click on create new component and we're going to call this link very
+generic and let's create a category called shared which is going to be for
+shared components that others component may use. So click create and click continue.
+Taking a look at some of the links that we have. We have our navigation links, our call to action, and we even have
+different types of styling. For instance, primary and secondary. Would it be nice if we could keep that data in
+our Shopee application to allow non-technical user not only add the links on our site, but also dictate if
+they want to display a primary button or a secondary button style.
+So, continue on. We're going to select
+text. We're going to use short text. And this is going to be for our href, which is going to be our URL that we want to
+redirect to. Let's click add another field. We're also going to select text,
+and this is going to be a label. So, this is going to be the label of our link.
+For instance, looking here at top navigation, our label is home and the atrif will be
+the link that we want to or URL that we want to redirect to when someone clicks this button.
+So, let's go ahead and click add another field. We're also going to add a boolean
+called is external.
+And by default in advanced settings, we're going to make it false.
+So, if you take a look at our mockup, we might have a link that navigates somewhere on our website, but here we
+have a link called learn more about Astro. This could be something that redirects, let's say, to an external
+page like Astro docs. So, we want to take that into account and that's exactly what we're doing with our
+external boolean. So now that we set it to false, let's go back to our basic settings and let's add
+another field. If we take a look at our nav here, notice that some are regular links and
+some are button links. Their styling is different. So let's create another
+boolean to represent if the styling should be inline regular links or it
+should be a type of button. So, we're going to select boolean and
+we're going to say is button link and again going to advance
+settings. By default, we're going to make it false. Back to basic settings.
+And finally, let's add another field. In our applications, our button might have
+a primary styling or a secondary styling. So let's create an enum to
+represent if our button should be primary or secondary.
+Enumeration field allows you to represent multiple values that you could select from.
+So we're going to select innumeration. We're going to call it type and we're going to say our first type is primary
+and another type is secondary. Perfect. Now let's go ahead and click
+finish. So notice now we have our link component that we could utilize in our
+application. So let's go ahead and click save before building out our
+top navigation here. Notice that we have a logo link. That could be a link with
+an image. And we also have image links in the
+footer. So we can in our current link add an image and
+call it a day. But as practice, let's practice creating new components and
+create another component that's just going to be an image link that we could either use for our social icons or use
+it for our logo. So, I'm going to create a new component. And we're going to call it logo.
+And if you want to be more precise, we could say logo link. And we could
+put a space here so it's nicer to read. And here, let's select our shared folder that we created. And let's click
+continue. Our logo link is going to have
+our label. That's going to be a short text. Let's add another field. We're going to select
+text is going to be href. Let's add another field. We're going to
+say boolean. We're going to say is external cuz we might want to link out
+to an external site. Advanced settings. Let's go ahead and make it false. Basic
+settings. And finally, let's add our final item, which is going to be our media or our image. Let's create single
+advanced settings and let's select only to show images.
+Back to basic settings. Let's click finish. Oh, we forgot to give it a name.
+And this is for image. So, we're going to go ahead and just call it image and
+click finish. So, notice now we have our logo link which has a label href is
+external and an image. Let's click save. Based on our link and logo link, we now
+could create our banner, our top navigation, and our footer. Let's create
+our banner component first. So, let's create a new component. We're going to call it banner. And let's create a new
+folder called layout to store our layout elements. Click create. And now let's
+click continue. Our banner, we're going to give us an option to either mark it
+as display meaning make it visible or make it invisible. So let's add a
+boolean. And we're going to say is visible. And by default when we go to advanced
+settings, we're going to say false. The banner is not visible. Back to basic
+settings. Now let's add another field. our banner is going to have our link.
+So, let's go ahead scroll down and now instead of recreating that link from scratch, we could go to components,
+click use existing component, let's select that component, and it's going to
+be our link component that we just created. And we're going to say link. You could
+call it whatever you want, but link makes sense. And it's not going to be a repeatable component because we only want it to happen once. So, we're going
+to say single component. And let's add another field. And finally, let's select
+text. We're going to use long text. And that's going to be our description.
+If we take a look at our banner, we have our heading, which is going to be our
+label. And then we have our description, which is going to be the secondary text.
+Now, I'm going to click finish. And if you could see here, here we have our
+banner component with is visible field, our link component to represent our link
+data and our description. Go ahead and click save. Now what we want to do, we
+want to add our banner to our global page. So if we click on our global page,
+we could add another field. And we're going to say we want to add a component.
+We're going to say use existing component. Select component. We're going to select our banner and we're going to
+call it our banner. This is the value that we're going to reference to reference this component. Again, it's
+not going to be repeatable. It's going to be single. Let's just click finish here. And so now, notice our global page
+has our title, description, and now we have our banner element. For instance, if we save and navigate back to our
+content manager and we take a look at the global page, we're able to now add
+our banner. We're going to say visible true. We're going to add our link and
+we're going to say httpsy.io
+io and we're going to say learn more
+about strappy and this is going to be an external link because it's going to be
+linking to an external link and is button link is false and we don't need
+to select styling and for our description we're going to say build API
+fast that you're nontechnical user
+manage and I'm going to click save and publish. And now we have our global page
+with our banner. So now let's go ahead and create
+a header component to represent our top navigation. So back to our content type
+builder, we're going to create a new component and we're going to call it our header. Let's select a category, call it
+layout. Click continue. Our header is going to have our logo link. So let's
+navigate to components. Use existing component. Select component. Click on
+logo link. And I'm going to call this logo as it's going to be single component. Now let's add another field.
+Now we want to have our nav items. So let's go ahead and do that now. So on
+strappy we again going to select our components. We're going to click use existing component. Let's select the
+component and we're going to hit and select our links. This is going to be repeatable because you have many
+navigation items to represent and we're going to call it nav items. Now let's
+add our final field. If we take a look, we have one CTA and that's going to be a
+link. So let's go ahead create another component. Use existing component.
+Select component. We're going to set link and we're going to call this CTA
+and it's going to be single component. Let's go ahead and click finish. And now you could see that our header is taking
+shape. We have our logo, we have our nav items, and then we have our CTA. So
+let's go ahead and click save. Now let's add our header component to our global
+page. Going to global. We already have our title, description, and banner. So
+now let's add another field to the single type. We're going to click component. Use existing component.
+Select component. Let's select our header. It's going to be single because
+we have one header. And we're going to call it header just to stay consistent with our name. Let's click finish. Now
+our global page has our banner, our header, and finally we need to add our
+footer. So let's save it. First, let's navigate to create new component, and
+we're going to call it footer. It's going to be part of our layout. Click continue. Our footer is going to have
+our logo, nav items, basic text, and
+social media items. So let's go ahead and add that now. So, I'm going to do
+exactly what we did before. Select the component. Use existing component. Let's
+select our component and we're going to add our logo link for our logo. We're going to call this logo single
+component. Let's add another field. It's going to be a component. This is going
+to be to represent our nav items here. So, use existing component. Select
+component. Let's add our links. It's going to be repeatable and we're going to call this nav items. And finally,
+let's add another field. We have a couple more to do. We again going to
+select components. And this is going to represent our social links here. So,
+we're going to use our existing component that we created earlier. Select component. We're going to select
+our logo link, which is links with images. It's going to be repeatable because you have many items. And we're
+going to call it social links. And because we have many like you
+know Twitter, YouTube, whatever, we're going to make it a repeatable component. And finally, let's add the last field.
+This is going to be responsible for this copy text here that we see at the bottom left. And for that, we're just going to
+select text. We'll make it long text. And we're going to call it text. Let's
+go ahead and click finish. and save. Now that we created our footer that takes
+our logo, our nav items, our social links, and our text, let's add our
+footer to our global component. So, click on global, scroll to the bottom,
+add another field to the single type. We're going to select components, use
+existing component, select component, and it's going to be our footer. And I'm
+going to call it footer. And it's going to be single component. And let's click
+finish and save. Nice. Our global page is done. We have our title description,
+our banner, we have our header, and we have our footer. Perfect. So now,
+let's navigate to our content manager. Back in global, you're now going to see
+that we have all of the items available to us. We are able to add a title,
+description. We already added our banner. Now, we could add our header.
+So, I'm going to start by adding a logo. Label could be the name of our website.
+I'm going to say my website href is going to be home. is going to not be
+external because this is local to our website. And let's go ahead and add an
+image. We're going to add it to our icons folder. I found online different
+uh logos that I want to use and I downloaded the SVG files and these are the files that I'm going to use inside
+my Strappy application. So here I'm going to add a new asset. Browse my
+files desktop. I'm going to add my logo and I'm just going to rename this to
+logo to keep it simple and click open. Upload one asset and finish. So here I
+added my logo. Let's add deaf items. Just to keep it simple, I'm just going to add one item that's going to
+represent a link to take us back home. And add another entry which is going to
+represent going about. And finally,
+let's add another entry. This is going to be for our blog page.
+And I'm going to say blog because now that these are going to be button links
+and going to have basic styling, I don't have to select anything here. But it's up to you how you want to represent some
+of those items in your application. You could either simplify this or add more
+complex things. Uh, but for now I'm just going to stay with home about. Let me
+fix the consistent styling or typing. So, it's capital H, capital A for about,
+and our blog. And now, let's create a CTA. And our CTA is just going to be
+linking back to strappy.io. And I'm going to say learn
+more about I'm just going to keep it short. learn more. It is going to be a
+button link. So, we're going to call it true. Our styling, we're going to make it primary. And is it external? Yes,
+because it's taking us to this external website. So, I'm going to say true. Nice. Now that we have our nav items and
+our call to action, let's go ahead add our data for footer. I'm going to use that same logo logo as we had before. My
+label is still going to be my website. Let's href is going to be the root of
+our website. So take us back home. It's going to be external false. Let's add
+our logo image that we uploaded and finish. And now let's add some nav
+items. Again, we're going to have home. Add another entry. We're going to have
+about and then let's add another entry which is going to be for blog. and we're
+going to call it blog. And finally, let's add some social links. We're going
+to have one for Instagram, and it's going to be https.
+Instagram.com. Is it external? True. And let's add our
+image. I'm going to upload our icons. Add more assets. Browse files. So, here
+I have my Instagram. Click open. upload asset and finish. Now I'm going
+to add another entry. This is going to be Facebook.
+And this is going to go to https Facebook.com
+and external true. Let's add our icon for Facebook. So I'm going to add more
+assets. Browse files. And again, I just found these online. So you could find
+whatever SVG logos that you like. I'm going to click on Facebook. Click open.
+Upload to library. Finish. And finally, we're going to add our label for
+Twitter. httpsx.com.
+Or we could still say Twitter cuz X sounds silly. So twitter.com.
+True. And let's add our Twitter icon. Add more assets. Browse files. Twitter.
+And open. Upload. Finish. And finally, we're going to add our copy text. So on
+our website, it just says 2025. All rights reserved. Uh this 2025,
+we're going to add that inside our code to be programmatically to change the date. So here for the message, I'm just
+going to put all rights reserved. All rights
+reserve and let's go ahead and publish. So here
+you are. We created our global data structure to represent our data for our
+website to include the banner, our top navigation, and our footer. This seems a little bit
+new for you. That's okay. We'll have plenty of practice adding content to Strappy and getting the data. So finally
+before we finish this video I want to show you that we're able to get this
+data now in our API. So in my project if I navigate to Postman and we make a new
+HTTP request we're going to make a get request to HTTP
+at localhost 1337
+and our endpoint is going to be API global. And if you're wondering how do I know this? If back in our strappy
+application, if we navigate to settings, take out users permission roles, we want
+to make this publicly accessible. Take out look at global. Here we're selecting
+fine. And notice this is the endpoint that we hit to get our data. Now there's
+one caveat. Notice when I click enter, what will happen? So, let me just close
+this window. Click send. And notice that we get our data, but we only get our
+title and our description. Wait a second. What is happening here? Why are we not getting our image, our links, our
+call to action, our banner data, or our footer? Well, in Strappy, to keep the
+API performant, you do need to specify the things that you want to populate. We're actually going to talk about that
+in greater detail in the next video to make sure that we could populate our data. But in this video, I'm just going
+to show you that we could pass a generic flag that will get our data at first level by after global doing question
+mark populate equals and star. Now when I hit send, notice that we now get our
+banner data, our header and footer. our header and footer still missing our
+data. And I will show you how to populate this in the next section
+because this is something that we should probably spend a little bit more time than we have in this video cuz this
+video already went much longer than needed. But we'll definitely cover that
+topic in the next video because it's very important. And again, the reason why we don't get all the data right away
+as best practice, we want to keep our endpoints and calls to our APIs performant as possible. So, we want to
+only request the data that we want. So, with that being said, let's quickly
+summarize. We took a look at our homepage mockup and we took a look how we could represent our banner data with
+our top navigation, including our footer. Inside of our Strappy application, we use the content
+type builder to create components to represent some of those data structures.
+For things that repeat, like links and logo links, we created designated
+components that we could reuse. And that's exactly what we did inside our banner. When we created our banner
+layout, our footer layout, and our header. Once we created different
+components that we wanted to use, we went ahead and added them to our global page. Once we had all the data
+structures complete, we were able to go to content type manager and add our actual data to our website that we want
+our user to see. And finally, we expose that endpoint from our users permission
+plugin on the roles. Because this is going to be a public website and the user doesn't need to be authenticated to
+see the top navigation and the footer, we decided to go with public. And under our global page, we included the fine
+permission that allows to make a get request to this import. And in the next section, we're going to take a look how
+we could update this query to populate all of our data that we want to be
+visible for our banner. With that being said, thanks for watching. Take a little
+break and I'll see you in the next session. Hello you wonderful people. Back to part four of the Strappy Crash
+Explaining how populate and filtering work in Strapi 5
+course. Today we're going to take a look how populate and filtering works in Strappy. In our previous tutorial, we
+created a new content to represent our data in our
+global page. We have our banner, our header, and our footer. Then we went ahead
+inside our content manager, created and added data to that collection type.
+Notice how we have our data for our global page, including the title, description, our data for our banner,
+our data for our header, which has the image, has our nav items, has our call
+to action, and footer. In the previous video, when we populated our entry
+without passing any flags, when we take a look at the response, we only get the
+ID, document ID, title, description, created at, updated at, and published
+at. Every request that you make in Strat in Strappy will always have the ID and document ID. It would always have the
+following fields created, updated, and published at. But title and description,
+these are the fields that we have here in our content. Title and description.
+But how come the banner and any of its children don't show up? In order to help
+us to better understand that, let's jump back into our content type builder and
+look at the fields. I'm just going to randomly click add new fields. And we're going to see that Strappy has couple of
+different fields here. text, boolean,
+rich text blocks, JSON, number, email, date, password,
+and rich text markdown, including the enumeration are considered top level
+fields. So, what does that mean? For test purposes, we're just going to create a dummy collection type. I'm
+going to create a new collection, and I'm going to call it test for now. and I'm going to click continue.
+So, I'm going to add a text element. I'm going to call it text. Add another
+field. We're going to add a boolean. Boolean.
+Add another field. We're going to add our rich text blocks. I'm going to call
+it rich text. Let's add another field. We're going to add JSON. This is going to be
+JSON. Add another field. We're going to add number. We're going to just choose
+an integer. Going to say number. Add another field. We're going to say email.
+And we're going to call it email. Add another field. Let's add our date. We're going to say date. Add another type.
+Date is just going to be date. Let's now add another field.
+We're going to add our password. We're going to say password. Add another field. We're going to add
+inration. We're going to say enum. We're going to say type
+one, type two. So, just have a couple options. Add another field. We have our
+UI ID. We're going to call it slug. And it's going to based off our text field.
+Let's add another field which is finally going to be our rich text markdown. I'm
+going to call this markdown and finish. So if we take a look here,
+all the fields that we added here, text, boolean, rich text, JSON, number, email,
+date, password, enum, slide down, markdown, these are all top level fields, and they're going to show up in
+the table, which is going to be in our
+test collection. So let's save and go to our content manager, and we're
+going to go to our test collection that we're going to delete in just a moment. And I'm going to create a new entry
+text. I'm going to say text boolean is true. Rich text.
+Let's go to JSON. It's going to be JSON. Then we have our number. We're going to
+say 10. Email paul.com.
+Date. Let's add a date. Password. we're going to say my password
+and for enum we're going to say type one slug we're going to say slug and for
+markdown we're going to say mark down. Now, we're going to go ahead and save
+and publish. And we're going to go ahead to settings in our users permission roles. Under public, we're going to say,
+hey, let's do find for test one. Don't forget to save. And we'll be able to
+make a get request to this endpoint. And what we should be able to see, we should
+see all of our top level fields. We won't need to tell Strappy to populate
+them because they are going to be by default because these are non relational
+data. And when we take a look in the database, you'll notice that all of these items are going to live in the
+database where this test collection lives. So here instead of global we're
+going to go to API test click send and notice we're able to get our ID document
+ID like we mentioned before but from our fields we're able to get our text our
+boolean our rich text our JSON data our number our email our date our enum our
+slug our markdown and we're not getting the password but that's because I believe password is a
+private field that we're not able to return because if you set a password, you don't
+want somebody to be able to access it inside a request. So that makes perfect
+sense. But all the other fields are here. Now I'm going to open up my database
+SQLite open database and we're going to choose our strappy database.
+And inside our database, we're going to find our tests table, which is our test
+collection. And we're going to go ahead and query the items. What you will notice here that all those
+top level fields are represented in this table. Text, boolean, rich text, JSON
+number, email, date. We have password which is hashed so no one can see the
+actual password. We have our enums log and markdown and all the other standard
+fields that come with strappy. So now if we go back to our
+strappy application. So now in test, let's go ahead and add
+another field. For this example, we're going to take a look at our components and we're going to use an existing
+component and we're going to select a component. And for our component, we're going to select our link. I'm going to
+call it link and click single component and finished and click save. Now let's
+navigate to our content manager. Go to test,
+open our entry, and if we scroll down, we're going to see that we have a link component. We're
+just going to add some basic stuff here
+and click save and publish. So now navigating back to our
+VS Code instance and we're going to rerun the query. And if we scroll down, we still don't
+see the link here. But let's take a look in our database table. Let's go back to
+tests. Rerun it. Open this window a little bit up. And we're going to
+scroll. We have our rich text. We have JSON number, email, date, password,
+enum, slug, markdown, created at, updated at, and it's like, wait a
+second, how come we don't see the link in this table? Because the link
+here, if we look at our different collection types, if we take a look at our
+different types that we have in strappy component that we just added via link
+component, dynamic zone, media, and relations are database relations. So
+they're not going to be inside the table that we were looking at. Instead,
+let's refresh our SQL SQL explorer. Notice now we have a new
+table called test cmps. So now if we open it, we see that
+here we have entity ID, integer ID, component type, fields, order and float.
+Here this is our linking table that shows our relationship. For
+instance, we added a relationship to our shared link
+that is being tied back in to our
+test table. So notice we have ID 1 and four. If you look at the linking table,
+it is pointing the relationship to that entity one and four. So all the
+relationship fields that we don't get in the query is because they live in a
+different table and we will need to tell Strappy that we want to specify the item
+that we want to get. And we talked before that we could say populate
+just like this equals star which is a wild card will populate all the items one level deep. If you click send and
+take a look at our response, notice that you now see our link. So this automatically will reference our linking
+table and populate any related items. Even though you could use populate star,
+it's not recommended. Instead, you want to make sure that you are literally just asking for the items that you want. So
+instead of using this for learning purposes,
+we're going to Google Strappy query builder, which is an easier way for us to build
+our queries that then we could get in this LH in this LHS syntax. So here I'm
+going to say we want to go to tests because that was our endpoint. And I'm just going to delete everything. And
+here I could write my query. You could learn more about this in Strappy documentation and as we continue to
+build this, we'll look at this in greater detail. But for now, if I take a
+look at my Strappy instance and I go back to our test dummy data, notice that
+we have our link. So, if I want to populate all the items in the link, I
+could just say populate and
+tell Strappy what items I want to populate. I want to populate link and I
+could say true. I'm going to copy this back in VS Code.
+Notice I removed the wild card. If I click send, our link is gone. So now I'm
+going to paste our LHS syntax here that says we want to populate link and we
+want to show it. When I click send and we scroll down, notice that we have our
+link element. And what you could do, you could actually just say I don't want all the items. I just want to populate the
+href and the label. So back to our
+query builder, I could say link, I just want to populate
+fields, which is an array. And we said we want to populate href
+and label. So now I'm going to go ahead and copy this.
+And back here, I'm going to paste this in. And when I click send,
+we scroll down to the link. Nora link, we're only getting back our href and
+label. So why is this a powerful feature? Because it allows you to be in
+control of exactly the items you want to return from your API. So now that we get
+a very simple introduction to how this works, and we'll dive more into this,
+and don't worry, we won't have to pass this string all the time. I'll show you how we could use this
+object notation and how we could simplify the query by creating a custom
+middleware that will populate our items automatically. So this way you don't have to write this query from the front
+end because whenever you write any query from the front end that means that anybody who can access the request from
+the front end could change the query and ask to data that they want. Instead, we're just going to prepopulate our data
+based on this criteria on our server. And if you're not sure what this means, we're going to cover that in the next
+video. But for this video, let's take a look at our content type builder. I'm
+going to delete this table because we don't need it. And instead,
+we're going to jump back into our global profile. And we'll slowly go through this to build the query to show our
+data. And we're going to do it piece by piece. So I'm going to update this back
+to global and make a simple request. And we see our data without any of our
+additional populate items in the query builder. And I'm just going to replace
+this with global. And I'm going to remove everything in
+between our populates and just leave an empty object. So we're going to work on this together. So taking a look at our
+application here, we know that our title and description are top level fields. So
+they're going to get populated automatically. But the banner is a component. So we have to tell Strappy
+that we want to populate the banner. So I'm going to go inside my interactive
+builder. I'm going to say banner true. And if we copy this and try it out,
+notice that we are now getting our banner. But if we take a look at our banner, our
+banner has our link component and our relationship. So because it's a
+relation, we need to tell Strappy to populate it as well. So instead of saying banner true, I will also say
+populate and we're going to say link
+equals true. So now we're going to go ahead and copy our query,
+go back, paste it in, and click send. So notice now we're getting our banner and
+we're getting our link. There's a couple of different ways that we could represent this data. There is a shortand
+for instance instead of saying populate banner populate link true we could say
+this populate is actually instead of an object going to be an array and inside
+that array we could say populate banner
+dot link and this is going to populate banner and all of its children in the
+link. So now if we go and replace the previous query,
+paste it in, click send. Notice that we're still getting the data. Now let's
+take a look. We got our banner data. So now let's get our header data. And for
+header, if we say we want to populate header, logo, and not not forget the
+image, we could do it shorthand. So what I could say here populate
+header dot logo dot image
+logo dot image. And now if I don't forget your comma
+there copy and we try this again and paste it in.
+So Norris, not only do we have our banner, but we have our header with our
+logo and our logo has our image. One thing
+that you notice that our image has a lot of this data and maybe this is not all the data that we need. So instead of
+using the shorthand and if you're getting a little bit confused, that is
+okay. We'll cover this in more detail. If we want to drill down and be very
+specific with what fields that we want to do, then we would have to use our object
+notation. And I want to talk about this now because this is one of the most confusing places in Strappy when you
+start populating deeply nested data. A lot of people like, oh, this is a lot of work. It's a lot of work when you're
+first learning this, but because this gives you the power to control exactly the data that you want, you're able to
+keep your responses lean and performant. So now, let's rewrite what we previously
+had using the object notation. We're going to say that we want to populate the banner. And inside the banner, we're
+going to populate our link.
+And we're going to say true. And then after our banner,
+we want to populate our header with the logo and the image. So we're going to say header and we're going to say
+populate. And we're going to say
+logo. And inside logo, we want to populate
+our image. But instead of everything
+we just going to say for the fields, we want to return only
+alternative text and URL.
+So before we add the rest of the items, let's take a look and see what we have.
+So, I'm going to copy the query string and I'm going to go and paste it in and
+click send. And make sure that you spell things correctly. It's pulate.
+So, let's try that again. Copy the updated query. Paste it in. And we run
+our query. And now, notice we have our banner data. We have our header data which has our
+logo. And for our image, instead of getting all that extra data, we're just getting the alternative text and the
+URL. So now taking a look at our content type builder inside our header, we also
+have our nav items. So now still in our header, populate after the logo, we're
+going to say we want to populate nav items
+and we're going to say true. We also have after
+nav items our call to action. So I'm going to say CTA
+true. And now let's test it before adding additional changes
+back in Postman. Go ahead and replace our previous query. Paste and send. And
+notice now we have our banner. We have our header which has our logo,
+our nav items, and our call to action. And finally, if we scroll down, we have
+our footer. So, let's go ahead and do that. So, after the header, we're going to say we
+want to populate the footer. And inside the footer, we're going to
+populate our logo because we have it there. And
+the logo population is going to be very similar to this because that's exactly what we want. So I'm just going to copy
+and paste it after our logo in our footer. Right. So in our footer, we have
+our logo. We then have our nav items. So let's populate our nav
+items. We're going to say true. And finally,
+we want to populate our social links. And saying social links true will only
+return the top level fields label href is external. But because we have a relationship we would have to say and
+specify that we want to get that image. So instead what we're going to say
+social links populate
+and we want to populate the image. So we're just going to copy this cuz this is very similar. Paste it in. So, we're
+saying for social links, populate the image. And now, when we copy to clipboard, I'm going to go ahead and
+test it out. So, let's go ahead paste it in. Click send. And notice now we
+getting all of our data. We have our banner. We have our header, which has our logo,
+our nav items, and our call to action. We also have our footer, which has our logo, our nav items, and our social
+links. So now that we know that we're able to get all of our data from our API, you probably are saying, "Hey Paul,
+this is pretty ridiculous. Like I don't want to write this huge query string."
+And when people starting out very common, they will use a library called
+QS. Take the object notation that we see here and using the QS library that you
+see here, convert it to the query string that you see here written in LHS syntax.
+And in their front end, they would make a request to their endpoint passing in this query and get the data. But in the
+next video, I'm going to show you more of an advanced feature. So, we don't have to mess with that. We're actually
+going to create a custom middleware where we're going to pass this query for our populate logic and it will
+automatically populate our strappy data without us having to do all this work.
+And the good news, you only have to do this once. So to recap in Strappy any
+top level fields like title, description like we saw before are going to be populated automatically. But anything
+that's a relationship like a media relation component or dynamic zone
+because those are relations. You would need to use the query string notation to
+tell Strappy what items you want to populate. And if you're feeling lost, don't worry. You could always check the
+docs and I'm going to walk you every step of the way. But let me tell you, at the beginning, this is hard to learn,
+but once you learn it, it's going to make it much easier working with Strappy Endpoint. And when you have lots of
+data, you will be able to pick and choose only the items that you want to return without having to return any
+unnecessary data that you don't need. And while you wait for the next video in the strappy website in their blog, you
+could search for a route-based middleware how to handle populate query. And here I just updated this tutorial
+that Kellen wrote a while back with a simple example that kind of walks us through exactly what we did talked about
+how when you initially populate things in Strappy, you just get top level
+fields. And if you want to get additional data for instance I show here
+title description and slug these are all top level fields but cover author
+because it's a relation category and blocks because it's a component in a dynamic zone those are relations you
+actually have to tell strappy that you want to populate them by creating the
+query that we talked about. And here as you can see in the blog post you could see the library that I referenced where
+you pass in that object notation exactly similar to what we have here in our query builder
+and you will in return get the query string generated by the QSNBM package
+that you could pass to your endpoint to generate all of your data. But what's
+even cooler, I'm going to show you a more advanced feature that we cover here, which you should learn about right from the start, where instead of doing
+that, you create a middleware and you pass your query inside your middleware,
+which will allow your Strappy app to automatically populate that data without
+having to do all this additional work every time from the front end. So, I know it's a lot, but I figured let's rip
+the band-aid off and learn this advanced feature because it's going to make things easier. And if someone complains,
+because they often do, and says, "Why can't you just return all the data?" It's because that's stupid. If you have
+a thousand entries, again I'm being hyperbolic here, and a thousand items
+and you try to return all of them with all those deep nested relations, it will
+slow down your application. And it's not strappy. It's just when you're building
+APIs and you're requesting data being transferred to you, you have to take
+that into consideration because the more queries you make on different associated
+tables and relations in SQL or Postgress or whatever database you're using
+that is going to have a performance hit. So you want to make sure that you do things as optimally as possible and this
+is why we have populate and filtering and strappy to allow you to be very
+specific around what data you want to get from what tables. So with that being said, you could always reference the
+Strappy documentation, but I'll see you in the next video where we're going to build our custom middleware. So, if you
+got this far, do not delete this query because we're going to use it in our
+middleware to prepopulate our data. So, I'll see you in the next one. So, we are
+Customizing Strapi with custom populate middleware
+continuing building our back end for this website that we're going to have
+and eventually we'll build out this website in Astro and then in another
+tutorial we'll do it with Nex.js. But for now, we want to finish up our Strappy backend API that will allow us
+to have data that our front end could consume. And currently, right now, we
+build out a global page that represents our banner content, our top navigation,
+including our logo, our links, our call to action, and our footer that we see
+here below. And if you finished the previous lesson, you know that we talked
+about how to populate and filter in Strappy and why this is important. This
+allows you to keep your API lean by only asking for the data that you need, which
+makes your application more performant. But as you found out, if you're a beginner, this topic could be a little
+tricky. But with practice, you're going to get that. So in our previous application, we took a look how to
+populate our data that would power our global page which includes our banner,
+our top navigation and footer. And this is how we represented our data
+in strappy. We have our global page which has our data for the banner, our
+header with our nav links, our call to action, and our footer. And we expose
+that endpoint. If we take a look under settings in users permission roles under
+public, we expose our global endpoint by selecting the find method. And we were
+able to make a request to our global endpoint to get our data. And in the
+previous lesson, we learned that if you don't pass our populate and query fields
+and you just make a request to API globals, it should be API global, no
+extra s. We only get our top level fields. And we learned through populate and filtering how we could create a
+query to populate the rest of the items. So when I click send, no, notice that we
+get all of our data for our banner header, which includes our navigation, our call to action, and all of our
+footer data. But writing this query from the front end could be cumbersome. And
+also, one of the issues with this is that anybody who has access to your front end could literally take this
+query and ask for any additional data and get it back. But we want our API only return the data that we want the
+user to see and not return anything extra because we don't want to leak any
+data unnecessarily. And this is where Shappy's route middleware comes in. And
+so what we're going to do instead of using this query string and making the query from the front end, we're going to
+use this object notation that we're going to pass directly in our middleware to prepopulate our data on our back end.
+So no matter what our front end is asking for, it will only return the data that Strappy needs. You can find this
+diagram in Strappy's documentation under backend customization. When we make a
+request from user, there's a global middleware that will always intercept all our requests. This is not what we're
+going to work on. Instead, we're going to focus on the route middleware that you see here. So, what happens when our
+router gets hit before it calls the controller or the service, it's going to
+encounter this middleware. And inside this middleware, what we could do is we could take the body that is being sent
+to make a request to a controller or service and we're going to inject our prepopulate object and no matter what
+else some user asks for extra in the request around middleware, it's going to
+ignore all that because we're going to set our populate logic inside the middleware. And this allows us to keep
+our API a secure because it's not going to expose any unnecessary data no matter
+what the user asks here and b it's going to prepopulate our data and we will
+never have to do it from the front end. So let's go ahead and do that. So to create a route middleware in strappy we
+have a generate command. So we could run yarn strappy generate
+and click enter. The CLI tool will ask us some questions. We want to go ahead and generate a middleware. So go select
+it and click enter. We're going to call this global populate because we're going
+to use this middleware to prepopulate our global page data. When we hit enter,
+it's going to ask us if we want to put it in the root of the project. We're going to choose add middleware to
+existing API because we're working on our global page and that's the only data that we currently have in our strappy
+application. That's what we're going to see here. So go ahead and select global. And here you're going to see that inside
+our API folder global middleares folder, it created a new file called
+global populate.ts. So now we're going to navigate into that file and uh take a look at that
+middleware. So in strappy we're going to navigate to
+our source folder. Take a look inside API folder global and you're going to
+see your middleware. Now let's go ahead and click on it. Let me zoom out a little bit. And here we could see our
+middleware. So anytime we make a request to our endpoint, we want to trigger this
+middleware. So what we want to do is we want to configure a route to allow us to
+one access this middleware. And in order to do that, we need to first get the ID
+of this middleware. In strappy, there's a helpful command. If you do yarn
+strappy and we type middleware colon list, we should get all the
+middleares. And here you could see we have our API global populate middleware
+that we just created. Go ahead copy this UI ID. And now back in our application,
+let's navigate to our route global. And
+right after the API global inside the create core route, we're going to create an object and we're going to do config.
+And that's going to be an object. And inside this object, we're able to define on what endpoints we want our middleware
+to fire. In strappy for our global page, we have the find endpoint. We also have
+delete and update. So we want to make sure that we fire that middleware whenever someone hits the route on this
+find method. So here we're going to say find it's an object and inside here
+we're going to say middlewares and for middleares is going to take an array of all the middleares that we want
+and we only want to use the API global middleware that we just created. So now
+that we set this up in our route folder noise again um in the routes we
+associated the middleware that we want to use on our find method inside our routes. So when the user makes a request
+to our route is going to check hey use the populate route middleware which will
+trigger that middleware and then we could add a logic there passing it to
+our controller. So now that we have our routes set up, let's double check our
+middleware. And here inside our return statement, let's console.log
+ctx.query. Now let's navigate back to our Postman.
+But first, let's restart our application by running yarn develop. Once everything
+starts, let's go ahead and send our request. Nothing should change here, but in our
+console, we should see our console log. And notice that our console log
+returning our populate query that we're passing from the front end. By the way,
+there's a trick. If you wanted to see all of the console log, instead of doing console log, you could do console dur.
+Then we could do an object and say depth is null. So let's try that again. So
+when I click send and whenever we make the change sometimes your server will
+stop. So just restart it now that our server is running again. Let's retry our request. Send again. Notice everything
+still works the same. And in our console log, we're seeing that we're actually
+passing that populate logic from the front end. And if you take a look at
+this, this is exactly what we wrote here when we originally
+testing the query. And that got translated into our query string that we
+are using to make our get request that you see here. So now what I'm going to do, I'm going to delete the populate
+query and click send. Notice that we don't get any of that extra data that we want. And if we take a look at our
+console lock here, we're not passing any populate or filtering. So now we're going to actually do this inside our
+middleware. So I hope you still have this code that we previously created.
+And we're going to go ahead and grab everything right after this populate. So now let's go back to our global populate
+and here right after the import we're going to say const populate
+equals and we're going to paste in that object. So now that we have our populate
+query, we could set it in our middleware by doing ctx.query
+dot populate equals populate
+just like that. So no matter what our user tries to pass, we're always going
+to override it with our query that we defined above. So the only thing that's
+going to get passed to our controller is what we defined within this middleware. So no matter what our user tries to type
+on the front end, they're only get the data that we specified, making this endpoint more secure. So now notice when
+I go back to our request, we are not passing our params from the front end
+like we did before. But when I click send, notice we are still getting all of
+our data, which is pretty amazing. So that means we don't have to make the
+front end do more work and we're just able to keep everything clean and we're just able to make the request to this
+endpoint, get all the data that we need. Why? Because we predefined this query
+params inside the middleware. So quick recap in Strappy we have middlewares
+that you're able to create. They get fired when a user makes a request and it
+hits a route before it goes to our controller is going to go through this middleware. And inside this middleware,
+we're deciding what we want to prepopulate. And then it sets the populate filters that we created and
+sends them to our controller which returns our data. And that's why we're able to see full response in our
+endpoint. Moving forward, this is going to be our approach because not only does it simplify how we could consume our API
+from the front end, but it makes our application more secure because instead of deciding what to filter and what data
+to get from the front end, we are making sure that we're setting that
+pre-populate logic inside our middleware. You're probably wondering, but what if we want to allow like search
+or filter or pagionation? We could add additional logic here, which will still use our predefined populate and
+filtering, but then we could add additional filter through allowed query
+params or search params that we get in the CTX to allow us to still accomplish what we want, but still not expose our
+endpoint unnecessarily. So, now that we know our endpoint is able to get our
+banner data, our header data, and our footer, in the next lesson, we're going
+to start building out this landing page. We'll set up the landing page, and we're
+also going to create this first hero section component. With that being said, go ahead, take a quick break, get a
+quick drink, some tea or coffee, and when you're ready, we could pick up in the next lesson.
+Building out our landing page via dynamic zones and components
+Hello you wonderful people and welcome back to part six of the Strappy Crash
+Court tutorial 2025 edition. In the previous video we took a look how
+to represent our data in Strappy for our banner, our header
+and our footer here. But today, we're going to take a look at building out our
+landing page, which is going to be this main page that's going to have a hero section, our
+section header, have these cards in a row like so, have text with image, and
+so on. But for this video, to get started, we're literally going to take a look at this hero section and how to
+think about the content and the data. The way we want to think about this in
+Strappy, we're going to have a single collection type, which is going to be a landing page with basic title and
+description, but then we're going to have a section called blocks that's going to represent all the different
+blocks. And one of the blocks is going to be this hero section. So, what we're
+going to do, we're going to make a hero section component that's going to have the following elements.
+It's going to have our heading, our text, our links one and two for which
+we'll be able to use a previous component. And then we're going to have an image.
+So let's jump back into our Strappy application and we're going to take a look at our content type builder.
+And currently from the previous lessons, we built our global page to represent our banner, our header, and footer data.
+We created some basic components here. So now we're going to go ahead and create a new single type just to
+practice. In the future, I'll show you how to make dynamic pages, but today let's start by creating a new single
+type and we're going to call it landing page. Very original. Click continue. And
+we're going to start with text field. We're going to use short text and we're going to call this title. Let's add
+another field again. Select the text. We're going to make it long text and
+we're going to say this is a description. Now let's click finish
+and we're going to save. Now that we have this, we could go ahead
+to our content manager. And notice we have our landing page.
+Let's click our landing page. And we could give it a title. Landing page and description. This is going to
+be our main page that folks will land
+on. Hence landing page. We're going to click publish.
+And if we want to expose this page to our API, we're going to go into settings
+under users permission. We're going to go into roles. We're going to click public. And similar like we exposed our
+global page, we're going to go ahead and expose our landing page. We're going to select find. And now if we make a get
+request to API/landing page, we're going to get the data. But
+first, make sure that you save. So now in Postman instead of making a
+call to our glo global page like we did in the past we're going to say landing
+page and click send. So notice we are getting our data from the landing page
+because we see here our title and we see our description. But now we want to make sure that we add
+a way to represent our different sections on our landing page.
+If we are looking at our website, we have couple of different sections. We have the hero section. We have
+our heading and so on. I did mention that we're going to start with the hero
+section. So, let's go ahead and create one. So, then we could introduce a new concept in Strappy called dynamic zone.
+And just to quickly recap, we're going to create a
+a new component that we're going to call hero section that's going to represent
+this heading, this text, our links, and this image.
+So, let's jump into Strappy and do that. So, here in Strappy, we're going to navigate to our content type builder,
+and we're going to click on create a new component. We're going to start by
+creating a new category called blocks. This is where all of our sections going
+to live. And we're going to call this our hero.
+And click continue. Taking a look at our design, we have
+our heading, our text, and our links, and our image. So, let's start by
+creating our fields to represent this data. For heading, we're going to select text.
+Keep it short text. And we're going to say this is a heading. Let's add another field.
+For our text, we're going to pick markdown. I really like markdown. I
+enjoy writing it and it makes it easier to add content. And we're going to call this text.
+Now, let's add another field. So, take a look at our layout. We
+created our heading, our text. So, now let's create these links.
+So, for our links, we're going to reuse our link component. So, we're going to click component, click use existing
+component, and let's select component. We're going to select our link component. And we're going to call this
+links because you're going to have multiple, and it's going to be repeatable component. And let's finally add another field. And this is going to
+be our media. We're going to call it image. It's going to be single media. And if
+you go to advance, you could specify that you only want images. Back to basic
+settings. Click finish. Now that we have our component consists of our heading, our
+text, our links, and our image. And this data structure represents this component
+here. So now let's save it. In strappy
+we have this concept of dynamic zone. What dynamic zones do allow your user to
+pick and choose out of a group of components you created to structure their content. For instance, your
+dynamic zone could have the hero section, the heading section, the card
+section, and so on. And I'll show you an example of the completed project what that looks like. But let's just quickly
+jump in and create one. So now let's navigate back to our landing page and we
+going to add another field. And this is going to be our dynamic
+zone. Let's click on it and we're going to call it blocks.
+Now let's add our first component to the zone. Click on use existing component.
+Go to our blocks and we're going to add our hero section that we have here.
+Then go ahead and click finish and save.
+Notice now we have our landing page with our dynamic blocks
+with this hero. So let's take a look at what it looks like in our content manager. When we go to the content
+manager and we take a look here and we click on
+the landing page, notice that we have our title and description, but now we have this add component block and we're
+able to add our data. So I'm going to go ahead and recreate
+the data that I have on my previous landing page. I want to say build and
+launch without problems. That's going to be our heading for our text. I'm going to put this
+Lauram Ipsum. If we scroll down Norris, now we have our links component. We're going to
+create two links. So, looking at this mockup and you could
+put whatever text you like. I'm going to say get started. for the label
+and this is going to go to just the httpsstrappy.io
+website external true is button link true and we're going to say it's primary
+because in our UI this is a primary green color. So we
+want to tell our front end eventually when we build it that this should be a primary button.
+Now we're going to create another one. And for this one,
+we're going to say how it works.
+And for this, I'm going to redirect to our strappy documentation. This is an
+external link. So we're going to say true is button link true. And we're going to say styling secondary. And
+again, this is the information we're going to use to tell our front end how we want to style these buttons.
+And finally, we're going to add our image.
+I'm going to go into our assets folder. I'm going to add add new asset. You
+could add whatever image you want, but I have this image that I used in my
+mockup, which is tables. Click open,
+upload, finish. And now that I have my data, I'm going to click publish.
+And here we have our basic landing page with one hero block. In the future
+lectures, we're going to build out the rest of the blocks, but I just want to show the pattern which is going to
+basically repeat for each one of these blocks as we continue to build them.
+We basically going to create the component to represent the block and add it to this landing page. Now that we
+have this, let's go back to our Postman instant. And when I click send,
+we know that we're only going to get our top level fields. Our dynamic zones,
+they are relationship fields. And so we need to add populate logic. We learned
+in previous section that we could do populate star, which is going to get all
+of the items at first level deep. So if I click on it, notice that we get our blocks, but we do not get our image. And
+you know that because if we take a look at our strappy instance
+and we look at our hero block, we know that we're only populating with populate
+star first level deep, which is going to show the heading, the text,
+but it's not going to show the links or the image because those are our relationships. And so we're going to
+continue with the pattern where we're going to create the query first to populate this data
+and then we're going to create a middleware for this route to populate it
+automatically like you did in the previous video. So let's go back to our
+trusty Strappy query builder and this is going to be for our landing
+page. And I'm just going to go ahead and remove all this previous stuff.
+And now we're going to say populate. And we want to populate our blocks. In
+order to populate blocks, there's a special convention that we have to follow. So the secret to populating
+dynamic zones, we need to use the on fragment. So, we know that our dynamic
+zone is called blocks because that's what we named it. So, we're going to say
+blocks. And in order to populate our blocks, we
+need to use the on flag. And then we specify the name of
+the block we want to populate. For instance, if you take out our strappy instant and our content type builder,
+the way you could get the name of the block that you want to populate is the
+name of the folder where it is and the name of the component. So here we're going to say blocks dot
+hero. And now we're able to populate
+all the items within our hero section. the same way we did in our previous
+examples. So let's take a look at our hero section component so we could talk through it.
+So heading and text, we know these are our top level fields. They're going to
+get populated automatic. So now we want to populate our link. So we're just
+going to say links because that's what we called it
+equals true. And finally, we want to populate our
+image. So, we're going to say image.
+And we're going to just specify our two fields. So, we're going to say fields.
+And it's going to be an array and we're going to say alternative
+text and the URL.
+So now that we have this populate query, let's go ahead and test it. So I'm going
+to go ahead and copy and back in our VS code in Postman,
+we're going to replace this generic query and pass in our long query string.
+Now when I click send, notice that we populate our title, our description, but
+we also populating our block which has our heading, our text, our links,
+our primary button, our secondary button, and then we also have our image
+which has the alternative text and the URL. We could also ask for more data, but I just want to keep this nice and
+simple. So now that we know our backend works and we're able to pass this query
+string to get our data, we could now follow that same pattern we did in the past where we generated a middleware to
+handle that. If we go into our strappy back end under API, we did a
+similar pattern for the global endpoint where we create our middleware
+where we predefined our query and then we set that query in our
+middleware to prepopulate our data. So, we're going to follow that same
+approach. Just so you could see better, I'm going to do it in the terminal here. I'm going
+to stop my server and clear the screen. And in Strappy again, we have this command called yarnstrappy generate that
+will allow us to generate our middleware. We're going to go to middleware, click enter, and our
+middleware is going to be landing page
+populate. Let's click enter. And we want this on our existing
+endpoint. So, let's click add middleware to an existing API. Click enter. And
+we're going to use our landing page. This went ahead and created our middleware. But we want to make sure
+that we get the ID for this middleware. In order to do that, you run yarnstrappy
+middlewares list. And it's going to print out a list
+of all of our middlewares. And boom, here we see our API landing page uh
+landing page populate middleware. Go ahead and copy. And in our strappy back end, we're going to navigate to our
+landing page. And the first thing we want to do is we want to identify the routes on which we want this middleware
+added. So we're going to click routes landing page.
+And here after the string we're going to add an object.
+That object takes config attribute which takes our method. We have find
+find one and so on. And on our find method we're going to add middlewares
+which takes an array and we're going to paste in the middleware that we just created. So now
+that we have our middleware, let's update our middleware to use our query
+that we just created. So let's navigate to our middleware
+landing page populate. And here we're going to create a variable called populate. And this is
+going to take our populate object notation
+that we know works because we just tested. So go ahead and copy everything
+after this populate and let's go ahead paste it in.
+So now we have our populate with our populate logic. And finally here on our
+ctx we're going to say ctx dot query
+populate equals populate. So what we are doing is we're
+overwriting our populate that could be passed from the front end and we're
+replacing it with our populate that we're defining in our middleware. And again like we mentioned in previous
+session this improves security and also will automatically populate your data
+without you having to write the crazy query string notation from your front end. So now if we navigate back to our
+Postman instance, I no longer have to pass this crazy query string. So let's
+go ahead and delete it. And now when we hit send,
+we get error econ refused. And the reason this happens
+is because we just modified our middleware here that you see here. So we
+just have to go ahead because notice our strappy instance is not running. Go ahead and restart it and let's try it
+again. So now back in our Postman
+second time is the charm. We click send and notice we're not passing any params
+from the front end, but we're still able to get all of our data that we're requesting because we predefined our
+populate logic in our middleware which happens in the back end of our application. And for a quick recap,
+we're now working on this landing page where people land on which has couple of elements. Has our hero section, our
+heading, our card sections here, our
+text with image. And what we started to do is breaking down all of these
+elements into its own blocks. And we started by creating the hero section
+block. So when we look in our strappy, we created a folder called blocks and inside there we created our hero
+component that we added to our landing page via dynamic zone. And before I go,
+let me show you what the complete section may look like. So you kind of get an idea. So in our backend
+application, if we take a look at our content manager, this is the finished project that we're
+all working on building. If we take a look at the landing page, notice now we have all these different blocks. We have
+our hero section, heading section, card grid, content with image, content with
+image, markdown, person card, FAQs. As you could see here, we have two
+questions and that is exactly what reflects here. We have our hero section, heading, our cards, our section with
+image, and here we have our frequently asked questions that are coming from our
+strappy instance. Here you see the data. So, we'll continue building out these
+components in the following sections to finish up this landing page. And the last thing I want to show you, I want to
+show you how we're going to utilize this data on the front end. Even though we're not building the front end in this
+tutorial, that's going to be our next tutorial after we finish our back end. I want to make sure that it's completed
+before moving on to the front end. But I'll just show you a quick example in code. And for this particular project,
+we using Astro. We're going to take a look at our components. And you're going to see that we have our blocks. And
+notice how for every strappy component like we have a hero astro component
+that will render and display our data
+from our hero component here in strappy. And the way we're going to handle this in our front-end application and the way
+we do it in Astro is going to be very similar to the way we're going to do it in next, but we are going to define all
+of our different components that our application can use in an object. And
+then we're going to map through our response and then we're going to match
+which component are we getting from the response based on the name. So, if we get block hero component, this will go
+ahead and render our block hero component. Don't worry if this doesn't make sense. I just want to kind of add
+this just to get you start thinking about it. And we're of course going to build all of this in future videos.
+But for now, I want to make sure that we go ahead and finish our full strappy
+application so you have a completed back end that you're able to consume with
+your front end. So, with that being said, go take another break and we'll be
+back here in the next video in few minutes and we're going to start building out our heading section here.
+And we'll also build out this card grid in one video. And that way, we'll just
+slowly keep moving through. After we finish our landing page, we're going to build dynamic pages. So, you could see
+how we have this landing page. And notice how we have this about section here. If we go to about page, it is
+reusing that same component. So basically everything we learned on our landing page is going to apply to our
+dynamic page. And after we've built this section, we'll have the last piece left,
+which is building our blog view and how do we represent our blog data in
+a single component. And after that, we'll pretty much be done. We're still a long way from home though,
+so take a little breather and I'll see you in the next section. Hello you wonderful people and welcome back to
+Continue building out our landing page sections
+part seven where we're going to continue building out our back end for our
+website based on this mockup here. In the previous sections, we completed the
+top navigation, the banner, the footer found on the bottom of our website, and
+we started working on this landing page. And in the previous video, we completed the hero section and set up the basic
+process for us able to add new components to our dynamic zone. So in
+today's video, we're going to continue by creating the heading section and our
+cart section that we're going to add to our back end and be able to get via our
+API. So let's jump right into it. We're going to start with this section
+component. And if we take a look here, we have our subheader and our header.
+And maybe we want to give ability for folks to be able to add an anchor link
+in a navigation that will link to the section. So if you wanted to have a single page app where the top navigation
+allows you to navigate to the different section in your blog post, we're also going to add a anchor link. So let's go
+ahead and build this component in Strappy. I already have my Strappy application running. So we're going to
+go ahead and navigate to our content type builder and we're going to create a
+new component. This is going to be parts of our blocks collection. So let's go ahead and select blocks and we're going
+to call this section heading. Let's go ahead click continue.
+And our component has a subheading. So let's go ahead and let's add it. We're going to say text sub heading. And
+that's going to be short text. Let's add another field. And now we're going to add our heading text. So we're again
+going to make it a short text. And we're going to say heading
+just like this. And let's add another field. We're going to select text and
+we're going to call this anchor link. And this is if we want to add a anchor
+ID to allow folks to navigate to that section from a navigation. And we'll
+talk more about this when we build out the front end, but at least we want to be able to represent this data and make
+sure that we get it in our request from our API. So let's go ahead and click finish. Here we have our subheading,
+heading, anchor link. Looks good. Let's click save. Now we are going to navigate
+to our landing page. In the block section, click the add component button.
+We're going to use existing component and let's select our section heading here. Go ahead and click finish and
+save. Now that we have our section component, let's go ahead to our content
+manager. In our landing page, we already have our hero block with our content.
+Let's go ahead add another component. Now our section heading is going to be available to us. Let's click on it and
+let's add our data. And I'm going to pull this from our section here. I'm going to grab the subheading. And you
+could fill it in with whatever you like. And then I'm also going to grab our
+heading here. And the anchor link I'm going to leave blank because it's not
+mandatory. But in the future we'll see how we utilize this. So now that we have this, I'm going to
+go ahead and click publish. In our previous lectures, we learned about our route millware and we decided that we
+want to add all of our populated logic there. So here we're going to now
+populate our hero section. So right after block hero, we're going to say
+blocks. Heading and we're going to say true. And
+if you're wondering, how do I know that it's block section heading? Taking a look in our application and we could
+find this in our content type builder. If we take a look at our blocks, we have our blocks folder which has our section
+heading. And basically that's how we know we could reference this in our application. Blocks is the folder that
+it's found and section heading is the name of our component. So now that we added this change because we had all of
+this set up from our previous field, if we go to Postman and we make a new get
+request to localhost 1337, our endpoint is
+landing page. Exactly what we did in the past. So let me make this bigger so we
+could see. And if we click send, notice that we're getting all of our
+data. And for our blocks, we're getting our block hero section. And we're also
+getting our section heading with our subheading heading and anchor link is
+null because we didn't add a value. Nice. And notice now that we have our pattern, we able to quickly add new
+component blocks to our strappy application. So now let's continue
+by adding this card. Now, if you take a look at this, we're going to have two different components. One, it's going to
+be a component that's going to have all the cards, but you're also going to have a card component, which is going to have
+this text and body text. So, let's go ahead and create it. And maybe we might
+want to use this card somewhere else. We're going to put it inside our shared folder. So, in our Strappy application,
+we are already in our content builder. Let's create a new component. We're
+going to call it card. And that's going to live in our shared folder. Let's go
+ahead and click continue. Our card is going to have two fields. Text, short
+text. This is going to be a heading. And let's add another field. We're going to
+select the text field, long text, and we're going to call it text. Really original. Now, we're going to go ahead
+and finish and save. In the future, if you want, you could expand this by
+adding an image or an icon or a link. But for now, we're just going to keep it simple. Now, we're going to create a
+component to hold multiple number of these cards. So, let's go ahead click on
+create new component. We're going to call it card grid. And we're going to
+select our blocks and click continue. And all this is going to have is going
+to have a component. And here we're just going to click on use existing component. Select component. And we're
+going to select our card. We're going to call it cards because we're going to
+have multiple. And it's going to be our repeatable component. And the reason why it's a repeatable component. If we take
+a look in our application, we have 1 2 3 four multiple cars. And so this is a
+repeatable component because you're going to have multiple different columns with the card. And that's why we're
+going to specify repeatable component. Boy, did I say a lot of times. But now that that's done, let's go ahead click
+finish and save. Now that we have our card grid, we're going to go ahead into
+our landing page, add another component, and we're going to grab our card grid
+and click finish. save. And now we're going to navigate to our content
+manager. Go to our landing page and we're going to click add component. And notice our
+card grid is now available. When we take a look, we have our cards where we able
+to add that individual card component. So let's go ahead and add four cards.
+I'm going to grab the text here, but you could make up whatever you like. I'm just going to do that to make it much
+easier for me. Now, I'm going to add another entry. And this is going to be the second card. And again, here you
+could add whatever data you want. I'm just going off uh this template that I have here. Add another entry. And we're
+going to add the third item. And then I'm going to add this. And think of this as a Figma design that I may be working
+off.
+And finally, let's grab the last one here. Cool. And now that this is done,
+I'm going to go ahead save and publish. And again, if I want to show this card
+grid component already, the pattern that we set up back in our landing page, populate middleware here, I'm going to
+go ahead and say blocks.card card grid. And this time we do have to
+specify populate because if we take a look in our Shopee
+application, if we look in our content type builder in our card grid here, this cards
+because it's a component, it is a relationship. And we learned that whenever we need to show another
+relationship, we have to tell Strappy specifically that we want to do that. So here, that's why we're saying populate
+the relationship is cards and we're going to say true.
+Now that this is done, if we navigate back to Postman and we run this request,
+now taking a look at our response, we see our previous hero section. Then we see our section heading that we
+just created. And finally, we also see our card grid with all of the data
+coming from our API. Nice. So, we're making some serious progress. We're
+continuing to build out our landing page. And let's do just a quick review.
+Taking a look at our website, we have our landing page, which consists of different types of blocks of data. The
+first thing we did in our Strappy application is we created a single type
+called landing page to be responsible for storing that data. We started with a
+title and description and then each individual component that we're adding to represent our website data, we broke
+it down into separate components. We have our hero component, we have our heading and our card grid. And that's
+exactly what we have here. I hero section heading card grid and we created
+these individual components to represent the data that we want to share on our
+landing page which live here in the block section. So if we take a look at the hero section, this content structure
+represents the data that's found in our hero section. Once we created all those
+different blocks, we made sure to add them to our landing page. And we're going to continue this process by
+finishing up the site. The few last things that we have to do, we have to create this section with image and text.
+Then we will create our text section, a person card, and couple more items
+including the Q&A and our featured block section. And finally finish with the
+form. With that being said, I'll see you in the next video. Go grab another break and I will talk to you in the next
+section. In this section, we're going to continue to building out our landing page content. So far, we created our
+hero section, our heading, and our cards. In this video, we're going to take a look how to create this image
+with content. Then, we're going to create our markdown component. And then,
+we're going to work on this person card. And all of these sections are going to follow that same pattern like we did
+before. We're going to create a new component in our block section to
+represent the data that we want to display. Then we're going to add that data to our landing page into the
+dynamic blocks. And then we'll be able to have access to those new blocks that
+we created inside our landing page here. And we'll be able to add the content by adding the new blocks that we haven't
+made yet. So let's go ahead and do that. Now we're going to start by focusing on
+our image with content component in our application. We're going to have this
+component that on the left side is going to have an image and then that's going to have some heading and text. And just
+like we see on our mockup, we want to give the user the ability to reverse the
+image and the content. And you also notice that we do also have a link here.
+So, we also want to make sure that we add our link component that we created earlier to give users the options not
+only to have the heading, the text, but also add the link. So, now let's jump into Strappy and start building out this
+component. So, in our Strappy application, let's go to our content type builder and let's scroll to the
+bottom, click on create new component, and we're going to call this component
+content with image. Very original. Now let's select the category that we want.
+We know this is going to be our blocks and let's go ahead click and continue. We know that we want the user to easily
+have the ability to mark the component reversed or not. So for that we could
+use a boolean content type. So in the content type builder let's click on the
+boolean field and we're going to call it reversed. And we're going to go to advanced settings and by default it's
+going to be false. So, back in our basic settings, make sure that we spelled it correctly. Sounds good. Let's click add
+another field. And in our component, we also have our heading and text. Let's add that first. So, for heading, I'm
+going to use the text field, short text. And I'm going to call this heading. Let's click add another field. For our
+text, I prefer using markdown, especially since we going to be building
+our front end with Astro in future tutorials. So, we're going to click this rich text markdown and I'm going to call
+it content. Now, let's add another field. We know that our content is going to have a
+link. So, let's go ahead add our link component. So, back in our strappy builder, let's go ahead to components.
+We're going to say use existing component. Select component. We're going to call it link. Let's select our link
+component and it's going to be a single component. Now, let's finally add another field. Let's select our media.
+We're going to say single media. We're going to call this image. And under advanced settings, let's go ahead and
+only select images. Back to basic settings. Making sure everything looks good. Let's click finish. So now here we
+have our content with image component. We have the reverse boolean to allow us to specify if the image is on the left
+or on the right. We have our heading, our content, and we have our links, and our image. Let's go ahead click save.
+Now, we're going to navigate to our landing page. And we want to add that
+component to our blocks. So, let's click the plus button, use existing component. Let's select our content with image, and
+click finish and save. With that being done, if we navigate back to our content
+manager, we'll be able to select our landing page. And now we're able to add our content. So if I click add component
+to block, you now see that we have our content with image. Let's go ahead and click on it. And now we are able to add
+our content. You can put whatever image or text that you like here. I'm going to go ahead from my mockup that I have
+here. So, I'm going to copy the heading, put my heading. Then I'm going to take my content, copy the content on our
+first block. There is no link, so I'm going to skip that. And I'm going to go ahead and grab this image. So, I'm going
+to click on the image element. Go to assets, and I'm going to add one more image. You could add whatever image you
+like. I'm going to add the image of the forest here. Click open. Upload my
+assets. And save. So now notice we have our first content with image. Fantastic.
+So now I'm going to go ahead and add my second component. So add component
+block. Let's select our content with image. And this is going to be reverse. So I'm
+going to say true. And I'm going to copy and paste that same Lauram ipsum. Add my
+heading. Now I'm going to do the same thing here for the content.
+add my content and let's add a link. I'm just going to link it to the Strappy website. https
+strappy.io label is going to be try strappy
+is external true is a button link. We'll say true. And this again is going to
+give us the ability on the front end to check if we want to add any additional styling that we could do later. And the
+type I'm going to say primary if you want the primary button. And this is something that we going to code in the future tutorials when we're building out
+the front end. And finally, let's add our image. I'm going to go to assets, add my forest image, and click finish.
+Now that we have our second block, this is pretty cool. So we created our
+content with image component. We added it to our blocks. So now let's go ahead and publish our content. In previous
+tutorials, we all know the drill. In order to allow us to see the content,
+for instance, when we make a get request to our endpoint landing page, for
+instance, right now, it's not going to show up here because we did not specify
+this inside our populate landing page middleware that we created in previous
+videos. So let's go ahead and do that now. Let's navigate to our landing page
+populate middleware. And inside our populate component, we have this pattern
+where we specifying what blocks we want to show. So now we're going to create a
+new entry for blocks and we call it content
+with image. We know that our top level fields will populate automatically. But we have
+two fields that are relationships. So taking a look in our content type builder content with image, we know that
+the link is going to be a relationship. So we have to tell Strappy to populate it. And the same thing with the image.
+So let's go ahead and do that. This shouldn't be that difficult because we did it in the past. So if you want to
+populate the link, we'll say link equals true. If we want to populate the image,
+we're going to say image and the fields that we want. So because we have done this before, we could just select the
+previous logic from our blocks hero section and we could add it here with
+content in image. So we're basically saying yes, populate our link and yes, populate our image. Now that this is
+done, make sure that you restart your strappy instance after making backend changes like we just did in our
+middleware. Once a strappy instance starts jumping back into Postman when we
+hit send. So path blocks invalid key links add blocks. Okay, this
+is the issue we get with copy and pasting. So let's go back to our landing page populate and inside our blocks
+content with image. We don't have multiple links. We actually have one link. So let's delete that extra s. And
+that should be a good reason why copy and pasting sometimes is not the best approach. But that's okay. And the
+reason why it's links, if you take a look, that's what we called it here, where in our hero section, we had
+multiple links, which is perfectly fine. So that was an easy mistake to fix. So,
+now that we have this and we fixed the spelling, we're referencing a single link because we're only going to have a
+single link back inside of our Postman
+in our VS Code. Let's click send. And boom, we now have our blocks. We're getting all the other blocks that we had
+before. And now you're going to notice that we're getting our blocks data for
+content with image. We have our first block and we have our second block. And we can see that it's reverse true. It
+has our heading, our content, our links, and our image. Fantastic. Now that we know that we're getting data for our
+content with image block, we can start working on this content block, which is
+just going to be our markdown. This is going to be very easy to make. So, let's go ahead and do that. Now, back in our
+strappy instance, let's go create a new component. And we are just going to call
+this mark down. For categories, we're going to say blocks. Let's click
+continue. And to this, we're going to add a new field. And it's going to be our rich text markdown field. And we're
+Building our image, person, and markdown component
+going to call this content. Let's go ahead click finish. And that's
+all we really need for this component. Let's click save. Let's go ahead
+to our landing page. And we're going to add our new markdown block. So, let's
+select the markdown block. Click finish and save. Now let's navigate to our
+content manager and select our landing page. And here when we click add component block, we should see our
+markdown block available to us. Let's click on it and let's add our content.
+I'm just going to copy and paste this content. Because we're using markdown,
+I'm going to make these headings. And you could also preview your markdown in
+preview mode that you could see here. You could also do them side by side, which I think is pretty cool. Now that
+we have our markdown content, let's go ahead and publish back in our landing page. Populate middleware. Now we're
+going to add a populate field for our markdown. So, we're going to say blocks
+domark down and true.
+Just like this. Nice. Now that we have this, so now let's refire our request.
+And if we scroll all the way down, we should see boom, we have our markdown
+content. Perfect. And finally, the last component that we're going to take a look in this video, it's going to be our
+person card, which is going to have our image, our text, the name of the person,
+and what they do. So, let's go ahead and build this out in our Strappy application. So, back in our content
+type builder, let's create a new component. And we're going to have our very
+original name called person card. This is going to live in our blocks folder.
+Let's click continue. Our first element is going to be media which is going to be our image. We only going to have
+single image. So let's select single media. Under advanced settings, let's again only allow images. Okay, this
+looks good. Let's add another field. Next, we have this content block. So
+we're going to just say text. So, let's use our text field. We're going to
+select long text and we're going to say text. Let's add another field. And
+finally, we have person name and person title or person job. So, let's go ahead and add those. Those are going to be
+simple enough because there's just going to be our text field. So, let's add person name.
+Let's add another field. Text. Again, keep it short text and it's going to be
+person job and let's click finish. So here you
+could see we have our image, our text, person name, person job exactly
+representing that the data we have the image, our text, person name, person
+job. So since this looks good, let's click save and let's navigate to our
+landing page. Let's add our person block. Let's select our person block card.
+Click finish and save. Now let's navigate back to our content manager.
+Go to our landing page. And now we have access to our newly created person
+block. Let's go ahead and fill in the data. So I'm going to go ahead copy this
+Lauram Ipsum in my person card. Let's add that Lauram Ipsum text. Fantastic. Let's add an
+image. I'm going to go to assets, add more assets, browse a file, and some
+here I have the image of the woman. If you're wondering where I got all these images, let me just make sure we click
+finish. You can go to pixels.com. This is a great website to get some free
+stock images, which is pretty awesome. So now, let's add person name and person's job. So person name we're going
+to say Alice Bradley and the job is backend developer. And now that we have
+this let's go ahead click publish. This going to save our changes and publish them. And now we need to go into our
+populate middleware to specify that we want to populate this person card.
+Little challenge for you. If we take a look at the person card component from
+these fields image text person and person job which field do we have to
+tell Strappy to populate? If you picked image you are correct because image is a
+relation text person name and person job are top level fields and they will be
+populated automatically. So, let's go ahead back to our VS Code and inside our
+landing page populate, we're going to add the populate logic to populate our
+person card. So, we're going to say blocks dot person card and
+we want to populate our image. We're going to follow the similar pattern that we have above here. So, we're going to
+say populate and we're going to say image and then specify the fields that
+we want to populate, which are alternative text and our URL. Perfect.
+Now that we have this here, I made sure to restart my Strappy instance. And now
+back in our Postman, if you click send, scroll all the way to the bottom. Notice
+that we have our person card with the text, the person name, person
+job, and the image. Nice. We're making some progress. Now, before we take a break, I do want to just give you a
+little bit more context on what we're doing here. So, in this tutorial, we have this basic mockup for our front-end
+website. So right now what we're doing is we're taking a look at our mockup seeing what data we want to represent in
+our backend and we're creating that back end using strappy and here we have the
+completed project of our strappy back end. If you take a look at the content manager we're representing different
+data types from our front end that we want to represent. For instance we're
+going to have our dynamic pages like about. We're going to have our blog section which going to have our
+different types of blogs and we're going to have a single view. And so based on this mockup that your designer or you
+have created, we're figuring out how to structure and represent this data in our back end. And in our strappy
+application, we accomplish that by using our single types, our collection types,
+and our components. Currently in our project, we created our global page to represent our header and footer data. We
+created our landing page or at least working on finishing to represent our landing page data. So here, taking a
+look at the landing page, we have all the different components that will represent our website data that we see
+here on the landing page. And once we build out our API, we are able to test
+it with Postman and see that we are getting that data served to us from our API. Once you have your API, you could
+now start building your front end. You could use any technology you like. You could use Astro, Nex.js, Remixed,
+React Native, Vue.js, Angular because Strappy is framework agnostic. All it
+does is surfs the data that we have created in our strappy application. So
+you could have this strappy instance power your website your mobile app and
+you use the data that you want. Once you have your API completed you could start
+working on your front end. For instance in the future we're going to work on
+building out this project. So notice how in this folder we have our server which
+is our strappy application that we're building now and then you could also have your client app. This could be
+NexJS. This could be Astro. In this case to keep it simple I decided to go with Astro. If you take a look here when
+building out your front end and every different framework does this slightly different but if we take a look at our
+pages and we look at our index page which is our landing page you could see
+that the basic pattern is I'm getting my landing page data and this can be easily
+achieved by using strappy SDK. So if you take a look at the code here, get
+landing page data. If you scroll to the top, I'm pulling in strappy client from Strappy SDK and I'm able to create very
+easy method that allows us to get our data. And then basically we make a request to get our data like you could
+see here. And once we have that data, we're able to have access to it in our
+front end and we would pass it to a component to render that data to screen.
+And when we build out our front end, we'll learn this blocks pattern where basically you create a component that is
+responsible populating your blocks. For instance, a hero, hero section, card grid, content with image, all the
+components that we're building out in our back end right now. You'll be able to create a map which will have all the
+different components available to you from your Strappy application that will have the equal component in your front
+end framework and then based on the response that we get for instance noise
+in our response we have our blocks and it has couple of different blocks available to us and what we do is we
+iterate through our response and based on our matching blocks we will render
+those specific blocks. And what's awesome, this allows you to dynamically build out those pages based on the
+response from your Strappy application. And again, I just wanted to give this to have as a quick introduction to kind of
+show you where we heading, which is first build out our back end that
+non-technical users could easily add data through this amazing admin panel.
+And then we're going to create our front-end application to consume our API. Some people like to create the
+front end first and then build the API. I like the approach is get a design, look at the mockup, figure out how to
+represent the data. Build out your API first and then build out your front end.
+Anyway, with that being said, let's take another break and I'll see you all in the next video. And welcome back to the
+Building our Q&A section and form component
+next section. We're making lots of progress. We've represented majority of
+this data and finally we have few things left to do. We're going to represent this Q&A. So we'll take a look how to
+create a strappy component in strappy to do that. And we're also going to take a
+look at the signup form to make sure that we could display this content. And
+when we create our blog post page, we'll come back and revisit this section. So now let's take a look at starting making
+our FAQ section. Our FAQ component is going to be very simple. It's just going
+to have couple of our FAQ cards. And each card is going to have a heading and
+text. So, let's go ahead and start by making our FAQ card. Here we are in our
+Strappy admin. If we take a look at our content type builder, we already created
+a card component that has heading and text. So, we could reuse this for our
+FAQs. So, let's create a new component to display our FAQs. We're going to
+create new component. We're going to call it FAQs
+and that's going to live in our blocks folder. Let's click continue. We're going to scroll to the bottom and we're
+going to reuse our card component that we created. So, click on component, use an existing component, and select
+component. We're going to take a look at our components and let's select our
+card. And here we're going to call it FAQ. We're going to keep it repeatable
+component because we have multiple FAQs. So now let's go ahead click finish. Now
+that we have our FAQ component, don't forget to save. Now we all know the drill. Let's go ahead to
+our landing page and we're going to add our new component that we just created.
+Click add component. Use an existing component and we're going to scroll down
+until we find our FAQs. Let's select it. Click finish and save. Now, let's
+navigate to our content manager to our landing page and we're going to add our
+FAQs. I'm going to click add component. Now we have our FAQs available to us and
+we're going to create couple of FAQs. So I'm just going to type some. What is 2 +
+2? It's four. And then let's add another one. Why are all you awesome?
+And that is because you just are right.
+I mean, you are awesome. Now that we have our FAQs, we're going to click publish. And we know the drill. After
+you create your FAQs, we need to make sure that we are able to access them in our API. To do that, we have to go ahead
+and update our middleware. So now in our strappy codebase, let's navigate to
+source. We're going to go ahead to our APIs. We're going to select our landing page. And here we already started
+working on our middleware where we adding all of our populate logic for our landing page. So let's go ahead and open
+it. And we already have some logic from our previous components. And now we're going to add our new component that we
+created called blocks. And it's FAQs. And we're going to open up the brackets.
+And we want to populate all of our FAQ cards. So, we're going to say FAQ cuz
+that's going to be a relation. We know all about it. And we're going to say true. Now that we have this in Postman,
+we're going to make a get request to our API landing page endpoint. When we click
+send, we are going to get all of our data. And if we scroll down, we should now see our FAQs. So, all the way here
+on the bottom and here we could see our block FAQs. We see our ID, our heading,
+and our text. Now that we getting our FAQ data, let's move on and build out
+our next component. On our website, we have this form. So, we want to allow the
+editor to easily be able to update the text in this form from this heading,
+this text, even from this placeholder text and the stay in touch button. So
+taking a look at this newsletter component, we could represent the data
+by here having our heading and having our text. Then we could have a placeholder and our label. So let's go
+ahead and do that in Strappy. In Strappy, navigating back to our content type builder, I'm going to create a new
+component. We're going to call it newsletter.
+It's going to live in our blocks. And let's go ahead and continue. For our
+heading, we're going to use the text short field. So, I'm going to call it heading. Let's add another field. Let's
+select text again. We'll use long text. This is going to represent this section
+here. And we are just going to call it text. Let's add another field. It's
+going to be text is going to be short text. And we're going to say placeholder.
+And this is going to represent this placeholder that you see here. So let's add another field. Again, we're going to
+use text, short text, and we're going to call this label. And this is going to
+represent our label button that you see here. And finally, we'll add another field. You might have different forms
+that you're going to reference. And so we're going to add another text field.
+Keep it short text. And we're going to call it form ID. Now let's click finish.
+We have our newsletter component to represent our heading text placeholder label and form ID. And this is exactly
+data that we have here. Our heading, our text, our placeholder text, and our
+label for this button. Nice. So now that we have this made, let's click save. And
+now let's navigate to our content manager. And now let's navigate to our landing page. We know the drill. Let's
+add this new block that we created. So, we're going to say use existing block.
+Let's scroll down and select the newsletter block. Click finish. Click
+save. Now that we have that component, let's navigate to our content manager
+and we're going to go ahead to our landing page. Click add another component. We're going to select our
+newsletter. And I'm going to go ahead add my content for this newsletter. I'm going to say stay updated with our team.
+We're going to use this Lauram ipsum. For placeholder, we're going to say example@email.com.
+Say submit and form ID. It could be anything we want. For now, I'm just
+going to keep it blank. Um, we'll talk about this later when we're building out the front end. But for now, once we have
+this, let's go ahead and publish. And finally, we need to update our middleware to get this data. So, back in
+our landing page populate middleware inside our populate, we're going to say
+blocks and we call it newsletter and we just going to say true because
+this is all top level fields, no relationships. This is the easiest way to populate. And now let's navigate to
+our Postman. Let's rerun our query. Don't forget to restart your Strappy
+instance by running yarn develop before trying the query. So let's try that one more time. Click send. And now if I
+navigate all the way to the bottom. And here we could see that we have our blocks newsletter component with all of
+our data. Nice. So now that all of the content for our landing page is being
+represented inside that strappy, we'll come back to representing our blog articles once we complete the blog
+section. But in the next videos, I want to take a look on building a dynamic page. For instance, we have this about
+page that currently has this person component. So, we're going to take a
+look how we could create a very easy way to allow your user to create multiple pages from Strappy to represent their
+about page or or maybe they want to make a community page. Pretty much any page
+that they want, they'll be able to easily build out based on the same blocks that we created to represent this
+homepage. So, with that being said, get a quick drink of water, tea, whatever you like.
+take a little break and then I'll see you in the next section. In previous sessions, we completed our landing page
+How to implement dynamic pages in Strapi
+and we built out all the different blocks that build out all of our content. For instance, we have our hero
+section, our heading and so on. Now, today we're going to take a look how we
+could add pages dynamically. For instance, if you go to an about page,
+and at the moment, we just have this person card. But if you take a look at the homepage, this person card also
+exists here. And that's because it's coming from our blocks. So, for
+instance, if you take a look at our Strappy admin, and this is just a completed project cuz I kind of want to show you what we're going to do. If we
+look at our content manager, in our previous tutorial, we created our landing page which consists of different
+type of blocks. And for a landing page, we use a single type, but your website
+may have multiple pages. And sometimes you're not sure what page you're going to have. So instead of using single
+types like we did for a landing page, and I did want to show you that example, we could actually create
+our pages as a collection type rather than a single type. And this is great because this way a content editor could
+create any page that we want. For instance, we have this about page. And if we take a look at it, it consists of
+the same block elements that we are reusing in our landing page. For instance, we could add more blocks. And
+we have all these different sections that we could add. But instead of the landing page which is static, we could
+now easily create more pages for our website that could be any other page
+that a content editor could add. For instance, I could create a new page and I could call it our company and this
+will be page about our company.
+And we could use all the different components that we have. And for now, I'll just add a heading section. And I'm
+going to say our company, this is our heading. And when I click
+publish and save, what I'm able to do in my global, I'm able to add a link to our
+company page. And I'm going to say our company.
+And let's set publish. And now if I navigate to our company page, notice that we see our heading. So this will
+allow your non-technical editor to easily create different pages dynamically in your application and they
+could be any page that they want. And what's cool? It will allow us to use any of our different blocks that we created
+before to add any type of content. So the difference between a single type and
+a collection type is basically a single type. It's one type off. And you could say we're going to have a landing page
+like we did here. You could create an about page, but that makes it not very dynamic. And so I want to show you how
+to create a dynamic page where you could have any type of page that you want.
+When the content editor is working on it, they will be able to add content via
+the blocks that you defined. And as always, we mentioned you could add any additional blocks to represent the
+content in any way that you want. So your content editor could pick and choose for appropriate blocks to create
+their content. And what's awesome if we take in on our Astro website, we will be
+able to query a page based on the slug. That's why when I go on about, we use
+the about slug and it will fetch the about page. If you go to our company, it
+uses and matches the our company slug and we able to get our company data. So
+now let's go ahead and create this dynamic page so we could use it on our application and we'll test all of this
+via Postman cuz we haven't created this front end yet, but I wanted to show you this as an example. So now I'm back in
+my working Strappy project that we're all building together. If we take a look at our content type builder, currently
+we have our global page, our landing page, and the blocks that we created. So now, let's create a new collection type,
+and we're going to call it page. Let's click continue. And here we're going to add a text, which is going to be short
+text. We're going to call it title. Let's add another field. That's going to be text. Again, we're going to go with
+long text. It's going to be description. And now, let's add another field. And
+for this field, we're going to use our UI ID, which we're going to call slug, and it's going to be based off our
+title. So that's going to be the slug for the different pages that we create, like for instance, about page, contact
+page, so on. And finally, let's add another field, which is going to be our
+dynamic zone. We're going to call it blocks. This is the pattern that we used before. And now, let's add components to
+our dynamic zone. We're going to use existing components because we already created all of our different blocks that
+are found here. I'm going to select all of them because these are the building blocks for our pages. And now we're
+going to click finish. So here is what our page would look like. It's going to have a title, description, a slug, and
+our blocks that will allow our content editor to set up the page. Let's click save. Now that we have this, let's
+navigate to our content manager. And now we have our page collection type. We're
+going to click on it and we're going to create a new entry. This is going to be our about page. And I'm going to say
+this is our about page. You could put whatever you like. And our slug is going
+to be about page. Or we could just keep it about. So now let's go ahead and add
+a block. And we're just going to start with a hero section. And I'm going to say this is about page. This is going to
+have all of our content for about page.
+Again, very generic stuff so we could see that it works. And we're just going to add an image. And I'm going to add a
+previous image that I have before, which is going to be this forest. Click finish. And now that we have a hero
+section, we're going to go ahead and publish. Now that we have our about page, we need to give permissions for
+strappy to serve this endpoint. So if we go to settings, go to users permission
+roles public and now we're going to go to our page endpoint and we're going to
+go ahead give our find permission. And here is going to be the endpoint where we able to get our data. I'm going to go
+ahead and save. And now in our Postman, I'm going to go ahead and look up our
+pages. When I click send, notice we get our response, which is an array of all
+our items. Notice that we're returning our top level elements, and we don't see
+our blocks. That's because we need to tell Strappy to populate those items. Something that we did previously for our
+landing page is we created a custom middleware that had all the logic to populate our
+page. We're actually going to do the same thing for the page endpoint. So go
+ahead in our landing page populate. Let's go ahead and select everything and
+copy because the code is going to be exactly the same. And now in our VS
+Code, let's navigate to our API, we have a new folder called page. And previously
+when we were creating a middleware for our landing page, we used the CLI, but
+you could actually do this manually. And that's what we're going to do here. And inside the page folder, we're going to
+create a new folder called mwares.
+And inside here, we're going to create a new file called page populate.ts.
+And we're going to paste our middleware code that we copied before. Um, the only
+difference is we're going to call this page populate middleware. And just quick
+review, everything looks great. And we're just going to remove this console log. Say in page populate middleware,
+but the logic is all the same. We predefining our populate logic to populate all of our blocks. And we have
+access to the ctx which will allow us to update our query based on populate
+logic. So here everything looks great. The only last thing we need to do if we take a look at our landing page example
+that we created previously if you navigate to routes and you see the landing page routes notice that we are
+enabling the configuration for the fine endpoint to use this middleware. So,
+we're going to do something similar in our page. So, inside the page folder, navigate to routes, open the page route,
+and here we're going to configure this to add our middleware. And so, now we're
+going to say config, and we're going to use the find method, and we're going to
+say middlewares, which takes an array. If you don't remember the name of the middleware that
+we just created in the terminal, you could run yarn strappy middlewarees
+list and it's going to list out all the different middlewares. And here we could see that we have this API
+page.page populate. This is the name of the middleware that we just created in
+this middlewarees folder. So, I'm going to go ahead and reference it here. Now,
+that's this is done, we could go ahead and restart our project. After our project is restarted. So, now back in
+our Postman, we're going to request our pages again. Click send. And notice that
+we're getting all of our pages that we have here. But we don't want to get all
+of the pages. We want to query the page based on the slug. And the slug is
+about. And we did this in the past where we used this populate query builder to
+build our queries. So we're going to do that as well here. So our API is
+API/pages. And all we need to do is just pass the
+filters. And for the filter, we're going to filter on slug. And it's going to be
+about and so we could go ahead copy this quer string. And in the future, we'll take a look how to do this in the front
+end. Uh but for now, we'll just going to test everything via Postman. So now I'm
+going to go ahead and paste that query string here. Make sure it's pages
+filter based on the slug and we're looking for about. When I click send, notice that we're just getting the data
+for the about page. So if I decide to create another page, so my strap
+application, let's go to content manager page. Let's create a new page and I'm
+going to call this test. This is a test. The slug is going to be test. And we're
+just going to add a section heading component. I'm going to say this
+is test page. Test page. And now let's publish. So now when we go
+back to Postman. And now if you want to find the test page, I will just query
+where the slug equals test. When I click send, notice that we're getting the test page with the block which has the
+section heading. If I want to query the about page, I just say about. And now we
+could see that we querying our about page data. And what's awesome now you have a way for your content editors to
+dynamically build any page that you want. And the way you would request that page data from your API is just pass the
+slug for the page that you're looking for. So quick recap. Previously, we learned how to build pages via using
+single types, which is great if you're not going to have that many pages, or maybe you want to have a specific page,
+like for our case is the landing page. But you could also use collection types to build dynamic pages. What's awesome
+is you could have as many pages as you need for your website, which are generated dynamically. And this is based
+on our pattern that we use. If you take a look at content type builder, look at the page. Basically, the magic here is
+that we have the slug that we able to use to look up the page and we also have
+our various blocks that our content editor could use to build out the page. If you have any questions, you could
+always ask them in the comment. And as we finish our backend strappy project here and when we start building our
+front end, you'll see how this will all come together. But based on what we did,
+you could see that we able to easily get our data from our API just by passing
+the slug for the page that we want to get, which is pretty awesome. With this being said, we have took a look at how
+to build our landing page. We now know how to build additional dynamic pages that we could fetch based on the slug.
+And finally, for our back end, we just have to finish the block section. So, in the next video, we're going to take a
+look how to create our block collection type, which will allow us to get all of our block data to either display it on a
+page of all the different blog posts that we have or if someone navigates to the single item, they'll be able to see
+all the items in the blog post. So, with that being said, I'll see you in the next section. In previous sessions, we
+Building out our blog content page
+completed representing our data for our landing page that you see here as well
+as our header and footer. We also took a look how to build our dynamic pages where you could add additional content.
+And today we're going to start working on our blog content. And we're going to
+take a look how to represent our article data, including all of the details that you see, the featured image, the
+heading, the author, and of course, the blog content. And finally, we'll finish
+with our recommended or featured blog post section. So, with that being said,
+let's jump right into it. So here I am in my Strappy dashboard and just as a reminder, we're working on the Strappy
+back end first before building our front end that you see here. So back in Strappy, if we take a look at our
+content type builder, we could see all the previous sections that we've done. We have our page, our users that
+automatically comes when you set up Strappy. We created our global, our landing page, our blocks, our layout,
+and our shared components. So now we're going to take a look at representing our article data. Our article is going to
+have many different sections. So let's start with the most basic. Navigating to
+strappy content builder. We're going to click on create a new collection type
+and we're going to call it article. And let's click continue. Our article is going to have a title. So let's select
+our text field and we're going to call it title. And this is going to be short text. Let's add another field. We're
+going to select text is going to be long text and we're going to call it description. Next, our article is going
+to have a slog. So, let's click add another field and we're going to navigate to using our UI ID unique
+identifier field. So, click on it. And for the name, we're going to call it slug. And it's going to be attached to
+our title field. Now, let's click finish and save. Before adding anything else,
+let's just create a basic test article and make sure that we could get this
+data via our API call. So, let's navigate to our content manager. In
+article, we're going to click create new entry. I'm going to call this test post.
+For description, I'm going to say this is our test post and generate our slug,
+which is going to be test post. Let's click publish. This is going to go ahead and publish our article. And if we want
+to be able to get access to our articles via API, we need to navigate to settings. And we're going to go in users
+permission, click roles, click public, and here under our article tab, we're
+going to allow our find method. This means that we could make a get request
+to API articles and we're going to see all the articles. Since we have one, that's what we're going to do. So, let's
+click save. And inside Postman, I'm going to make a new HTTP request. And
+we're going to make a get request to localhost 1337 to our API articles
+endpoint. When I click send, notice that we are returning our article data. Here
+you could see the title, description, and slug. Now that we know that our API works, let's add the rest of the fields.
+Taking a look at our mockup, we could see that our article has a featured image, our author, as well as our
+content. So, let's see how we could represent that in Strappy first. In Strappy, navigating back to our content
+type builder and back in our article, let's create another field and we're
+going to select media. We're going to call it featured
+image and it's going to be single media. We're going to go to advanced settings
+and make sure that instead of selecting all, we're just going to allow image types. Now, let's click finish. Next,
+let's add another field. We're going to use our rich text editor. So, let's
+click on it. We're going to call it content. And let's click finish. Now,
+before creating our author, let's add a featured image and some basic content. Let's click save. Navigate to content
+manager. Select your test post. And now you're going to see that we have a featured image block. So I'm going to go
+ahead and add an image. I'm just going to use an image that we already have using this forest. Click finish. I'm
+going to copy part of the snippet. And I'm going to add it into our content block. What's pretty cool in Strappy,
+you have preview mode that shows what your markdown is going to look like. Now that we have our featured image and our
+content, let's click publish. Back in Postman, if we click send, notice that
+we're getting our title, description, slug, and content because these are top
+level fields. If we want to show the image, we have to make sure that we populate it. And in this tutorial, we've
+been using a pattern of creating populate middleware to allow us to do that. So let's set up a populate
+middleware for this particular route for our articles. Make sure you are inside
+your strappy application and let's type yarn strappy generate
+and click enter. We're going to navigate to middleware, click enter, and we're
+going to give it a name. We're going to call it article populate and click enter. And we want to
+add it to our existing API. We're going to select article. And it's
+going to go ahead and create our placeholder inside article middlewarees
+article-populate.ts because that's the name that we gave it. So in our code editor, we can navigate
+to source APIs. Let's take a look inside article and
+you're going to see inside the middleares folder we have our new middleware that we just created. It's
+going to be very similar to our previous middleares that we created. If we take a look inside our landing page folder, we
+already have an example of a previous middleware that we created. So, we're going to do something similar. So back
+in our article populate right after our import we're going to define our populate
+object and inside our middleware after our strappy log info we have access to the
+context and we're going to overwrite the query populate with our predefined
+populate parameters. And to get us started, we're just going to populate our featured image via our
+middleware. Now that we have our middleware, we need to make sure that we add it to our
+routes. So inside API articles, let's navigate
+to our routes, open our article, and here we're going to add an additional object, which is going to
+have our config. And our config is going to be on our find method.
+And we're going to have middlewares and it's going to take an array. And
+what we want to pass inside here the name of our middleware. And the way we could find it inside of our strappy
+project, we could run yarnstrappy middleware colon list. And it's going to go ahead and list all of our middleares.
+And here we see our article middleware that we just created. So go ahead and
+copy it. And let's go ahead paste in the name. Now that our middleware is added
+in our route, we should restart our application by running yarn dev. And now
+in Postman, if we rerun our query and we take a look at our response, we could
+see that we're now showing our featured image. So we know that works. So now let's jump back in and add the rest of
+the fields and modify a middleware accordingly to populate all those items. Taking a look at the blog post. Notice
+that we have our author. So, let's create our author collection type and
+add it to our blog post. Back in our content type builder, let's create a new collection type and we're going to call
+it author. And let's click continue. Our author is going to have a full name. So,
+let's select the text field. We're going to call it full name. And we're going to
+keep it on short text. Let's add another field. Our author is going to have a bio. So, let's select our text field.
+It's going to be long text and we're going to say bio. Let's click add another field. Our author is also going
+to have an avatar image. So, let's click on media single media. And we're just
+going to call this image. And let's go to advanced settings. And instead of selecting all, let's only select allow
+image types. And finally, back to basic settings. We don't click add another
+field. And we're going to add a relation that's going to be related to our user
+cuz our author is going to be our user. And we're going to name it user ID. And
+let's click finish. So now we have our full name, our bio, image, and user ID.
+Let's click save. Now in our content manager, let's create a user. Create a
+new user. Going to say Jackie Brown email.com.
+[Music] We're going to say confirm true. Some
+dummy password and ro is going to be public. And let's click save. And Jackie
+Brown is also an author. So let's go ahead in author and we're going to
+create a new author name is going to be Jackie Brown. bio is going to be I am a
+full stack developer and for the image I'm going to choose an
+image that I already have and now we could add this relation to our user. The
+reason why we want oneway relationship is because we want to keep all the data
+in the user here private, but we want to be able to easily access the author
+information publicly if we wanted to. So this way we're not leaking any of the
+user information because the user information has the password, other info and we just don't need that. That's why
+we created a separate author collection type. And if the author is a user, we
+could reference them via this relationship. So now let's click publish. And now let's navigate back to
+our content type builder in our article. Let's add another field. We're going to select relation. And we could use oneway
+relationship to reference our author to the article or you could do has many
+articles. So one author may have many articles and this is a two-way
+relationship. So if we take a look at the author, we will see all the related articles that they wrote. Typically you
+can use oneway relationship and just filter the articles by the user ID and
+that way it would be more performant. For this uh situation, this is also fine
+to do. And I'll show you the difference between the two relationships. So, if I keep it this way and click finish, let's
+click save. Now, if I navigate to my author, you could see that we have our
+articles relation. So, if I go to our content manager, select our author, Jackie Brown, notice that I could add
+related articles to the author. And because it's a two-way relationship, we will see it here. So, let me go publish
+first. And when we navigate to articles and look at that article, we would see
+that our author is selected. This is a two-way relationship. If we were to only
+choose one way, we would see the relationship here, but we would not see the relationship here. And I kind of
+like this cuz this way we could just look up the author and see all the articles that they wrote all in one query. So, I'm going to keep it this
+way. If you have questions about this, let me know in the comments. So now because we do have this relationship to
+the author, we want to make sure that we populate the author data. So let's jump in into our middleware and update it.
+And now in our middleware, let's add the populate logic to populate our author. So notice we are populating our author.
+All the other fields will be automatically populated, but we want to populate the image and we also want to
+populate articles that that author wrote. And we're going to say fields and
+it's going to be an array. And we just want to say that we want to get document ID as well as the title. Perfect. Make
+sure you restart your application. And now when we go back to Postman and we rerun our request and take a look, our
+content is being populated. Our feature image populated, but we're not getting our author. Why is that? Well, that's
+because we have to enable that endpoint in Strappy. So, back in Strappy,
+navigate to settings, going to users permission roles, public. And now we're
+going to select our author and enable find to allow us to be able to find our authors. And now we're going to click
+save. And when we retry our query again, let's click send and scroll down. Notice
+now that we getting our author information including their full name, their bio, their image, avatar, as well
+as all the articles associated with them. And we only requested the document
+ID and the title, which is pretty awesome. And finally, for our articles,
+we want to give him category tags. So, let's go ahead and add that to our blog
+post. So finally, let's make a text collection type. Navigate to your
+content type builder. We're going to create a new collection type and we're going to call it tag. This will be a way
+for us to tag our articles and click continue. The first one is going to be a
+text field. It's just going to be the title of the tag. Let's keep it short
+text. Let's add another field. And this is going to be long text which is going to be a description.
+Now let's click finish and save. Now that we have tags, let's go ahead to our
+content manager and we're going to create two tags. Create a new tag. We're
+going to call tech. We're going to say articles about tech. Let's click publish and
+let's create another tag. Create new entry. Oh, by the way, if you don't want
+to have a publish button, for instance, you just want to create the tags and have them be published automatically.
+Let's go ahead and adjust that. Go to content type builder, select your tag, go here, edit, and in advanced settings,
+disable draft and published. And for something like tag, this makes sense. So, let's click finish. So now go back
+to your content manager. Let's create a new tag. So now back in our content
+manager, let's click tag. Let's create a new tag. And we're going to call this
+tutorial. And we're going to say this is a
+tutorial article. And you could create whatever text you want. I'm just making them as
+example. Notice when I click save, it just saves it and it will automatically publish it. So that's one thing to keep
+in mind. Now that we have our tags, let's go to our content type builder.
+And in the article, let's add a relationship to show all of our tags for that article. So we're going to add
+another field to this collection. We're going to navigate to relation and we're
+going to select has many. And for the name, we're going to call it content
+tags. And it's going to be related to our tag. When you update this, this will update
+the field. So let's write content tags because that's what I wanted to call it.
+And click finish. So now you see that we have our content tags. Let's go ahead
+click save. And now let's go to our content manager to our test post. Let's
+scroll down. Now you see here that we could select our tags. We're going to select tag and tutorial because our
+articles could belong to multiple tags if you want. If you made categories, you could have one category per post. But
+this is the example I wanted to show you. Once we have this, let's click publish. And now in order to be able to
+get those tags show in our Postman or in our API, we got to go to settings. We
+have to go to users permission and roles and enable them in our API. So navigate to tag and we're going to enable the
+find permission. Click save. And finally, we have to update our
+middleware to allow us to show the tags. So now in our article populate, we're
+going to do content tags
+and we're going to say true. Nice. Now that this is done, make sure that your
+server is restarted and let's rerun our query. Wait, let's We made a mistake
+somewhere. Oh, I see what it is. It's not putting the content tags in the
+author. That's me doing things too quickly. But make sure you put it outside of the author object because
+we're not trying to populate the author content text because it doesn't have any. It's in our article. So let's try
+this again. Click send. And now we have all of our data including the author,
+the articles, and the content tags. For this one, we have the tech and tutorial.
+Nice. And now in the next video we will go ahead and take a look how to create our related article component that we
+could show on our landing page as well as on our single view for our blog post.
+This is going to be our last and final component to build. And after that our
+strappy application is going to be completed and we'll be able to start working on this front end build with
+Astro which I'm really excited for. So we have one more video to finish up the
+final component which is related articles and then do a the final review
+of what we covered and once that's done our strapping back end is going to be
+completed and we'll be able to move on to take a look how to represent the data in our front end using Astro and then we
+will do the same with Nex.js. Super excited and I'll see you in the next one. Hello you wonderful people and
+Refactoring our custom middleware
+we're almost done. We have few last things left but before we do I want to show you a small refactor here. If we
+take a look at our content type builder we're going to notice that we have our single type landing page. If you take a
+look at the content we have our blocks title description and then we also have our dynamic page here which has similar
+content has title description with addition of the slog but we still have the similar blocks. And when we started
+this tutorial, I wanted to show you two ways that you could add landing pages. You could either add them as a single
+type. For instance, you could have a landing page, you could have an about page, or you could add pages dynamically
+like we did here with our collection type for the pages here. But when we were creating this tutorial, we wanted
+to handle the populate logic server side for allow us to get our data. For
+instance, when we make a get request to our pages, we have our data with all of
+our populated content that we have here. And if we also make a get request to our
+landing page, we have our P populated blocks here with all the data populated
+and all of this populate logic is happening on the server. So if we take a look in our code, if we navigate to our
+source API and we take a look at the landing page, you remember that we created a
+middleware that has all of our populate logic for this particular route. We also
+did something similar to our page API endpoint where we have another
+middleware that's responsible to populate the logic for the page content
+type. But this middleware it's the same. And when you do find yourself that you
+had to write same logic twice, this is a good reason for you to take the code
+that repeats in two different places. For instance, in this middleware inside our page and it's exactly the same
+inside our landing page inside middleware here. And then you could move it to more of a global middleware and
+then call that global method in the routes for both the landing page and our
+page content here in the route here. And someone might make an argument that we
+could also do something similar to the articles. If we take a look at the
+articles and we look at the middleware, we have a middleware here. But I'm going to keep this separate. Why? because
+maybe you want to have different populate logic for articles. Maybe you might have specific blocks that are more
+specific for blog content. So this one we're going to keep it alone. So for now what we're going to do, we're going to
+take our page middleware and our landing page middleware and turn into a global
+middleware. So let's go ahead and do that now. So in our terminal, we're going to run yarn strappy generate to
+generate a new middleware. This is going to create the boiling plate. So, we're
+going to scroll down to middleware and we're going to call it global
+page populate and we're going to add it to the root of the project because we're
+going to use it in a couple of different spots. This went ahead and created our project in our middleares folder called
+global page populate.ts file. If we want to list our middle wares, we could run yarn strappy
+middlewares list. This is going to go ahead and list all of the available middlewares that we
+have. So, if we scroll here to the top, we're going to find that we have our
+global page populate middleware. So, before we going to use it, let's go ahead and update the code. The code is
+going to look exactly for what we have here in our middleware page.pop populate file. So go ahead and copy the previous
+code logic that we did. And now in the
+source folder in the root you're going to see that we have our global middleares folder. We could go ahead and
+open that up where we have our basic dummy placeholder text. And let's go
+ahead paste in our middleware. The logic is the same. All we did is just moved it to a different place to allow us to
+access it in other routes. And instead of page populate, we're going to call it global page populate. And now that we
+have this middleware, what you can do is go ahead in your API inside the landing
+page, go ahead and delete this middleware folder because you're not going to use it. And we're going to do
+the same thing for our pages, go ahead and delete this middleware folder because instead we're going to use the
+shared global middleware. And to finally to make these changes work, we need to go ahead and reference it inside our
+route. So I'm going to copy this name and inside page routes folder inside
+page.tsx file. We no longer have our route local middleware, but we created
+our global middleware. So let's go ahead and add it here. And we're going to do the same thing inside our landing page
+routes folder landing page. So now what we're doing is we have one middleware
+that responsible for populating both the landing page and our page content. And
+that way if we do need to make changes instead of the two previous places that we had, we could just go ahead and make
+the change in the global middleware making our code much cleaner and more modular. With that being said, let's go
+ahead and restart our strappy instance. So, let me clear the screen and run yarn
+dev once our project restarts here. Back in Postman, if we rerun our
+request, notice we're still populating our landing page as expected. And if we
+query our pages, our populate still works as expected. Awesome. So what we
+did, we cleaned up our code instead of repeating ourselves in two different places. We went ahead and created our
+global middleware and pointed to our separate routes for our landing page and
+pages. Nice. So looking at our front end mockup, we're pretty much done
+representing all of this content in Strappy before starting out building the front end. The only last item we have
+left to add is this featured blog post section that we're going to add to our
+pages as a block component. And we're also going to do the same thing here in the articles. So in the next video,
+let's go ahead and create our last component. Then we'll share some of our closing thoughts and what next and then
+go from there. So I'll see you in a minute. And we're finally on our final stretch. We're almost done with our back
+end and soon we'll start building out this front end. But for now, let's take a look at the last piece that we have to
+finish, which is our featured article section here. So, here I am in my Strappy application. We're going to
+navigate to our content type builder, and we're going to go ahead and create a
+new component, and it's going to be called featured
+articles. and we're going to add it into our blocks and click continue. And this is
+going to be a simple component. All it's going to have it's going to have a relation to our articles. And we're
+going to go ahead and click finish and save.
+Now that we have our component, navigate to your landing page and add the block.
+We're going to say use existing component and we're going to go ahead and click featured articles and click
+finish and save. We're also going to add it to our page type. So go ahead, click
+on page, navigate to blocks, and let's select the featured articles component
+and click finish and save. Now that we have this, we want to go ahead and add
+featured articles to our landing page. So, navigate to content manager. Let's
+select our landing page. And here for our final block, we're going to add a
+component and it's going to be our featured articles. And here we're going to select our test post that we have
+here. Now, let's go ahead click publish. And this is going to go ahead and save
+our changes. If we go to settings and take a look at our roles, take a look at public and we
+take a look at our landing page, we have find enabled, which will allow us to
+make a get request to API/landing page. So, let's go ahead and test it out
+in Postman. So, here I'm making a get request and click send and we're getting
+all of our previous data. What do you think? Are our articles going to be populated? Let's take a look. As I
+scroll down all the way to the bottom, we don't see our component. If you recall, that's because we need to add it
+in our middleware to allow us to query for our featured articles component. So,
+let's go ahead and do that. Now, in the code editor, navigate to our source.
+under API, click landing page. And wait
+a second, what happened to the middleware here? Well, remember we had similar content in our landing page and
+also our regular page. So, we actually moved it out to a global middleware
+where we able to update and make that change in one place and it's going to affect our landing page and our page
+data. So once we find that new place where we placed our global middleware,
+go ahead, click on it. And now we are able to scroll to the bottom and populate our content. This is just us
+practicing what we already know what to do. We know that our featured articles
+component is in the block section and it's called featured articles and we
+want to populate our articles. So we need to say populate
+articles and in our articles we're going to populate the featured image which is a
+relationship in our articles content as well as the author. So that way we have
+access to the image and the author's name. And now that we have this, let's
+retest our query by making a get request to our landing page endpoint. When I click send and I scroll to the bottom,
+notice here we have our featured articles and we have our featured article which is our test post with a
+description including our content, our featured image and our author. Nice. And
+Final reacap of what we learned
+with that, our landing page route is complete. We're able to populate all the data that our front end requires,
+including the new featured articles that we just added, which is pretty awesome. So to recap, we use the headless CMS to
+create our back end for our front- end application. We have four following routes. API global to get our data for
+our header and footer, which is responsible for our top navigation,
+showing our logo, and all the information here in the footer including the bottom navigation. Our second route,
+we have API landing page. This represents getting data for our landing page, which is the home content that you
+see here when people land on our landing page, including all of this content that
+is represented in our Strappy application. So if we go to our landing
+page collection type, we could see that all of our homepage data is represented here in our Strappy application via our
+dynamic zones, making our website dynamic, allowing nontechnical users to update their data. We also did the same
+thing for API pages. So users are able to add dynamic pages and represent that
+content very easily from our strappy application by being able to add all
+their content via dynamic zones using our blocks that we created from our hero
+section to our heading section content with image and so on. And we did the
+same thing for articles, allowing users to represent their article data in their
+strappy back end to allow the front end to be able to easily consume it and
+display it to their users. So now that we have a fully working back end to be
+able to populate all of their data that our front end requires, we're pretty
+much done with the Strappy 5 crash course. There's obviously a lot more things to learn and some of the more
+advanced features that make Strappy even more powerful through its
+customization, being able to build plugins and custom fields, which something I'm going to share with you in
+future tutorials. But for this part one crash course, you have everything you
+need to know to get started by building a fully functional backend with Shopee. So, in the next series, we're going to
+take a look how to build this simple Astro front end to take advantage of our
+strappy back end. We're going to have our landing page, our dynamic pages,
+as well as our blog section like you see here. So, with that being said, thanks for watching and I'll see you in the
+next one.

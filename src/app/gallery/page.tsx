@@ -1,6 +1,7 @@
 
 import { Suspense } from "react";
 import { Gallerygrid } from "@/components/gallerygrid";
+import { STRAPI_URL } from "@/lib/utils";
 
 interface StrapiImage {
   id: number;
@@ -31,7 +32,7 @@ interface StrapiGallery {
 
 async function getGalleries(): Promise<StrapiGallery[]> {
   try {
-    const response = await fetch('https://best-desire-8443ae2768.strapiapp.com/api/galleries?populate=image&sort=publishedAt:desc', {
+    const response = await fetch(`${STRAPI_URL}/api/galleries?populate=image&sort=publishedAt:desc`, {
       cache: 'no-store',
     });
     

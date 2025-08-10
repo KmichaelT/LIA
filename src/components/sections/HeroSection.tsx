@@ -5,9 +5,11 @@ import Image from "next/image";
 import { Play, PlayIcon, MoveRight } from "lucide-react";
 import { AspectRatio } from "@/components/aspect-ratio";
 import { Button } from "@/components/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {Banner5} from "@/components/banner";
-
+import { getHomePage, getImpactStats, getCTALinks } from "@/lib/strapi";
+import { HomePage, StatData, LinkData } from "@/types/strapi";
+import { STRAPI_URL } from "@/lib/utils";
 
 interface HeroSectionProps {
   title?: string;
@@ -16,6 +18,115 @@ interface HeroSectionProps {
 
 export default function HeroSection({ title, description }: HeroSectionProps) {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const [heroData, setHeroData] = useState<HomePage | null>(null);
+  const [stats, setStats] = useState<StatData[]>([]);
+  const [ctaLinks, setCTALinks] = useState<LinkData[]>([]);
+
+  // Fallback data
+  const fallbackStats = [
+    { id: 1, label: "Children Sponsored", value: 120, unit: "+", icon: "Users", category: "impact", description: "" },
+    { id: 2, label: "Years On Mission", value: 4, unit: "+", icon: "Calendar", category: "impact", description: "" }
+  ];
+
+  const fallbackCTALinks = [
+    { id: 1, label: "Donate Now", url: "https://www.zeffy.com/en-US/donation-form-v2/d7a24fa2-5425-4e72-b337-120c4f0b8c64", type: "cta", style: "primary", isExternal: true },
+    { id: 2, label: "Watch Demo", url: "#video", type: "cta", style: "secondary", isExternal: false }
+  ];
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [homePageData, statsData] = await Promise.all([
+          getHomePage(),
+          getImpactStats()
+        ]);
+        
+        if (homePageData) {
+          setHeroData(homePageData);
+          
+          // Use homepage stats if available, otherwise fetch from stats API
+          if (homePageData.heroStats && homePageData.heroStats.length > 0) {
+            setStats(homePageData.heroStats.map((stat: {id: number, label: string, value: number, unit: string, icon: string, category: string, description?: string}) => ({
+              id: stat.id,
+              label: stat.label,
+              value: stat.value,
+              unit: stat.unit,
+              icon: stat.icon,
+              category: stat.category,
+              description: stat.description || ""
+            })));
+          } else if (statsData && statsData.length > 0) {
+            setStats(statsData.map((stat: {id: number, label: string, value: string | number, unit: string, icon: string, category: string, description?: string}) => ({
+              id: stat.id,
+              label: stat.label,
+              value: typeof stat.value === 'string' ? (parseInt(stat.value) || 0) : stat.value,
+              unit: stat.unit,
+              icon: stat.icon,
+              category: stat.category,
+              description: stat.description || ""
+            })));
+          } else {
+            setStats(fallbackStats);
+          }
+          
+          // Use homepage buttons if available
+          const buttons = [];
+          if (homePageData.heroPrimaryButton) {
+            buttons.push({
+              id: homePageData.heroPrimaryButton.id,
+              label: homePageData.heroPrimaryButton.label,
+              url: homePageData.heroPrimaryButton.url,
+              type: homePageData.heroPrimaryButton.type,
+              style: homePageData.heroPrimaryButton.style,
+              isExternal: homePageData.heroPrimaryButton.isExternal
+            });
+          }
+          if (homePageData.heroSecondaryButton) {
+            buttons.push({
+              id: homePageData.heroSecondaryButton.id,
+              label: homePageData.heroSecondaryButton.label,
+              url: homePageData.heroSecondaryButton.url,
+              type: homePageData.heroSecondaryButton.type,
+              style: homePageData.heroSecondaryButton.style,
+              isExternal: homePageData.heroSecondaryButton.isExternal
+            });
+          }
+          
+          if (buttons.length > 0) {
+            setCTALinks(buttons);
+          } else {
+            setCTALinks(fallbackCTALinks);
+          }
+        } else {
+          setStats(statsData?.length > 0 ? statsData.map((stat: {id: number, label: string, value: string | number, unit: string, icon: string, category: string, description?: string}) => ({
+            id: stat.id,
+            label: stat.label,
+            value: typeof stat.value === 'string' ? (parseInt(stat.value) || 0) : stat.value,
+            unit: stat.unit,
+            icon: stat.icon,
+            category: stat.category,
+            description: stat.description || ""
+          })) : fallbackStats);
+          setCTALinks(fallbackCTALinks);
+        }
+      } catch (error) {
+        console.error('Error fetching hero data:', error);
+        setStats(fallbackStats);
+        setCTALinks(fallbackCTALinks);
+      }
+    }
+    
+    fetchData();
+  }, []);
+
+  const heroTitle = heroData?.heroTitle || title || "Changing lives one child at a time!";
+  const heroDescription = heroData?.heroDescription || description || "Join us in supporting underprivileged children in Boreda, Ethiopia by providing education, financial support, and spiritual guidance.";
+  const heroImageUrl = heroData?.heroBackgroundImage?.url 
+    ? `${STRAPI_URL}${heroData.heroBackgroundImage.url}`
+    : "/images/hero/hero-img.png";
+  
+  const donateLink = ctaLinks.find(link => link.label.toLowerCase().includes('donate')) || fallbackCTALinks[0];
+  const watchLink = ctaLinks.find(link => link.label.toLowerCase().includes('watch')) || fallbackCTALinks[1];
 
   return (
     <>
@@ -26,25 +137,24 @@ export default function HeroSection({ title, description }: HeroSectionProps) {
       buttonUrl="https://www.zeffy.com/en-US/ticketing/2025-lia-5k-run"
     />
       <section className="bg-cover bg-center py-12 md:py-28">  
-        <div className="container sm:px-12">
           <div className="flex flex-col justify-between gap-12 lg:flex-row lg:gap-8">
             <div className="mx-auto flex max-w-[43.75rem] flex-col gap-2 lg:mx-0">
               <div className="flex flex-col gap-6">
                 <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-6">
-                  {title || "Changing lives one child at a time!"}
+                  {heroTitle}
                 </h1>
               </div>
               <p className="text-muted-foreground text-base mb-4 max-w-xl">
-                {description || "Join us in supporting underprivileged children in Boreda, Ethiopia by providing education, financial support, and spiritual guidance."}
+                {heroDescription}
               </p>
 
               <div>
                 <div className="w-fit lg:mx-0">
                   <div className="flex flex-wrap gap-4">
-                    <Link href="https://www.zeffy.com/en-US/donation-form-v2/d7a24fa2-5425-4e72-b337-120c4f0b8c64">
+                    <Link href={donateLink.url} target={donateLink.isExternal ? "_blank" : "_self"}>
                       <Button className="group flex h-fit w-fit items-center gap-2 rounded-full px-8 py-3 bg-primary text-white">
                         <p className="text-sm/5 font-medium text-white">
-                          Donate Now
+                          {donateLink.label}
                         </p>
                         <div className="relative h-6 w-7 overflow-hidden">
                           <div className="absolute left-0 top-0 flex -translate-x-1/2 items-center transition-all duration-500 group-hover:translate-x-0">
@@ -66,7 +176,7 @@ export default function HeroSection({ title, description }: HeroSectionProps) {
                         </div>
                       </div>
                       <p className="text-sm/5 font-medium text-primary">
-                        Watch Demo
+                        {watchLink.label}
                       </p>
                     </Button>
                   </div>
@@ -79,14 +189,14 @@ export default function HeroSection({ title, description }: HeroSectionProps) {
                   }}
                 />
                 <div className="mt-4 flex items-center gap-16">
-                  <div>
-                    <h3 className="text-4xl font-bold mb-1">120+</h3>
-                    <p className="text-muted-foreground">Children Sponsored</p>
-                  </div>
-                  <div>
-                    <h3 className="text-4xl font-bold mb-1">4+</h3>
-                    <p className="text-muted-foreground">Years On Mission</p>
-                  </div>
+                  {stats.slice(0, 2).map((stat, index) => (
+                    <div key={stat.id || index}>
+                      <h3 className="text-4xl font-bold mb-1">
+                        {stat.value}{stat.unit}
+                      </h3>
+                      <p className="text-muted-foreground">{stat.label}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -95,7 +205,7 @@ export default function HeroSection({ title, description }: HeroSectionProps) {
                 <div className="w-full overflow-hidden rounded-3xl">
                   <AspectRatio ratio={1}>
                     <Image
-                      src="/images/hero/hero-img.png"
+                      src={heroImageUrl}
                       alt="Hero Image"
                       width={600}
                       height={800}
@@ -106,7 +216,6 @@ export default function HeroSection({ title, description }: HeroSectionProps) {
               </div>
             </div>
           </div>
-        </div>
       </section>
 
       {isVideoOpen && (

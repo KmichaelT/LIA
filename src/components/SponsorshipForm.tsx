@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { STRAPI_URL } from '@/lib/utils';
 
 interface SponsorshipFormData {
   preferredAge?: string;
@@ -74,7 +75,6 @@ export default function SponsorshipForm() {
       // Get JWT token for authenticated request
       const token = localStorage.getItem('jwt');
       
-      const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || 'https://best-desire-8443ae2768.strapiapp.com';
       const response = await fetch(`${STRAPI_URL}/api/sponsorship-requests`, {
         method: 'POST',
         headers: {

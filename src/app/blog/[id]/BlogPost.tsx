@@ -3,6 +3,7 @@
 
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
+import { STRAPI_URL } from "@/lib/utils";
 
 interface StrapiMedia {
   id: number;
@@ -86,7 +87,7 @@ function renderRichTextBlock(block: unknown, index: number): JSX.Element | null 
         return (
           <figure key={index} className="my-8">
             <img
-              src={(blockObj.image as any).url.startsWith('http') ? (blockObj.image as any).url : `https://best-desire-8443ae2768.strapiapp.com${(blockObj.image as any).url}`}
+              src={(blockObj.image as any).url.startsWith('http') ? (blockObj.image as any).url : `${STRAPI_URL}${(blockObj.image as any).url}`}
               alt={(blockObj.image as any).alternativeText || (blockObj.image as any).name}
               className="w-full rounded-lg"
               width={(blockObj.image as any).width}
@@ -146,7 +147,7 @@ export default function BlogPost({ post }: BlogPostProps) {
           </div>
           {post.cover?.url ? (
             <img
-              src={`https://best-desire-8443ae2768.strapiapp.com${post.cover.url}`}
+              src={`${STRAPI_URL}${post.cover.url}`}
               alt={post.Heading}
               className="mb-8 mt-4 aspect-video w-full rounded-lg border object-cover"
             />

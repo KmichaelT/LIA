@@ -5,39 +5,55 @@ import BlogSection from "@/components/sections/EventsSection";
 import DonateSection from "@/components/sections/DonateSection";
 import {BibleVerse} from "@/components/bibleVerse";
 import NewsletterSection from "@/components/sections/NewsletterSection";
+import { getHomePage } from "@/lib/strapi";
+import StatsSection from "@/components/sections/StatsSection";
 
-async function getHomePageData() {
-  try {
-    const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || 'https://best-desire-8443ae2768.strapiapp.com';
-    const response = await fetch(`${STRAPI_URL}/api/home-page`, {
-      cache: 'no-store'
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to fetch data');
-    }
-    
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Error fetching home page data:', error);
-    return null;
-  }
-}
+// Component mapping for CMS sections
+const sectionComponents = {
+  'viewers.event-viewer': BlogSection,
+  'viewers.cause-viewer': CausesSection, 
+  'viewers.service-viewer': ServicesSection,
+  'viewers.stats-viewer': StatsSection,
+  'content.newsletter-section': NewsletterSection,
+  'content.bible-verse': BibleVerse
+};
 
 export default async function Home() {
-  const homePageData = await getHomePageData();
+  const homePageData = await getHomePage();
   
   return (
     <>
       <HeroSection 
-        title={homePageData?.data?.HeroHeader}
-        description={homePageData?.data?.HeroDescription}
+        title={homePageData?.heroTitle}
+        description={homePageData?.heroDescription}
       />
-      <ServicesSection />
-      <CausesSection />
-      <BlogSection />
-      <BibleVerse/>
+      
+      {/* Render CMS sections dynamically */}
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+      {homePageData?.sections?.map((section: any, index: number) => {
+        const SectionComponent = sectionComponents[section.__component as keyof typeof sectionComponents];
+        
+        if (SectionComponent) {
+          return (
+            <SectionComponent 
+              key={`${section.__component}-${index}`}
+              sectionData={section}
+            />
+          );
+        }
+        
+        return null;
+      })}
+      
+      {/* Fallback sections if no CMS sections */}
+      {(!homePageData?.sections || homePageData.sections.length === 0) && (
+        <>
+          <ServicesSection />
+          <CausesSection />
+          <BlogSection />
+          <BibleVerse/>
+        </>
+      )}
     </>
   );
 }
