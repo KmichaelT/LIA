@@ -1,6 +1,7 @@
 "use client";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import React from "react";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { STRAPI_URL } from "@/lib/utils";
@@ -32,7 +33,7 @@ interface BlogPostProps {
 }
 
 // Component to render Strapi rich text blocks
-function renderRichTextBlock(block: unknown, index: number): JSX.Element | null {
+function renderRichTextBlock(block: unknown, index: number): React.ReactElement | null {
   const blockObj = block as { type?: string; children?: unknown[]; level?: number; format?: string; image?: unknown };
   switch (blockObj.type) {
     case 'paragraph':
@@ -45,7 +46,7 @@ function renderRichTextBlock(block: unknown, index: number): JSX.Element | null 
       );
     
     case 'heading':
-      const HeadingTag = `h${blockObj.level}` as keyof JSX.IntrinsicElements;
+      const HeadingTag = `h${blockObj.level}` as keyof React.JSX.IntrinsicElements;
       return (
         <HeadingTag key={index} className={`font-bold mb-4 ${
           blockObj.level === 2 ? 'text-2xl' : 
