@@ -74,7 +74,7 @@ export default function CompleteProfilePage() {
                       title='Donation form powered by Zeffy' 
                       className="absolute inset-0 w-full h-full border-0 rounded-lg shadow-none"
                       src='https://www.zeffy.com/embed/ticketing/sponsorship-signup' 
-                      allowPaymentRequest 
+                      allow="payment"
                       allowTransparency={true}>
                     </iframe>
                   </div>
