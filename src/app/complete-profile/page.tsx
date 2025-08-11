@@ -3,126 +3,15 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
-import { STRAPI_URL } from '@/lib/utils';
+import { Loader2, Info, CheckCircle, Heart, Users, Calendar } from 'lucide-react';
+import { ZeffyStyleInjector, ZeffyCSSOverride } from '@/components/ZeffyStyleInjector';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function CompleteProfilePage() {
-  const { user, refreshUserData } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
   
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    phone: '',
-    address: '',
-    city: '',
-    country: '',
-  });
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<'success' | 'error' | null>(null);
-  const [errorMessage, setErrorMessage] = useState('');
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setSubmitStatus(null);
-    setErrorMessage('');
-
-    try {
-      if (!user?.email) {
-        throw new Error('User email not found. Please log in again.');
-      }
-
-      const profileData = {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: user.email, // Use authenticated user's email
-        phone: formData.phone,
-        address: formData.address,
-        city: formData.city,
-        country: formData.country,
-      };
-
-      const token = localStorage.getItem('jwt');
-      console.log('JWT Token exists:', !!token);
-      console.log('Profile data being sent:', profileData);
-      
-      if (!token) {
-        throw new Error('No authentication token found. Please log in again.');
-      }
-      
-      const response = await fetch(`${STRAPI_URL}/api/sponsors`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token && { 'Authorization': `Bearer ${token}` }),
-        },
-        body: JSON.stringify({
-          data: profileData
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Strapi error response:', errorData);
-        const errorMessage = errorData?.error?.message || `HTTP error! status: ${response.status}`;
-        throw new Error(errorMessage);
-      }
-
-      const result = await response.json();
-      console.log('Sponsor profile created:', result);
-      
-      setSubmitStatus('success');
-      setIsSubmitting(false);
-      
-      // Show redirecting state to prevent homepage flash
-      setIsRedirecting(true);
-      
-      // Refresh user data to include the new sponsor profile
-      await refreshUserData();
-      
-      // Get the return URL where user originally wanted to go
-      const returnUrl = localStorage.getItem('returnUrl');
-      console.log('Profile completed, return URL:', returnUrl);
-      
-      // Set a flag to keep loading screen persistent across navigation
-      localStorage.setItem('profileCompleteRedirect', 'true');
-      
-      // Immediate redirect - let the loading screen handle the visual transition
-      if (returnUrl) {
-        localStorage.removeItem('returnUrl'); // Clean up
-        console.log('Redirecting to return URL:', returnUrl);
-        window.location.href = returnUrl; // Direct navigation
-      } else {
-        console.log('No return URL, going to homepage');
-        window.location.href = '/'; // Direct navigation for consistency
-      }
-
-    } catch (error) {
-      console.error('Error creating sponsor profile:', error);
-      setSubmitStatus('error');
-      setErrorMessage(error instanceof Error ? error.message : 'Something went wrong');
-    } finally {
-      // Only reset submitting if we're not in redirecting state
-      if (!isRedirecting) {
-        setIsSubmitting(false);
-      }
-    }
-  };
 
   // If user is not authenticated, redirect to login
   if (!user) {
@@ -150,163 +39,97 @@ export default function CompleteProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-md mx-auto bg-white rounded-lg shadow-lg p-8">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Complete Your Profile</h1>
-          <p className="text-gray-600">
-            Welcome, {user?.username}! Complete your sponsor profile to start sponsoring children.
-          </p>
-        </div>
-
-        {submitStatus === 'success' && (
-          <Alert className="mb-6 border-green-200 bg-green-50">
-            <CheckCircle className="h-4 w-4 text-green-600" />
-            <AlertDescription className="text-green-800">
-              Profile completed successfully! Redirecting to homepage...
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {submitStatus === 'error' && (
-          <Alert className="mb-6 border-red-200 bg-red-50">
-            <AlertCircle className="h-4 w-4 text-red-600" />
-            <AlertDescription className="text-red-800">
-              {errorMessage || 'There was an error creating your profile. Please try again.'}
-            </AlertDescription>
-          </Alert>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Personal Information */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="firstName">First Name *</Label>
-                <Input
-                  id="firstName"
-                  name="firstName"
-                  type="text"
-                  required
-                  value={formData.firstName}
-                  onChange={handleInputChange}
-                  placeholder="John"
-                  className="mt-1"
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="lastName">Last Name *</Label>
-                <Input
-                  id="lastName"
-                  name="lastName"
-                  type="text"
-                  required
-                  value={formData.lastName}
-                  onChange={handleInputChange}
-                  placeholder="Doe"
-                  className="mt-1"
-                />
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="phone">Phone Number *</Label>
-              <Input
-                id="phone"
-                name="phone"
-                type="tel"
-                required
-                value={formData.phone}
-                onChange={handleInputChange}
-                placeholder="+1 (555) 123-4567"
-                className="mt-1"
-              />
-            </div>
-          </div>
-
-          {/* Address Information */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900">Address Information</h3>
-            
-            <div>
-              <Label htmlFor="address">Street Address *</Label>
-              <Input
-                id="address"
-                name="address"
-                type="text"
-                required
-                value={formData.address}
-                onChange={handleInputChange}
-                placeholder="123 Main Street"
-                className="mt-1"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="city">City *</Label>
-                <Input
-                  id="city"
-                  name="city"
-                  type="text"
-                  required
-                  value={formData.city}
-                  onChange={handleInputChange}
-                  placeholder="New York"
-                  className="mt-1"
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="country">Country *</Label>
-                <Input
-                  id="country"
-                  name="country"
-                  type="text"
-                  required
-                  value={formData.country}
-                  onChange={handleInputChange}
-                  placeholder="United States"
-                  className="mt-1"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Account Email Display */}
-          <div className="bg-gray-50 p-4 rounded-lg border">
-            <Label className="text-sm font-medium text-gray-600">Account Email</Label>
-            <p className="text-sm text-gray-900 mt-1">{user?.email}</p>
-          </div>
-
-          {/* Submit Button */}
-          <div className="pt-6">
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full bg-primary hover:bg-primary/90 text-white py-3 text-lg"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Creating Profile...
-                </>
-              ) : (
-                'Complete Profile'
-              )}
-            </Button>
-          </div>
-
-          <div className="text-center text-sm text-gray-500">
-            <p>
-              This information will be used for sponsorship requests and communication.
+    <section className="bg-background py-24">
+      {/* Attempt to inject custom styles into Zeffy iframe */}
+      <ZeffyStyleInjector />
+      <ZeffyCSSOverride />
+      
+      <div className="container px-4 md:px-6">
+        <div className="mx-auto max-w-6xl">
+          {/* Header */}
+          <div className="mb-16 text-center">
+            <h1 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
+              Complete Your Profile & Start Sponsoring
+            </h1>
+            <p className="text-muted-foreground mx-auto max-w-2xl text-lg">
+              Welcome, {user?.username}! Complete your profile and make your first donation to start sponsoring a child.
             </p>
           </div>
-        </form>
+
+          <div className="grid gap-8 lg:grid-cols-3 shadow-none">
+            {/* Zeffy Iframe - Spans 2 columns */}
+            <div className="lg:col-span-2 shadow-none">
+              <Card className="border-0 shadow-none h-full">
+                <CardContent className="p-0 shadow-none">
+                  <div 
+                    style={{
+                      height: 'calc(100vh - 280px)',
+                      minHeight: '650px',
+                      maxHeight: '900px',
+                      position: 'relative',
+                      boxShadow: 'none',
+                    }}
+                  >
+                    <iframe 
+                      title='Donation form powered by Zeffy' 
+                      className="absolute inset-0 w-full h-full border-0 rounded-lg shadow-none"
+                      src='https://www.zeffy.com/embed/ticketing/sponsorship-signup' 
+                      allowPaymentRequest 
+                      allowTransparency={true}>
+                    </iframe>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Information - Single column */}
+            <div className="space-y-6">
+              {/* Important Notice */}
+              <Card className="bg-amber-50 border-amber-200">
+                <CardContent className="pt-6">
+                  <div className="flex items-start gap-3">
+                    <Info className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-amber-900 font-semibold mb-2">
+                        Important: Use this email
+                      </p>
+                      <p className="text-amber-800 font-medium">
+                        {user?.email}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* What Happens Next */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <CheckCircle className="h-5 w-5 text-green-600" />
+                    Quick & Easy
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">
+                    Your profile creates automatically after donation. You'll be matched with a child and receive updates monthly.
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Support */}
+              <div className="text-center p-6 bg-gray-50 rounded-lg">
+                <p className="text-sm text-gray-700 mb-1">Questions?</p>
+                <a href="mailto:support@loveinaction.co" className="text-primary font-medium hover:underline">
+                  support@loveinaction.co
+                </a>
+                <p className="text-sm text-gray-600 mt-3">
+                  🔒 Secure SSL Encrypted
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
