@@ -28,6 +28,7 @@ export default async function Home() {
         description={homePageData?.heroDescription}
       />
       
+      
       {/* Render CMS sections dynamically */}
       {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       {homePageData?.sections?.map((section: any, index: number) => {

@@ -24,7 +24,7 @@ const BibleVerse = ({
 }: BibleVerseProps) => {
   return (
     <section className="py-16">
-      <div className="container">
+      <div  >
         <div className="flex flex-col items-center text-center">
           <p className="mb-4 max-w-4xl px-8 font-medium lg:text-2xl">
             &ldquo;{quote}&rdquo;

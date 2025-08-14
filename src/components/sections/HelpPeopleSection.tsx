@@ -9,7 +9,7 @@ export default function HelpPeopleSection() {
     <section className="py-20 bg-slate-50 relative overflow-hidden">
  
 
-      <div className="container relative z-10">
+      <div className=" relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
           {/* Video Thumbnail */}
           <div className="relative rounded-xl overflow-hidden group">

@@ -1,16 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Button } from "@/components/button";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams, useRouter } from 'next/navigation';
+import { Button } from "@/components/ui/button";
 import { STRAPI_URL, getStrapiImageUrl } from '@/lib/utils';
-import { Search, X } from "lucide-react";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselPrevious,
-  CarouselNext,
-} from "@/components/carousel";
+import { X, MapPin, User, CalendarDays, Loader2, ChevronLeft, ChevronRight, School, Footprints, Landmark, Heart, ChevronDown } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import NoChildrenState from "@/components/NoChildrenState";
 import Image from "next/image";
 
 interface StrapiImage {
@@ -26,7 +24,13 @@ interface ChildProfile {
   id: number;
   documentId: string;
   fullName: string;
-  sponsor: string | null;
+  sponsor: string | { 
+    id: number; 
+    firstName: string; 
+    lastName: string; 
+    email: string;
+    [key: string]: unknown;
+  } | null;
   dateOfBirth: string;
   joinedSponsorshipProgram: string;
   ageAtJoining: string | null;
@@ -44,57 +48,140 @@ interface ChildProfile {
 
 interface ProfilesClientProps {
   profiles: ChildProfile[];
+  hasProfile: boolean;
 }
 
-export default function ProfilesClient({ profiles: initialProfiles }: ProfilesClientProps) {
-  const [searchTerm, setSearchTerm] = useState("");
+// Mini Carousel Component for Images
+function MiniCarousel({ images = [], alt }: { images: StrapiImage[]; alt: string }) {
+  const [index, setIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  const safeImages = images.length > 0 ? images : [];
+
+  const next = () => setIndex((i) => (i + 1) % safeImages.length);
+  const prev = () => setIndex((i) => (i - 1 + safeImages.length) % safeImages.length);
+
+  useEffect(() => {
+    setLoading(true);
+  }, [index]);
+
+  if (safeImages.length === 0) {
+    return (
+      <div className="relative w-full overflow-hidden rounded-2xl border bg-background">
+        <div className="aspect-[4/3] w-full bg-gray-100 flex items-center justify-center">
+          <div className="text-center text-gray-500">
+            <div className="text-4xl mb-2">📷</div>
+            <p className="text-sm">No photos available</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative w-full overflow-hidden rounded-2xl border bg-background">
+      <div className="aspect-[4/3] w-full">
+        <Image
+          src={getStrapiImageUrl(safeImages[index].url)}
+          alt={safeImages[index].alternativeText || alt}
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
+          className={`object-cover transition-opacity duration-300 ${loading ? "opacity-0" : "opacity-100"}`}
+          onLoadingComplete={() => setLoading(false)}
+          priority
+        />
+        {loading && (
+          <div className="absolute inset-0 grid place-items-center">
+            <Loader2 className="h-6 w-6 animate-spin" />
+          </div>
+        )}
+      </div>
+
+      {safeImages.length > 1 && (
+        <>
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-between p-2">
+            <div className="pointer-events-auto">
+              <Button variant="secondary" size="icon" onClick={prev} aria-label="Previous image">
+                <ChevronLeft className="h-5 w-5" />
+              </Button>
+            </div>
+            <div className="pointer-events-auto">
+              <Button variant="secondary" size="icon" onClick={next} aria-label="Next image">
+                <ChevronRight className="h-5 w-5" />
+              </Button>
+            </div>
+          </div>
+
+          <div className="absolute inset-x-0 bottom-2 flex items-center justify-center gap-1">
+            {safeImages.map((_, i) => (
+              <span
+                key={i}
+                aria-hidden
+                className={`h-1.5 w-1.5 rounded-full ${i === index ? "bg-primary" : "bg-muted-foreground/40"}`}
+              />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// Helper function to format dates
+function formatDate(iso: string) {
+  try {
+    const d = new Date(iso);
+    return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "2-digit" });
+  } catch {
+    return iso;
+  }
+}
+
+function ProfilesClientContent({ profiles: initialProfiles, hasProfile }: ProfilesClientProps) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [selectedProfile, setSelectedProfile] = useState<ChildProfile | null>(null);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [profileImages, setProfileImages] = useState<StrapiImage[]>([]);
   const [loadingImages, setLoadingImages] = useState(false);
-  const [searchResults, setSearchResults] = useState<ChildProfile[]>([]);
-  const [searching, setSearching] = useState(false);
+  const [showChildSelector, setShowChildSelector] = useState(false);
 
-  // Function to search Strapi database
-  const searchProfiles = async (term: string) => {
-    if (!term.trim()) {
-      setSearchResults([]);
+  // Handle child selection from URL or default selection
+  useEffect(() => {
+    const childId = searchParams.get('childId');
+    
+    if (initialProfiles.length === 0) {
+      setSelectedProfile(null);
       return;
     }
 
-    setSearching(true);
-    try {
-      // Use Strapi's filters to search in multiple fields
-      const searchParams = new URLSearchParams({
-        'pagination[pageSize]': '50',
-        'filters[$or][0][fullName][$containsi]': term,
-        'filters[$or][1][sponsor][$containsi]': term,
-        'filters[$or][2][about][$containsi]': term,
-        'filters[$or][3][aspiration][$containsi]': term,
-        'filters[$or][4][hobby][$containsi]': term,
-        'filters[$or][5][location][$containsi]': term,
-        'filters[$or][6][school][$containsi]': term,
-      });
-
-      const response = await fetch(`${STRAPI_URL}/api/children?${searchParams}`, {
-        cache: 'no-store',
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setSearchResults(data.data || []);
-        setError(null);
-      } else {
-        console.error('Search failed');
-        setSearchResults([]);
-      }
-    } catch (error) {
-      console.error('Error searching profiles:', error);
-      setSearchResults([]);
-    } finally {
-      setSearching(false);
+    if (initialProfiles.length === 1) {
+      // Auto-select single child
+      setSelectedProfile(initialProfiles[0]);
+      return;
     }
+
+    // Multiple children - handle selection
+    if (childId) {
+      const child = initialProfiles.find(p => p.id.toString() === childId || p.documentId === childId);
+      if (child) {
+        setSelectedProfile(child);
+        return;
+      }
+    }
+
+    // Default to first child if no valid selection
+    setSelectedProfile(initialProfiles[0]);
+  }, [initialProfiles, searchParams]);
+
+  // Update URL when child selection changes
+  const selectChild = (child: ChildProfile) => {
+    setSelectedProfile(child);
+    setShowChildSelector(false);
+    
+    // Update URL with child selection
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('childId', child.documentId);
+    router.push(`/profiles?${params.toString()}`, { scroll: false });
   };
 
   // Fetch images and updated profile data for selected profile
@@ -112,9 +199,8 @@ export default function ProfilesClient({ profiles: initialProfiles }: ProfilesCl
           const data = await response.json();
           setProfileImages(data.data?.images || []);
           
-          // Update the selected profile with fresh data
-          const updatedProfile = { ...data.data };
-          setSelectedProfile(updatedProfile);
+          // Don't update selectedProfile here to avoid infinite loop
+          // The profile data is already available from the initial fetch
         } else {
           console.error('Failed to fetch profile data');
           setProfileImages([]);
@@ -128,280 +214,214 @@ export default function ProfilesClient({ profiles: initialProfiles }: ProfilesCl
     }
 
     fetchProfileData();
-  }, [selectedProfile?.documentId]);
+  }, [selectedProfile?.documentId, selectedProfile]);
 
-  // Debounced search effect
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (searchTerm.trim()) {
-        searchProfiles(searchTerm);
-      } else {
-        setSearchResults([]);
-      }
-    }, 300); // 300ms delay
-
-    return () => clearTimeout(timeoutId);
-  }, [searchTerm]);
-
-  // Use search results if searching, otherwise empty array
-  const filteredProfiles = searchResults;
-
-  // Close suggestions when clicking outside
+  // Close child selector when clicking outside
   const handleClickOutside = () => {
-    setShowSuggestions(false);
+    setShowChildSelector(false);
   };
 
   return (
-    <main className="min-h-screen flex items-center py-12" onClick={handleClickOutside}>
-      <div className="container">
-        <div className="max-w-2xl mx-auto space-y-8">
-          <div className="text-center space-y-2">
-            <h1 className="text-3xl font-bold">Child Profiles</h1>
-            <p className="text-muted-foreground">
-              Find and learn about the children you are sponsoring.
-            </p>
+    <div className="w-full" onClick={handleClickOutside}>
+      {/* Dashboard Header */}
+      <div className="bg-white border-b border-gray-200 px-6 py-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">My Sponsored Children</h1>
+            <p className="text-sm text-gray-600">View and manage your sponsored children's profiles</p>
           </div>
-
-          {error && (
-            <div className="bg-destructive/10 text-destructive p-4 rounded-md flex items-center justify-between">
-              <p>{error}</p>
-              <Button variant="ghost" size="sm" onClick={() => setError(null)}>
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          )}
-
-          {/* Search Input with Suggestions */}
-          <div className="relative" onClick={(e) => e.stopPropagation()}>
-            <div className="relative flex items-center">
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  setShowSuggestions(true);
-                  setError(null);
-                }}
-                onFocus={() => setShowSuggestions(true)}
-                placeholder="Search by child or sponsor name..."
-                className="w-full px-4 py-2 border rounded-md pr-10 focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary"
-                aria-label="Search profiles"
-                aria-expanded={showSuggestions}
-                role="combobox"
-                aria-controls="search-suggestions"
-                aria-autocomplete="list"
-              />
-              {searching ? (
-                <div className="absolute right-3 h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600"></div>
-              ) : (
-                <Search className="absolute right-3 h-5 w-5 text-gray-400" aria-hidden="true" />
-              )}
-            </div>
-
-            {/* Suggestions Dropdown */}
-            {showSuggestions && searchTerm && (
-              <div
-                id="search-suggestions"
-                role="listbox"
-                className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-auto"
+          
+          {/* Child Selector for Multiple Children */}
+          {initialProfiles.length > 1 && (
+            <div className="relative" onClick={(e) => e.stopPropagation()}>
+              <button
+                onClick={() => setShowChildSelector(!showChildSelector)}
+                className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                aria-expanded={showChildSelector}
+                aria-haspopup="listbox"
               >
-                {searching ? (
-                  <div className="px-4 py-3 text-sm text-muted-foreground text-center">
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600"></div>
-                      Searching...
-                    </div>
-                  </div>
-                ) : filteredProfiles.length > 0 ? (
-                  filteredProfiles.map((profile) => (
+                <span className="font-medium">
+                  {selectedProfile ? selectedProfile.fullName : 'Select Child'}
+                </span>
+                <ChevronDown className={`h-4 w-4 transition-transform ${showChildSelector ? 'rotate-180' : ''}`} />
+              </button>
+
+              {/* Child Selection Dropdown */}
+              {showChildSelector && (
+                <div className="absolute z-50 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg min-w-64 max-h-60 overflow-auto">
+                  {initialProfiles.map((profile) => (
                     <button
                       key={profile.documentId}
-                      role="option"
-                      className="w-full px-4 py-2 text-left hover:bg-secondary/10 focus:outline-none focus:bg-secondary/10"
-                      onClick={() => {
-                        setSelectedProfile(profile);
-                        setSearchTerm("");
-                        setShowSuggestions(false);
-                      }}
+                      className={`w-full px-4 py-3 text-left hover:bg-gray-50 focus:outline-none focus:bg-gray-50 border-b border-gray-100 last:border-b-0 ${
+                        selectedProfile?.documentId === profile.documentId ? 'bg-blue-50' : ''
+                      }`}
+                      onClick={() => selectChild(profile)}
                     >
-                      <div className="font-medium">{profile.fullName}</div>
-                      {profile.sponsor && (
-                        <div className="text-sm text-muted-foreground">
-                          Sponsor: {profile.sponsor}
-                        </div>
-                      )}
-                    </button>
-                  ))
-                ) : (
-                  <div className="px-4 py-2 text-sm text-muted-foreground">
-                    No profiles found matching "{searchTerm}"
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Selected Profile Card */}
-          {selectedProfile && (
-            <div className="border rounded-lg p-6 space-y-6 bg-white shadow-sm">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h2 className="text-2xl font-bold">{selectedProfile.fullName}</h2>
-                  <p className="text-muted-foreground">
-                    Sponsor: {selectedProfile.sponsor || "Not Assigned"}
-                  </p>
-                </div>
-                <Button
-                  variant="ghost"
-                  className="text-muted-foreground"
-                  onClick={() => setSelectedProfile(null)}
-                >
-                  Close
-                </Button>
-              </div>
-
-              {/* Image Carousel */}
-              {loadingImages ? (
-                <div className="w-full aspect-square bg-muted rounded-lg flex items-center justify-center">
-                  <div className="text-center text-muted-foreground">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-                    <p>Loading images...</p>
-                  </div>
-                </div>
-              ) : profileImages && profileImages.length > 0 ? (
-                <div className="relative w-full aspect-square bg-muted rounded-lg overflow-hidden">
-                  <Carousel
-                    opts={{
-                      align: "start",
-                      loop: true,
-                    }}
-                    className="w-full h-full"
-                  >
-                    <CarouselContent>
-                      {profileImages.map((image, index) => (
-                        <CarouselItem key={image.id} className="relative aspect-square">
-                          <Image
-                            src={getStrapiImageUrl(image.url)}
-                            alt={image.alternativeText || `${selectedProfile.fullName} - Photo ${index + 1}`}
-                            fill
-                            className="object-contain"
-                            priority={index === 0}
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          />
-                        </CarouselItem>
-                      ))}
-                    </CarouselContent>
-                    {profileImages.length > 1 && (
-                      <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-10">
-                        <CarouselPrevious className="relative inline-flex h-8 w-8" />
-                        <CarouselNext className="relative inline-flex h-8 w-8" />
+                      <div className="font-medium text-gray-900">{profile.fullName}</div>
+                      <div className="text-sm text-gray-500">
+                        Grade {profile.currentGrade} • {profile.location}
                       </div>
-                    )}
-                  </Carousel>
-                  <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-xs">
-                    {profileImages.length} photo(s)
-                  </div>
-                </div>
-              ) : (
-                <div className="w-full aspect-square bg-muted rounded-lg flex items-center justify-center">
-                  <div className="text-center text-muted-foreground">
-                    <div className="text-4xl mb-2">📷</div>
-                    <p>No photos available</p>
-                  </div>
+                    </button>
+                  ))}
                 </div>
               )}
-
-              <div className="grid gap-4 md:grid-cols-2">
-                <div>
-                  <h3 className="font-bold mb-2">Personal Information</h3>
-                  <dl className="space-y-3">
-                    <div>
-                      <dt className="text-sm text-muted-foreground">Date of Birth</dt>
-                      <dd>{selectedProfile.dateOfBirth}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-sm text-muted-foreground">Current Grade</dt>
-                      <dd>{selectedProfile.currentGrade}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-sm text-muted-foreground">School</dt>
-                      <dd>{selectedProfile.school}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-sm text-muted-foreground">Walk to School</dt>
-                      <dd>{selectedProfile.walkToSchool}</dd>
-                    </div>
-                  </dl>
-                </div>
-
-                <div>
-                  <h3 className="font-bold mb-2">Sponsorship Details</h3>
-                  <dl className="space-y-3">
-                    <div>
-                      <dt className="text-sm text-muted-foreground">Sponsor</dt>
-                      <dd>{selectedProfile.sponsor || "Not sponsored"}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-sm text-muted-foreground">Joined Program</dt>
-                      <dd>{selectedProfile.joinedSponsorshipProgram}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-sm text-muted-foreground">Age at Joining</dt>
-                      <dd>{selectedProfile.ageAtJoining || "N/A"}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-sm text-muted-foreground">Grade at Joining</dt>
-                      <dd>{selectedProfile.gradeAtJoining || "N/A"}</dd>
-                    </div>
-                  </dl>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <h3 className="font-bold mb-2">About</h3>
-                <p>{selectedProfile.about}</p>
-              </div>
-
-              <div className="grid gap-4">
-                <div>
-                  <h3 className="font-bold mb-2">Additional Information</h3>
-                  <dl className="space-y-3">
-                    <div>
-                      <dt className="text-sm text-muted-foreground">Location</dt>
-                      <dd>{selectedProfile.location}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-sm text-muted-foreground">Family</dt>
-                      <dd>{selectedProfile.family}</dd>
-                    </div>
-                  </dl>
-                </div>
-
-                <div>
-                  <h3 className="font-bold mb-2">Dreams & Interests</h3>
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <div>
-                      <dt className="text-sm text-muted-foreground">Aspiration</dt>
-                      <dd>{selectedProfile.aspiration}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-sm text-muted-foreground">Hobby</dt>
-                      <dd className="text-base">{selectedProfile.hobby}</dd>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Empty State */}
-          {!selectedProfile && !searchTerm && (
-            <div className="text-center py-8 text-muted-foreground">
-              <p>Search for a child or sponsor above to view their profile</p>
             </div>
           )}
         </div>
       </div>
-    </main>
+
+      {/* Main Content Area */}
+      <div className="flex-1 px-6 py-6">
+        {/* Selected Profile Dashboard */}
+        {selectedProfile && (
+          <div className="space-y-6">
+            {/* Profile Header with Close Button */}
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Child Profile</h2>
+                <p className="text-gray-600">Detailed information and photos</p>
+              </div>
+              <Button
+                variant="ghost"
+                className="text-gray-500 hover:text-gray-700"
+                onClick={() => setSelectedProfile(null)}
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+
+            {/* New Dashboard Layout */}
+            <div className="grid gap-6 md:grid-cols-5">
+              {/* Left column: media and quick facts */}
+              <div className="md:col-span-2 space-y-4">
+                {loadingImages ? (
+                  <div className="relative w-full overflow-hidden rounded-2xl border bg-background">
+                    <div className="aspect-[4/3] w-full bg-gray-100 flex items-center justify-center">
+                      <div className="text-center text-gray-500">
+                        <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2" />
+                        <p className="text-sm">Loading images...</p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <MiniCarousel images={profileImages} alt={selectedProfile.fullName} />
+                )}
+
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg">Quick facts</CardTitle>
+                  </CardHeader>
+                  <CardContent className="grid grid-cols-1 gap-2 text-sm">
+                    <div className="flex items-center gap-2">
+                      <User className="h-4 w-4" />
+                      <span>{selectedProfile.fullName}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CalendarDays className="h-4 w-4" />
+                      <span>DOB: {formatDate(selectedProfile.dateOfBirth)}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <School className="h-4 w-4" />
+                      <span>School: {selectedProfile.school}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Footprints className="h-4 w-4" />
+                      <span>Walk: {selectedProfile.walkToSchool}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4" />
+                      <span>{selectedProfile.location}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Right column: profile details */}
+              <div className="md:col-span-3 space-y-4">
+                <Card>
+                  <CardHeader className="pb-2">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div>
+                        <CardTitle className="text-2xl font-semibold tracking-tight">{selectedProfile.fullName}</CardTitle>
+                        <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
+                          <span className="inline-flex items-center gap-1">
+                            <Heart className="h-3.5 w-3.5" /> 
+                            Sponsor: {
+                              selectedProfile.sponsor 
+                                ? (typeof selectedProfile.sponsor === 'string' 
+                                    ? selectedProfile.sponsor 
+                                    : `${selectedProfile.sponsor.firstName} ${selectedProfile.sponsor.lastName}`
+                                  )
+                                : "Available for sponsorship"
+                            }
+                          </span>
+                        </div>
+                      </div>
+                      <div className="text-right text-sm">
+                        <div>Joined: {formatDate(selectedProfile.joinedSponsorshipProgram)}</div>
+                        <div>Age at joining: {selectedProfile.ageAtJoining || "N/A"}</div>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4 h-full">
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                      <div className="rounded-xl border p-3">
+                        <div className="text-xs text-muted-foreground">Grade at joining</div>
+                        <div className="font-medium">{selectedProfile.gradeAtJoining || "N/A"}</div>
+                      </div>
+                      <div className="rounded-xl border p-3">
+                        <div className="text-xs text-muted-foreground">Current grade</div>
+                        <div className="font-medium">{selectedProfile.currentGrade}</div>
+                      </div>
+                      <div className="rounded-xl border p-3">
+                        <div className="text-xs text-muted-foreground">Aspiration</div>
+                        <div className="font-medium">{selectedProfile.aspiration}</div>
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    <section className="space-y-2">
+                      <h3 className="text-sm font-semibold tracking-tight">About</h3>
+                      <p className="text-sm leading-relaxed text-muted-foreground">{selectedProfile.about}</p>
+                    </section>
+
+                    <section className="space-y-2">
+                      <h3 className="text-sm font-semibold tracking-tight">Family</h3>
+                      <p className="text-sm leading-relaxed text-muted-foreground">{selectedProfile.family}</p>
+                    </section>
+
+                    <section className="space-y-2">
+                      <h3 className="text-sm font-semibold tracking-tight">Hobby</h3>
+                      <p className="text-sm leading-relaxed text-muted-foreground">{selectedProfile.hobby}</p>
+                    </section>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* No Children State */}
+        {initialProfiles.length === 0 && (
+          <NoChildrenState hasProfile={hasProfile} />
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default function ProfilesClient({ profiles, hasProfile }: ProfilesClientProps) {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
+          <p className="text-gray-600">Loading children profiles...</p>
+        </div>
+      </div>
+    }>
+      <ProfilesClientContent profiles={profiles} hasProfile={hasProfile} />
+    </Suspense>
   );
 }

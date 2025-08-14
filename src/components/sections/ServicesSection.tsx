@@ -1,7 +1,7 @@
 'use client';
  
 import {  GraduationCap, Home, Flame, Users } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { getFeaturedServices } from '@/lib/strapi';
 import { ServiceData } from '@/types/strapi';
 
@@ -37,14 +37,14 @@ interface ServicesSectionProps {
 export default function ServicesSection({ sectionData }: ServicesSectionProps = {}) {
   const [services, setServices] = useState<ServiceData[]>([]);
 
-  // Fallback data
-  const fallbackServices = [
+  // Fallback data - memoized to prevent useEffect re-runs
+  const fallbackServices = useMemo(() => [
     {
       id: 1,
       icon: "Home",
       title: "Basic Needs",
       description: "Providing essential supplies and support for daily living necessities.",
-      backgroundColor: "bg-secondary/20",
+      backgroundColor: "bg-yellow-200",
       featured: true,
       order: 1
     },
@@ -75,7 +75,7 @@ export default function ServicesSection({ sectionData }: ServicesSectionProps = 
       featured: true,
       order: 4
     },
-  ];
+  ], []);
 
   useEffect(() => {
     async function fetchServices() {
@@ -104,7 +104,7 @@ export default function ServicesSection({ sectionData }: ServicesSectionProps = 
     }
 
     fetchServices();
-  }, [sectionData?.maxItems]);
+  }, [sectionData?.maxItems, fallbackServices]);
 
   // Helper function to get icon component
   const getIconComponent = (iconName: string) => {

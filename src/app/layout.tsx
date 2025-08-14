@@ -72,11 +72,12 @@ export default function RootLayout({
         />
         <link
           rel="preload"
-          href="/fonts/Specify-ExpandedMedium.otf"
+          href="/fonts/Specify-NormalMedium.otf"
           as="font"
           type="font/otf"
           crossOrigin="anonymous"
         />
+        <script src="https://zeffy-scripts.s3.ca-central-1.amazonaws.com/embed-form-script.min.js" async></script>
       </head>
       <body>
         <ClientBody>

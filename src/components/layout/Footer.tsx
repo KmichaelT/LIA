@@ -15,7 +15,7 @@ export default function Footer() {
 
   return (
     <section className="flex flex-col items-center gap-14 py-32">
-      <nav className="container flex flex-col items-center gap-4">
+      <nav className=" flex flex-col items-center gap-4">
         <ul className="flex flex-wrap items-center justify-center gap-6">
           {navigation.map((item) => (
             <li key={item.name}>

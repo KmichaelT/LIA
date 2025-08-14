@@ -35,13 +35,13 @@ interface BlogListProps {
 export default function BlogList({ posts }: BlogListProps) {
   return (
     <section className="py-32">
-      <div className="container">
-        <div className="mx-auto flex max-w-3xl flex-col items-center gap-6 text-center">
+      <div>
+        <div className="max-w-3xl flex-col gap-6">
           <Badge variant="outline">Articles</Badge>
-          <h1 className="text-4xl font-semibold text-balance">
+          <h1 className="mt-4 text-balance">
             Discover the latest trends
           </h1>
-          <p className="text-muted-foreground">
+          <p className="mt-6">
             Explore our blog for insightful articles, personal reflections and
             ideas that inspire action on the topics you care about.
           </p>

@@ -68,7 +68,14 @@ export default function RegisterPage() {
       // Check if user is immediately authenticated (no email confirmation)
       const token = localStorage.getItem('jwt');
       if (token) {
-        router.push('/complete-profile'); // Redirect to profile completion
+        // Check if there's a return URL (they came from sponsor-a-child)
+        const returnUrl = localStorage.getItem('returnUrl');
+        if (returnUrl) {
+          localStorage.removeItem('returnUrl');
+          router.push(returnUrl);
+        } else {
+          router.push('/sponsor-a-child'); // Default to sponsorship form
+        }
       } else {
         // Email confirmation required
         router.push('/check-email'); // Redirect to email confirmation page
@@ -84,9 +91,9 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-900">Create your account</h2>
+          <h2 className="text-3xl font-bold text-gray-900">Submit Your Sponsorship Request</h2>
           <p className="mt-2 text-gray-600">
-            Step 1 of 2: Create your login credentials
+            Step 1 of 2: Create your account to start the sponsorship process
           </p>
         </div>
 
@@ -169,12 +176,12 @@ export default function RegisterPage() {
                 Creating account...
               </>
             ) : (
-              'Continue to Step 2'
+              'Continue to Sponsorship Form'
             )}
           </Button>
 
           <div className="text-center text-sm text-gray-500">
-            <p>Next: Complete your sponsor profile</p>
+            <p>Next: Complete your sponsorship request form</p>
           </div>
 
           <div className="text-center">
@@ -186,6 +193,9 @@ export default function RegisterPage() {
               >
                 Sign in here
               </Link>
+            </p>
+            <p className="text-xs text-gray-500 mt-2">
+              You'll be taken to the sponsorship form after signing in
             </p>
           </div>
         </form>

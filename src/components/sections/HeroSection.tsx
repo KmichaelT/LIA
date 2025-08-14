@@ -4,9 +4,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { Play, PlayIcon, MoveRight } from "lucide-react";
 import { AspectRatio } from "@/components/aspect-ratio";
-import { Button } from "@/components/button";
-import { useState, useEffect } from "react";
-import {Banner5} from "@/components/banner";
+import { Button } from "@/components/ui/button";
+import { useState, useEffect, useMemo } from "react";
 import { getHomePage, getImpactStats, getCTALinks } from "@/lib/strapi";
 import { HomePage, StatData, LinkData } from "@/types/strapi";
 import { STRAPI_URL, getStrapiImageUrl } from "@/lib/utils";
@@ -22,16 +21,16 @@ export default function HeroSection({ title, description }: HeroSectionProps) {
   const [stats, setStats] = useState<StatData[]>([]);
   const [ctaLinks, setCTALinks] = useState<LinkData[]>([]);
 
-  // Fallback data
-  const fallbackStats = [
+  // Fallback data - memoized to prevent useEffect re-runs
+  const fallbackStats = useMemo(() => [
     { id: 1, label: "Children Sponsored", value: 120, unit: "+", icon: "Users", category: "impact", description: "" },
     { id: 2, label: "Years On Mission", value: 4, unit: "+", icon: "Calendar", category: "impact", description: "" }
-  ];
+  ], []);
 
-  const fallbackCTALinks = [
+  const fallbackCTALinks = useMemo(() => [
     { id: 1, label: "Donate Now", url: "https://www.zeffy.com/en-US/donation-form-v2/d7a24fa2-5425-4e72-b337-120c4f0b8c64", type: "cta", style: "primary", isExternal: true },
     { id: 2, label: "Watch Demo", url: "#video", type: "cta", style: "secondary", isExternal: false }
-  ];
+  ], []);
 
   useEffect(() => {
     async function fetchData() {
@@ -117,7 +116,7 @@ export default function HeroSection({ title, description }: HeroSectionProps) {
     }
     
     fetchData();
-  }, []);
+  }, [fallbackCTALinks, fallbackStats]);
 
   const heroTitle = heroData?.heroTitle || title || "Changing lives one child at a time!";
   const heroDescription = heroData?.heroDescription || description || "Join us in supporting underprivileged children in Boreda, Ethiopia by providing education, financial support, and spiritual guidance.";
@@ -130,17 +129,11 @@ export default function HeroSection({ title, description }: HeroSectionProps) {
 
   return (
     <>
-    <Banner5 
-      title="Don't Miss Out!"
-      description="Join us for the 2nd Annual Christian Sports Tournament"
-      buttonText="Buy Tickets"
-      buttonUrl="https://www.zeffy.com/en-US/ticketing/2025-lia-5k-run"
-    />
-      <section className="bg-cover bg-center py-12 md:py-28">  
+      <section className="bg-cover bg-center mt-24 py-12 md:py-28">  
           <div className="flex flex-col justify-between gap-12 lg:flex-row lg:gap-8">
-            <div className="mx-auto flex max-w-[43.75rem] flex-col gap-2 lg:mx-0">
+            <div className="mx-auto flex max-w-[43.75rem] flex-col gap-2 lg:mx-0 py-8">
               <div className="flex flex-col gap-6">
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-6">
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-6"> 
                   {heroTitle}
                 </h1>
               </div>
@@ -181,41 +174,43 @@ export default function HeroSection({ title, description }: HeroSectionProps) {
                     </Button>
                   </div>
                 </div>
-                <div
-                  className="my-4 h-[1px] w-full bg-black"
-                  style={{
-                    background:
-                      "linear-gradient(270deg, rgba(234, 232, 225, .2) 0%, rgba(17, 16, 17, .2) 50%, rgba(17, 16, 17, 0) 100%)",
-                  }}
-                />
-                <div className="mt-4 flex items-center gap-16">
-                  {stats.slice(0, 2).map((stat, index) => (
-                    <div key={stat.id || index}>
-                      <h3 className="text-4xl font-bold mb-1">
-                        {stat.value}{stat.unit}
-                      </h3>
-                      <p className="text-muted-foreground">{stat.label}</p>
-                    </div>
-                  ))}
+                
+                <div className="mt-8">
+                  <div
+                    className="h-[1px] w-full bg-black mb-6"
+                    style={{
+                      background:
+                        "linear-gradient(270deg, rgba(234, 232, 225, .2) 0%, rgba(17, 16, 17, .2) 50%, rgba(17, 16, 17, 0) 100%)",
+                    }}
+                  />
+                  <div className="flex items-center gap-16">
+                    {stats.slice(0, 2).map((stat, index) => (
+                      <div key={stat.id || index}>
+                        <h3 className="text-4xl font-bold mb-1">
+                          {stat.value}{stat.unit}
+                        </h3>
+                        <p className="text-muted-foreground">{stat.label}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
             <div className="mx-auto w-full max-w-[31.25rem]">
-              <div className="relative mx-auto w-full max-w-full lg:mx-0">
-                <div className="w-full overflow-hidden rounded-3xl">
-                  <AspectRatio ratio={1}>
-                    <Image
-                      src={heroImageUrl}
-                      alt="Hero Image"
-                      width={600}
-                      height={800}
-                      className="mx-auto rounded-xl shadow-lg"
-                    />
-                  </AspectRatio>
-                </div>
+              <div className="w-full overflow-hidden rounded-3xl">
+                <AspectRatio ratio={1}>
+                  <Image
+                    src={heroImageUrl}
+                    alt="Hero Image"
+                    width={600}
+                    height={800}
+                    className="w-full h-full object-cover rounded-xl shadow-lg"
+                  />
+                </AspectRatio>
               </div>
             </div>
           </div>
+
       </section>
 
       {isVideoOpen && (

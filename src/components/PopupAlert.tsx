@@ -1,27 +1,43 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X } from "lucide-react";
+import { X, Megaphone } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/button";
+import { Button } from "@/components/ui/button";
+import { getTopAnnouncement, type Announcement } from '@/lib/announcements';
 
 export default function PopupAlert() {
   const [isVisible, setIsVisible] = useState(false);
+  const [announcement, setAnnouncement] = useState<Announcement | null>(null);
   
   useEffect(() => {
-    // Check if the user has already seen the popup
-    const hasSeenPopup = localStorage.getItem("hasSeenTournamentPopup");
-    
-    if (!hasSeenPopup) {
-      // Show popup after a short delay
-      const timer = setTimeout(() => {
-        setIsVisible(true);
-        // Set flag in localStorage
-        localStorage.setItem("hasSeenTournamentPopup", "true");
-      }, 1500);
-      
-      return () => clearTimeout(timer);
+    async function loadAnnouncementPopup() {
+      try {
+        const topAnnouncement = await getTopAnnouncement();
+        
+        // Only show popup for "announcement" type alerts
+        if (topAnnouncement && topAnnouncement.type === 'announcement') {
+          // Check if user has already seen this specific announcement
+          const hasSeenPopup = localStorage.getItem(`hasSeenAnnouncement-${topAnnouncement.id}`);
+          
+          if (!hasSeenPopup) {
+            setAnnouncement(topAnnouncement);
+            // Show popup after a short delay
+            const timer = setTimeout(() => {
+              setIsVisible(true);
+              // Set flag in localStorage for this specific announcement
+              localStorage.setItem(`hasSeenAnnouncement-${topAnnouncement.id}`, "true");
+            }, 1500);
+            
+            return () => clearTimeout(timer);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading announcement popup:', error);
+      }
     }
+
+    loadAnnouncementPopup();
   }, []);
   
   if (!isVisible) return null;
@@ -37,19 +53,28 @@ export default function PopupAlert() {
         </button>
         
         <div className="text-center">
-          <h3 className="text-2xl font-bold mb-2 text-secondary">Upcoming Sport Tournament!</h3>
-          <p className="mb-4">Join us for our annual charity tournament on May 15th. All proceeds go directly to supporting children in Boreda.</p>
+          <div className="flex justify-center mb-4">
+            <Megaphone size={48} className="text-secondary" />
+          </div>
+          <h3 className="text-2xl font-bold mb-2 text-secondary">
+            {announcement?.title || 'Announcement'}
+          </h3>
+          <p className="mb-4 text-gray-600">
+            {announcement?.message || 'We have an important announcement for you.'}
+          </p>
           <div className="flex justify-center space-x-4">
-            <Link href="https://www.zeffy.com/en-US/embed/ticketing/2025-lia-sports-tournament">
-              <Button className="bg-secondary text-white hover:bg-secondary/90">
-                Buy Tickets
-              </Button>
-            </Link>
+            {announcement?.link && (
+              <Link href={announcement.link} target="_blank" rel="noopener noreferrer">
+                <Button className="bg-secondary text-white hover:bg-secondary/90">
+                  {announcement.linkText || 'Learn More'}
+                </Button>
+              </Link>
+            )}
             <Button 
               variant="outline"
               onClick={() => setIsVisible(false)}
             >
-              Remind Me Later
+              Close
             </Button>
           </div>
         </div>

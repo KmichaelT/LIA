@@ -1,9 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
-import { cn } from "@/lib/utils";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Button } from "./ui/button";
+import TimelineSection from "./TimelineSection";
 
 interface TimelinePhase {
   id: number;
@@ -56,12 +54,13 @@ const About1: React.FC<About1Props> = ({ content }) => {
   const currentContent = content.missionContent[currentContentIndex];
   return (
     <section className="py-32">
-      <div className="flex flex-col gap-28">
+      <div  >
+        <div className="flex flex-col gap-28">
         <div className="flex flex-col gap-7">
-          <h1 className="text-4xl font-semibold lg:text-7xl">
+          <h1>
             {content.hero.title}
           </h1>
-          <p className="max-w-xl text-lg">
+          <p className="max-w-xl">
             {content.hero.description}
           </p>
         </div>
@@ -102,81 +101,16 @@ const About1: React.FC<About1Props> = ({ content }) => {
             </AnimatePresence>
           </div>
         </div>
-        <section className="bg-background py-16">
-          <div className=" flex flex-col">
-                    <div className="flex flex-col gap-7">
-          <h1 className="text-2xl font-semibold lg:text-4xl">
-           {content.timeline.title}
-          </h1>
-          <p className="max-w-xl text-lg">
-            {content.hero.description}
-          </p>
-        </div> 
-            <Card className="relative w-full border-none shadow-none md:py-16 bg-transparent">
-              <CardContent className="p-0">
-                <div className="relative flex flex-col items-center md:mt-12">
-                  <Separator className="absolute -top-6 left-0 hidden md:block" />
-                  {content.timeline.currentPhase && (
-                    <motion.div
-                      initial={{ width: 0 }}
-                      whileInView={{
-                        width: content.timeline.currentPhase > 1 && content.timeline.phases.length > 1
-                          ? `${((content.timeline.currentPhase - 1) / content.timeline.phases.length) * 100}%`
-                          : '0%',
-                      }}
-                      transition={{ ease: "easeOut", duration: 0.5 }}
-                      className={cn(
-                        "absolute -top-[20px] left-4 hidden h-0.5 bg-foreground md:block",
-                      )}
-                    />
-                  )}
-
-                  <div className={`grid gap-6 ${content.timeline.phases.length === 2 ? 'md:grid-cols-2' : content.timeline.phases.length === 3 ? 'md:grid-cols-3' : 'md:grid-cols-4'}`}>
-                    {content.timeline.phases.map((phase, index) => (
-                      <div key={phase.id} className="relative space-y-2">
-                        <Separator
-                          orientation="vertical"
-                          className="absolute top-2 left-[1px] block md:hidden"
-                        />
-                        {index == 0 && (
-                          <motion.div
-                            initial={{ height: 0 }}
-                            whileInView={{
-                              height: content.timeline.currentPhase * 112,
-                            }}
-                            transition={{ ease: "easeOut", duration: 0.5 }}
-                            className={cn(
-                              "absolute left-[1px] z-10 w-0.5 bg-foreground md:hidden",
-                            )}
-                          />
-                        )}
-                        <div className="absolute top-0 -left-[9px] z-10 mb-5 flex size-5 items-center justify-center rounded-full bg-foreground p-1 md:-top-10 md:left-0">
-                          <div className="size-full rounded-full bg-background" />
-                        </div>
-
-                        <div className="pl-7 md:pl-0">
-                          <p className="text-sm text-muted-foreground mb-2">
-                            {phase.date}
-                          </p>
-                          <h3 className="text-md font-bold tracking-tighter text-foreground mb-4">
-                            {phase.title}
-                          </h3>
-                          <p className="text-sm text-muted-foreground">
-                            {phase.description}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </section>
+        <TimelineSection
+          title={content.timeline.title}
+          description={content.hero.description}
+          phases={content.timeline.phases}
+          currentPhase={content.timeline.currentPhase}
+        />
         <div className="grid gap-10 md:grid-cols-2">
 
           <div>
-            <h2 className="mb-2.5 text-3xl font-semibold md:text-5xl">
+            <h2 className="mb-2.5">
               {content.joinTeam.title}
             </h2>
           </div>
@@ -194,6 +128,7 @@ const About1: React.FC<About1Props> = ({ content }) => {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </section>
   );

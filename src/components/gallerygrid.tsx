@@ -113,9 +113,9 @@ const Gallerygrid = ({ galleries }: GallerygridProps) => {
   if (galleries.length === 0) {
     return (
       <section className="py-32">
-        <div className="container text-center">
-          <h2 className="text-3xl font-bold mb-4">Gallery</h2>
-          <p className="text-muted-foreground">No gallery items available yet.</p>
+        <div  >
+          <h1 className="mb-4">Gallery</h1>
+          <p>No gallery items available yet.</p>
         </div>
       </section>
     );
@@ -123,10 +123,10 @@ const Gallerygrid = ({ galleries }: GallerygridProps) => {
 
   return (
     <section className="py-32">
-      <div className="container">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold mb-4">Gallery</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
+      <div  >
+        <div className="mb-12 max-w-2xl">
+          <h1 className="mb-4">Gallery</h1>
+          <p>
             Explore our collection of images showcasing our work and community.
           </p>
         </div>

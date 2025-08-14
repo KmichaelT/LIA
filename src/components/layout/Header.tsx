@@ -3,8 +3,10 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
-import { Menu, X, LogOut } from 'lucide-react';
+import { Menu, X, LogOut, User, Megaphone, Info, AlertTriangle, CheckCircle, ExternalLink } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { getUserCategory, getNavigationConfig, type UserCategoryInfo } from '@/lib/userCategories';
+import { getTopAnnouncement, type Announcement } from '@/lib/announcements';
 
 interface DropdownItem {
   title: string;
@@ -22,11 +24,6 @@ const MENU_ITEMS: MenuItem[] = [
   {
     title: "About Us",
     path: '/about',
-    hasDropdown: false,
-  },
-  {
-    title: "Children Profile",
-    path: '/profiles',
     hasDropdown: false,
   },
   {
@@ -92,6 +89,22 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [userCategory, setUserCategory] = useState<UserCategoryInfo | null>(null);
+  const [navigationConfig, setNavigationConfig] = useState<{
+    showLoginButton: boolean;
+    showSponsorButton: boolean;
+    showMyChildrenButton: boolean;
+    showCompleteProfileButton: boolean;
+    loginButtonText: string;
+    loginButtonHref: string;
+    sponsorButtonText: string;
+    sponsorButtonHref: string;
+    myChildrenButtonHref: string;
+    completeProfileButtonHref: string;
+  } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [announcement, setAnnouncement] = useState<Announcement | null>(null);
+  const [isAnnouncementVisible, setIsAnnouncementVisible] = useState(false);
   const { user, logout, isAuthenticated } = useAuth();
 
   useEffect(() => {
@@ -107,6 +120,91 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    async function determineUserCategory() {
+      setLoading(true);
+      
+      const token = localStorage.getItem('jwt');
+      
+      try {
+        const categoryInfo = await getUserCategory(user, token);
+        const navConfig = getNavigationConfig(categoryInfo);
+        
+        setUserCategory(categoryInfo);
+        setNavigationConfig(navConfig);
+      } catch (error) {
+        console.error('Error determining user category:', error);
+        // Fallback configuration
+        setUserCategory(null);
+        setNavigationConfig({
+          showLoginButton: !isAuthenticated,
+          showSponsorButton: isAuthenticated,
+          showMyChildrenButton: false,
+          showCompleteProfileButton: false,
+          loginButtonText: 'Login',
+          loginButtonHref: '/login',
+          sponsorButtonText: 'Sponsor a Child',
+          sponsorButtonHref: isAuthenticated ? '/sponsor-a-child' : '/login',
+          myChildrenButtonHref: '/child-profile',
+          completeProfileButtonHref: '/complete-profile',
+        });
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    determineUserCategory();
+  }, [isAuthenticated, user]);
+
+  useEffect(() => {
+    async function loadAnnouncement() {
+      try {
+        const topAnnouncement = await getTopAnnouncement();
+        if (topAnnouncement) {
+          setAnnouncement(topAnnouncement);
+          setIsAnnouncementVisible(true);
+        }
+      } catch (error) {
+        console.error('Error loading announcement:', error);
+      }
+    }
+
+    loadAnnouncement();
+  }, []);
+
+  const handleDismissAnnouncement = () => {
+    setIsAnnouncementVisible(false);
+  };
+
+  const getAlertStyles = (type: string) => {
+    switch (type) {
+      case 'info':
+        return {
+          bg: 'bg-gray-600',
+          hover: 'hover:text-gray-200',
+          icon: Info,
+        };
+      case 'warning':
+        return {
+          bg: 'bg-yellow-600',
+          hover: 'hover:text-yellow-200',
+          icon: AlertTriangle,
+        };
+      case 'success':
+        return {
+          bg: 'bg-green-600',
+          hover: 'hover:text-green-200',
+          icon: CheckCircle,
+        };
+      default: // announcement
+        return {
+          bg: 'bg-blue-600',
+          hover: 'hover:text-blue-200',
+          icon: Megaphone,
+        };
+    }
+  };
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -119,20 +217,64 @@ export default function Header() {
     }
   };
 
+  const alertStyles = getAlertStyles(announcement?.type || 'announcement');
+  const IconComponent = alertStyles.icon;
+
   return (
-    <header
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-white shadow-md py-3' : 'bg-transparent py-5'
-      }`}
-    >
-      <div className="container mx-auto px-4 flex justify-between items-center">
+    <header className="fixed top-0 left-0 w-full z-50">
+      {/* Top Bar for non-announcement alerts only */}
+      {announcement && isAnnouncementVisible && announcement.type !== 'announcement' && (
+        <div className={`${alertStyles.bg} text-white px-4 py-3`}>
+          <div className=" mx-auto flex items-center justify-between">
+            <div className="flex items-center space-x-3 flex-1">
+              <IconComponent size={20} className="flex-shrink-0" />
+              <div className="flex-1">
+                <p className="text-sm font-medium">
+                  {announcement.title && (
+                    <span className="font-bold mr-2">{announcement.title}:</span>
+                  )}
+                  {announcement.message}
+                </p>
+              </div>
+              
+              {announcement.link && (
+                <a
+                  href={announcement.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`inline-flex items-center space-x-1 text-sm font-medium ${alertStyles.hover} transition-colors whitespace-nowrap`}
+                >
+                  <span>{announcement.linkText || 'Learn More'}</span>
+                  <ExternalLink size={14} />
+                </a>
+              )}
+            </div>
+
+            <button
+              onClick={handleDismissAnnouncement}
+              className={`ml-4 text-white ${alertStyles.hover} transition-colors flex-shrink-0`}
+              aria-label="Dismiss announcement"
+            >
+              <X size={18} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Main Header */}
+      <div
+        className={`transition-all duration-300 ${
+          isScrolled ? 'bg-white shadow-md py-3' : 'bg-transparent py-5'
+        }`}
+      >
+      <div className=" mx-auto px-4 flex container  justify-between items-center">
         <Link href="/" className="relative z-10">
           <Image
-            src="/images/logo.svg"
+            src="/images/logo-new.svg"
             alt="Love In Action"
             width={90}
             height={32}
-            className="h-8 w-auto"
+            style={{ height: '32px', width: 'auto' }}
           />
         </Link>
 
@@ -184,12 +326,42 @@ export default function Header() {
           </ul>
 
           <div className="flex items-center space-x-3">
-            <Link
-              href="/sponsor"
-              className="btn-primary font-medium"
-            >
-              Sponsor a child
-            </Link>
+            {!loading && navigationConfig?.showCompleteProfileButton && (
+              <Link
+                href={navigationConfig.completeProfileButtonHref}
+                className="btn-outline font-medium"
+              >
+                Complete Profile
+              </Link>
+            )}
+
+            {!loading && navigationConfig?.showMyChildrenButton && (
+              <Link
+                href={navigationConfig.myChildrenButtonHref}
+                className="btn-secondary font-medium flex items-center space-x-2"
+              >
+                <User size={16} />
+                <span>Child Profile</span>
+              </Link>
+            )}
+            
+            {!loading && navigationConfig?.showSponsorButton && (
+              <Link
+                href={navigationConfig.sponsorButtonHref}
+                className="btn-primary font-medium"
+              >
+                {navigationConfig.sponsorButtonText}
+              </Link>
+            )}
+
+            {!loading && navigationConfig?.showLoginButton && (
+              <Link
+                href={navigationConfig.loginButtonHref}
+                className="btn-primary font-medium"
+              >
+                {navigationConfig.loginButtonText}
+              </Link>
+            )}
             
             {isAuthenticated && (
               <button
@@ -220,15 +392,15 @@ export default function Header() {
           isMenuOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        <div className="container mx-auto px-4 py-5 h-full overflow-y-auto">
+        <div className=" mx-auto px-4 py-5 h-full overflow-y-auto">
           <div className="flex justify-between items-center mb-8">
             <Link href="/" onClick={() => setIsMenuOpen(false)}>
               <Image
-                src="/images/logo.svg"
+                src="/images/logo-new.svg"
                 alt="Love In Action"
                 width={90}
                 height={32}
-                className="h-8 w-auto"
+                style={{ height: '32px', width: 'auto' }}
               />
             </Link>
             <button
@@ -298,13 +470,46 @@ export default function Header() {
           </ul>
 
           <div className="mt-8 space-y-4">
-            <Link
-              href="/sponsor"
-              className="btn-primary font-medium block text-center"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Sponsor a child
-            </Link>
+            {!loading && navigationConfig?.showCompleteProfileButton && (
+              <Link
+                href={navigationConfig.completeProfileButtonHref}
+                className="btn-outline font-medium block text-center"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Complete Profile
+              </Link>
+            )}
+
+            {!loading && navigationConfig?.showMyChildrenButton && (
+              <Link
+                href={navigationConfig.myChildrenButtonHref}
+                className="btn-secondary font-medium flex items-center justify-center space-x-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <User size={16} />
+                <span>Child Profile</span>
+              </Link>
+            )}
+            
+            {!loading && navigationConfig?.showSponsorButton && (
+              <Link
+                href={navigationConfig.sponsorButtonHref}
+                className="btn-primary font-medium block text-center"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {navigationConfig.sponsorButtonText}
+              </Link>
+            )}
+
+            {!loading && navigationConfig?.showLoginButton && (
+              <Link
+                href={navigationConfig.loginButtonHref}
+                className="btn-primary font-medium block text-center"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {navigationConfig.loginButtonText}
+              </Link>
+            )}
             
             {isAuthenticated && (
               <button
@@ -320,6 +525,7 @@ export default function Header() {
             )}
           </div>
         </div>
+      </div>
       </div>
     </header>
   );

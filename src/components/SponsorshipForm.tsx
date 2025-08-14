@@ -126,8 +126,8 @@ export default function SponsorshipForm() {
           Help transform a child's life through education and support. Fill out this form to begin your sponsorship journey.
         </p>
         {user?.sponsor && (
-          <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-md">
-            <p className="text-sm text-green-800">
+          <div className="mt-4 p-3 bg-accent/10 border border-accent/20 rounded-md">
+            <p className="text-sm text-accent">
               ✓ Welcome back, {user.sponsor.firstName} {user.sponsor.lastName}! Your profile information is loaded below. Just set your sponsorship preferences.
             </p>
           </div>
@@ -135,9 +135,9 @@ export default function SponsorshipForm() {
       </div>
 
       {submitStatus === 'success' && (
-        <Alert className="mb-6 border-green-200 bg-green-50">
-          <CheckCircle className="h-4 w-4 text-green-600" />
-          <AlertDescription className="text-green-800">
+        <Alert className="mb-6 border-accent/20 bg-accent/10">
+          <CheckCircle className="h-4 w-4 text-accent" />
+          <AlertDescription className="text-accent">
             Thank you! Your sponsorship request has been submitted successfully. We'll be in touch soon with more details about your sponsored child.
           </AlertDescription>
         </Alert>
@@ -177,9 +177,9 @@ export default function SponsorshipForm() {
             </div>
           </div>
         ) : user ? (
-          <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+          <div className="bg-secondary/10 p-4 rounded-lg border border-secondary/20">
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Complete Your Profile</h3>
-            <p className="text-sm text-yellow-800 mb-3">
+            <p className="text-sm text-secondary mb-3">
               Please complete your sponsor profile to submit sponsorship requests.
             </p>
             <a

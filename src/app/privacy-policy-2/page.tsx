@@ -13,7 +13,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
  
-import { Avatar, AvatarImage } from "@/components/avatar";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -22,8 +22,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/breadcrumb";
-import { Button } from "@/components/button";
-import { Separator } from "@/components/separator";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 
 const PrivacyPolicy = () => {
     const [activeSection, setActiveSection] = useState<string | null>(null);
@@ -54,7 +54,7 @@ const PrivacyPolicy = () => {
   
     return (
       <section className="py-32">
-        <div className="container">
+        <div  >
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
@@ -75,7 +75,7 @@ const PrivacyPolicy = () => {
   
           <div className="flex items-center gap-3 text-sm">
             <Avatar className="h-8 w-8 border">
-              <AvatarImage src="/logo.png" />
+              <AvatarImage src="/images/logo-new.svg" />
             </Avatar>
             <span>
               <span className="font-medium">Love In Action</span>

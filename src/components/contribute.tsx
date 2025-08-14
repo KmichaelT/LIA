@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 const Contribulte = () => {
   return (
     <section className="py-32">
-      <div className="container grid gap-y-12 md:grid-cols-12 md:gap-x-6 md:gap-y-0">
+      <div className=" grid gap-y-12 md:grid-cols-12 md:gap-x-6 md:gap-y-0">
         <div className="md:col-span-6 lg:col-span-5">
           <h2 className="mb-3 text-xl font-bold md:mb-4 md:text-4xl lg:mb-6">
             Ways to Contribute

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Gallery4 } from '../gallery4';
 import { getFeaturedCauses } from '@/lib/strapi';
 import { CauseData } from '@/types/strapi';
@@ -45,7 +45,7 @@ export default function CausesSection({ sectionData }: CausesSectionProps = {}) 
   const [causes, setCauses] = useState<CauseData[]>([]);
 
   // Fallback data
-  const fallbackCauses = [
+  const fallbackCauses = useMemo(() => [
     {
       id: 1,
       title: "Electricity and Water Installation",
@@ -126,7 +126,7 @@ export default function CausesSection({ sectionData }: CausesSectionProps = {}) 
       createdAt: "Dec 20, 2024",
       goal: "To provide children in Southern Ethiopia with essential clothing, ensuring comfort, dignity, and improved quality of life while supporting their educational and social development."
     }
-  ];
+  ], []);
 
   useEffect(() => {
     async function fetchCauses() {
@@ -168,7 +168,7 @@ export default function CausesSection({ sectionData }: CausesSectionProps = {}) 
     }
 
     fetchCauses();
-  }, [sectionData?.maxItems]);
+  }, [sectionData?.maxItems, fallbackCauses]);
 
   return (
     <> 

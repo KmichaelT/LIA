@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
@@ -17,8 +17,28 @@ export default function LoginPage() {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [error, setError] = useState('');
   
-  const { login, user } = useAuth();
+  const { login, user, isAuthenticated } = useAuth();
   const router = useRouter();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push('/child-profile');
+    }
+  }, [isAuthenticated, router]);
+
+  // Show loading if authenticated and redirecting
+  if (isAuthenticated) {
+    return (
+      <main className="min-h-screen bg-gray-50 py-32">
+        <div className=" mx-auto px-4 max-w-md text-center">
+          <Loader2 className="mx-auto h-8 w-8 animate-spin text-blue-600 mb-4" />
+          <h1 className="text-xl font-semibold text-gray-900 mb-2">Already Logged In</h1>
+          <p className="text-gray-600">Redirecting you to your dashboard...</p>
+        </div>
+      </main>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,15 +56,16 @@ export default function LoginPage() {
       setTimeout(() => {
         if (!loginResult.hasProfile) {
           // User needs to complete profile first, but keep their return URL
-          router.push('/complete-profile');
+          router.push('/child-profile');
         } else {
           // User has profile, go to their original destination
-          const returnUrl = localStorage.getItem('returnUrl');
+          const returnUrl = localStorage.getItem('returnUrl') || localStorage.getItem('redirectAfterLogin');
           if (returnUrl) {
             localStorage.removeItem('returnUrl'); // Clean up
+            localStorage.removeItem('redirectAfterLogin'); // Clean up
             router.push(returnUrl); // Go to original destination
           } else {
-            router.push('/profiles'); // Default fallback
+            router.push('/child-profile'); // Default fallback
           }
         }
       }, 500); // Brief delay to ensure smooth transition
@@ -73,8 +94,8 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-900">Sign in to your account</h2>
-          <p className="mt-2 text-gray-600">
+          <h1 className="mt-2">Sign in to your account</h1>
+          <p className="mt-2">
             Access children profiles and make sponsorship requests
           </p>
         </div>
@@ -137,12 +158,12 @@ export default function LoginPage() {
 
           <div className="text-center">
             <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
+              Not a sponsor yet?{' '}
               <Link 
                 href="/register" 
                 className="font-medium text-primary hover:text-primary/80"
               >
-                Register here
+                Submit your sponsorship request
               </Link>
             </p>
           </div>

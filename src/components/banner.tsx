@@ -3,9 +3,9 @@
 import { Sparkles, X } from "lucide-react";
 import { useState } from "react";
 
-import { Button } from "@/components/button";
+import { Button } from "@/components/ui/button";
 
-interface Banner5Props {
+interface AnnouncementBannerProps {
   title: string;
   description: string;
   buttonText: string;
@@ -13,13 +13,13 @@ interface Banner5Props {
   defaultVisible?: boolean;
 }
 
-const Banner5 = ({
+const AnnouncementBanner = ({
   title = "Version 2.0 is now available!",
   description = "Check out all the new features.",
   buttonText = "Read update",
   buttonUrl = "https://shadcnblocks.com",
   defaultVisible = true,
-}: Banner5Props) => {
+}: AnnouncementBannerProps) => {
   const [isVisible, setIsVisible] = useState(defaultVisible);
 
   const handleClose = () => {
@@ -49,7 +49,6 @@ const Banner5 = ({
             <div className="flex flex-col items-start gap-3 pt-2 md:flex-row md:items-center md:pt-0">
               <Sparkles className="h-5 w-5 flex-shrink-0 text-orange-500" />
               <div className="flex flex-col gap-1 md:flex-row md:items-center">
-                <p className="text-sm font-medium">{title}</p>
                 <p className="text-sm text-muted-foreground">{description}</p>
               </div>
             </div>
@@ -81,4 +80,4 @@ const Banner5 = ({
   );
 };
 
-export { Banner5 };
+export { AnnouncementBanner };

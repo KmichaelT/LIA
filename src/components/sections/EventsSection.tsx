@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Gallery1 } from '../gallery1';
 import { getUpcomingEvents } from '@/lib/strapi';
 import { EventData } from '@/types/strapi';
@@ -32,7 +32,7 @@ export default function EventsSection({ sectionData }: EventsSectionProps = {}) 
   const [events, setEvents] = useState<EventData[]>([]);
 
   // Fallback data
-  const fallbackEvents = [
+  const fallbackEvents = useMemo(() => [
     {
       id: 1,
       image: "/images/events/run.png",
@@ -70,7 +70,7 @@ export default function EventsSection({ sectionData }: EventsSectionProps = {}) 
       location: "TBD",
       featured: true
     },
-  ];
+  ], []);
 
   useEffect(() => {
     async function fetchEvents() {
@@ -108,17 +108,16 @@ export default function EventsSection({ sectionData }: EventsSectionProps = {}) 
     }
 
     fetchEvents();
-  }, [sectionData?.maxItems]);
+  }, [sectionData?.maxItems, fallbackEvents]);
 
   return (
-    <section className="py-20 bg-white relative overflow-hidden bg-transparent">
-      <div className="container">
+    <section className="py-20 bg-transparent  relative overflow-hidden bg-transparent">
         <Gallery1
           title={sectionData?.sectionHeader || "Upcoming Events"}
           description={sectionData?.sectionDescription || "Join us at our upcoming events where we work together to make a meaningful difference in our community through service and compassion."}
           items={events}
         />
-      </div>
     </section>
   );
 }
+ 

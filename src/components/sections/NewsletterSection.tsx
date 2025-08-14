@@ -19,7 +19,7 @@ export default function NewsletterSection() {
     <section className="py-16 relative overflow-hidden bg-white">
  
 
-      <div className="container relative z-10">
+      <div className=" relative z-10">
         <div className="flex flex-col md:flex-row justify-between items-center gap-8">
           <div>
             <h2 className="text-2xl md:text-3xl font-bold mb-0">

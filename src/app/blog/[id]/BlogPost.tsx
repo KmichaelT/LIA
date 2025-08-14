@@ -132,7 +132,7 @@ function renderRichTextBlock(block: unknown, index: number): React.ReactElement 
 export default function BlogPost({ post }: BlogPostProps) {
   return (
     <section className="py-32">
-      <div className="container">
+      <div  >
         <div className="mx-auto flex max-w-5xl flex-col items-center gap-4 text-center">
           <Badge variant="outline">{post.category}</Badge>
           <h1 className="max-w-3xl text-pretty text-5xl font-semibold md:text-6xl">
@@ -159,7 +159,7 @@ export default function BlogPost({ post }: BlogPostProps) {
           )}
         </div>
       </div>
-      <div className="container">
+      <div  >
         <div className="prose dark:prose-invert mx-auto max-w-3xl">
           {post.body && post.body.length > 0 ? (
             post.body.map((block, index) => renderRichTextBlock(block, index))

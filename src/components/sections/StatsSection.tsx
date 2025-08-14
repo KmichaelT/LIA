@@ -34,7 +34,7 @@ export default function StatsSection({ sectionData }: StatsSectionProps) {
 
   return (
     <section className="py-16">
-      <div className="container mx-auto px-4">
+      <div className=" mx-auto px-4">
         {sectionData?.sectionTitle && (
           <h2 className="text-3xl font-bold text-center mb-12">
             {sectionData.sectionTitle}

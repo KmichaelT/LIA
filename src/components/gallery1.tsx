@@ -2,7 +2,7 @@
 
 import { ArrowUpRight, Plus } from "lucide-react";
 import { useState } from "react";
-import { Badge } from "@/components/badge";
+import { Badge } from "@/components/ui/badge";
 
 // Define proper types for the Gallery1 props and items
 export interface Gallery1Item {

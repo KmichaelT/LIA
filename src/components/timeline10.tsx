@@ -45,7 +45,7 @@ const Timeline10 = () => {
   return (
     <section className="bg-background py-32">
       <div className="flex flex-col items-center">
-        <h1 className="mb-10 text-center text-3xl font-bold tracking-tighter text-foreground sm:text-6xl">
+        <h1 className="mb-10 text-center text-3xl font-bold   text-foreground sm:text-6xl">
           Timeline
         </h1>
         <Card className="relative w-full border-none shadow-none md:py-16 bg-transparent">
@@ -92,7 +92,7 @@ const Timeline10 = () => {
                       <p className="text-sm text-muted-foreground">
                         {phase.date}
                       </p>
-                      <h2 className="text-xl font-bold tracking-tighter text-foreground">
+                      <h2 className="text-xl font-bold   text-foreground">
                         {phase.title}
                       </h2>
                       <p className="text-sm text-muted-foreground">
