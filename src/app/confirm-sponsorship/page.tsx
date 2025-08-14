@@ -22,7 +22,7 @@ export default function ConfirmSponsorshipPage() {
 
     try {
       // Call our API with the user's email
-      const response = await fetch(`/api/confirm-sponsorship?email=${encodeURIComponent(userEmail)}&token=ZEFFY_VERIFY_TOKEN`);
+      const response = await fetch(`/api/confirm-sponsorship?email=${encodeURIComponent(userEmail)}`);
       const data = await response.json();
       
       if (response.ok && data.success) {
