@@ -5,13 +5,13 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
 import { getUserCategory } from '@/lib/userCategories';
-import { getSponsorshipRequests, SponsorshipRequest } from '@/lib/sponsorshipRequests';
-import { getUserAssignedChildrenCount } from '@/lib/userStatus';
+import { getSponsorProfile, getSponsorStatusInfo, Sponsor } from '@/lib/sponsors';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Heart, User, ChevronDown, Mail, Phone, MapPin } from 'lucide-react';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import TimelineSection from '@/components/TimelineSection';
+import NoChildrenState from '@/components/NoChildrenState';
 import { STRAPI_URL } from '@/lib/utils';
 
 interface StrapiImage {
@@ -54,7 +54,7 @@ export default function ChildProfilePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [sponsorshipRequests, setSponsorshipRequests] = useState<SponsorshipRequest[]>([]);
+  const [sponsorProfile, setSponsorProfile] = useState<Sponsor | null>(null);
   const [assignedChildren, setAssignedChildren] = useState<ChildProfile[]>([]);
   const [selectedChildIndex, setSelectedChildIndex] = useState(0);
   const [showChildDropdown, setShowChildDropdown] = useState(false);
@@ -138,13 +138,13 @@ export default function ChildProfilePage() {
           return;
         }
 
-        // Load sponsorship requests
-        const requests = await getSponsorshipRequests(user.email, token);
-        setSponsorshipRequests(requests);
+        // Load sponsor profile
+        const profile = await getSponsorProfile(user.email, token);
+        setSponsorProfile(profile);
 
-        // Load assigned children if user has sponsor profile
-        if (user.sponsor) {
-          const children = await fetchAssignedChildren(user.sponsor.id, token);
+        // Load assigned children if sponsor profile exists
+        if (profile && profile.id) {
+          const children = await fetchAssignedChildren(profile.id, token);
           setAssignedChildren(children);
         }
 
@@ -161,10 +161,8 @@ export default function ChildProfilePage() {
 
   const currentChild = assignedChildren[selectedChildIndex];
   const hasAssignedChildren = assignedChildren.length > 0;
-  const hasPendingRequests = sponsorshipRequests.some(req => 
-    req.status === 'pending' || req.status === 'submitted' ||
-    req.requestStatus === 'pending' || req.requestStatus === 'submitted'
-  );
+  const sponsorStatusInfo = getSponsorStatusInfo(sponsorProfile);
+  const hasPendingRequests = sponsorProfile && !sponsorStatusInfo.hasChild;
 
   if (loading) {
     return (
@@ -382,9 +380,9 @@ export default function ChildProfilePage() {
                       }
                     ]}
                     currentPhase={
-                      (sponsorshipRequests[0]?.status || sponsorshipRequests[0]?.requestStatus) === 'submitted' ? 1 :
-                      (sponsorshipRequests[0]?.status || sponsorshipRequests[0]?.requestStatus) === 'pending' ? 2 :
-                      (sponsorshipRequests[0]?.status || sponsorshipRequests[0]?.requestStatus) === 'matched' ? 3 : 1
+                      sponsorProfile?.sponsorshipStatus === 'request_submitted' && !sponsorProfile?.profileComplete ? 1 :
+                      sponsorProfile?.sponsorshipStatus === 'pending' || (sponsorProfile?.profileComplete && sponsorProfile?.sponsorshipStatus === 'request_submitted') ? 2 :
+                      sponsorProfile?.sponsorshipStatus === 'matched' ? 3 : 1
                     }
                   />
 
@@ -439,6 +437,7 @@ export default function ChildProfilePage() {
                 </>
               )}
             </div>
+          
           )}
         </div>
       </main>

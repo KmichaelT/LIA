@@ -40,7 +40,7 @@ export default function TimelineSection({
         <Card className="relative w-full border-none shadow-none md:py-16 bg-transparent">
           <CardContent className="p-0">
             <div className="relative flex flex-col items-center md:mt-12">
-              <Separator className="absolute -top-6 left-0 hidden md:block" />
+              <Separator className="absolute   -top-[23px] left-0 hidden md:block" />
               {currentPhase && (
                 <motion.div
                   initial={{ width: 0 }}
@@ -51,7 +51,7 @@ export default function TimelineSection({
                   }}
                   transition={{ ease: "easeOut", duration: 0.5 }}
                   className={cn(
-                    "absolute -top-[20px] left-4 hidden h-0.5 bg-foreground md:block",
+                    "absolute   -top-[23px] left-4 hidden h-0.5 bg-foreground md:block",
                   )}
                 />
               )}

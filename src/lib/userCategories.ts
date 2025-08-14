@@ -1,4 +1,4 @@
-import { getSponsorshipRequests } from '@/lib/sponsorshipRequests';
+import { getSponsorProfile } from '@/lib/sponsors';
 import { getUserAssignedChildrenCount } from '@/lib/userStatus';
 
 export type UserCategory = 'PUBLIC' | 'USER' | 'SPONSOR';
@@ -34,16 +34,20 @@ export async function getUserCategory(user: { email: string; sponsor?: { id: num
     let pendingRequestsCount = 0;
     let hasPendingRequests = false;
 
-    // Check for sponsorship requests
-    const sponsorshipRequests = await getSponsorshipRequests(user.email, token);
-    const pendingRequests = sponsorshipRequests.filter(request => 
-      request.status === 'submitted' ||
-      request.status === 'pending' || 
-      (request.requestStatus && ['submitted', 'pending'].includes(request.requestStatus.toLowerCase()))
-    );
-    
-    pendingRequestsCount = pendingRequests.length;
-    hasPendingRequests = pendingRequestsCount > 0;
+    // Check for sponsor profile
+    const sponsorProfile = await getSponsorProfile(user.email, token);
+    if (sponsorProfile) {
+      // Check if they have pending sponsorship (profile exists but no child assigned)
+      const isPending = !sponsorProfile.assignedChild && 
+                       (sponsorProfile.sponsorshipStatus === 'request_submitted' || 
+                        sponsorProfile.sponsorshipStatus === 'pending' ||
+                        !sponsorProfile.profileComplete);
+      
+      if (isPending) {
+        pendingRequestsCount = 1;
+        hasPendingRequests = true;
+      }
+    }
 
     // Check for assigned children if user has a sponsor profile
     if (hasProfile && user.sponsor) {

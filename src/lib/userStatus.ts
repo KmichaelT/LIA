@@ -1,5 +1,5 @@
 import { STRAPI_URL } from '@/lib/utils';
-import { getSponsorshipRequests } from '@/lib/sponsorshipRequests';
+import { getSponsorProfile } from '@/lib/sponsors';
 
 interface SponsorProfile {
   id: number;
@@ -80,16 +80,19 @@ export async function getUserAssignedChildrenCount(sponsorId: number, token: str
  */
 export async function hasOpenSponsorshipRequests(email: string, token: string): Promise<boolean> {
   try {
-    const requests = await getSponsorshipRequests(email, token);
+    const sponsorProfile = await getSponsorProfile(email, token);
     
-    // Check for any non-completed requests
-    const openRequests = requests.filter(request => 
-      request.status === 'submitted' ||
-      request.status === 'pending' || 
-      (request.requestStatus && ['submitted', 'pending'].includes(request.requestStatus.toLowerCase()))
-    );
+    if (!sponsorProfile) {
+      return false;
+    }
     
-    return openRequests.length > 0;
+    // Check if they have pending sponsorship (profile exists but no child assigned)
+    const isPending = !sponsorProfile.assignedChild && 
+                     (sponsorProfile.sponsorshipStatus === 'request_submitted' || 
+                      sponsorProfile.sponsorshipStatus === 'pending' ||
+                      !sponsorProfile.profileComplete);
+    
+    return isPending;
   } catch (error) {
     console.error('Error checking sponsorship requests:', error);
     return false;

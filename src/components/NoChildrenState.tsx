@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2, Heart, Clock } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { getSponsorshipRequests, createSponsorshipRequest, getAvailableChildrenCount, SponsorshipRequest } from '@/lib/sponsorshipRequests';
+import { getSponsorProfile, getSponsorStatusInfo, Sponsor } from '@/lib/sponsors';
 import SponsorshipStatusTimeline from './SponsorshipStatusTimeline';
 
 interface NoChildrenStateProps {
@@ -15,7 +15,7 @@ export default function NoChildrenState({ hasProfile }: NoChildrenStateProps) {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
-  const [sponsorshipRequests, setSponsorshipRequests] = useState<SponsorshipRequest[]>([]);
+  const [sponsorProfile, setSponsorProfile] = useState<Sponsor | null>(null);
   const [availableChildrenCount, setAvailableChildrenCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
@@ -33,11 +33,12 @@ export default function NoChildrenState({ hasProfile }: NoChildrenStateProps) {
       }
 
       try {
-        // Temporarily disable sponsorship requests since the content type doesn't exist
-        const availableCount = await getAvailableChildrenCount(token);
+        // Load sponsor profile
+        const profile = await getSponsorProfile(user.email, token);
+        setSponsorProfile(profile);
         
-        setSponsorshipRequests([]); // Temporarily empty
-        setAvailableChildrenCount(availableCount);
+        // For now, set a default available children count
+        setAvailableChildrenCount(25); // You can make this dynamic later
       } catch (err) {
         console.error('Error loading sponsorship data:', err);
         setError('Failed to load sponsorship information');
@@ -50,50 +51,8 @@ export default function NoChildrenState({ hasProfile }: NoChildrenStateProps) {
   }, [user]);
 
   const handleSponsorChild = async () => {
-    if (!user?.sponsor) {
-      window.location.href = '/complete-profile';
-      return;
-    }
-
-    const token = localStorage.getItem('jwt');
-    if (!token) {
-      setError('Authentication required');
-      return;
-    }
-
-    setCreating(true);
-    setError(null);
-
-    try {
-      // Create a pending sponsorship request
-      const requestData = {
-        firstName: user.sponsor.firstName,
-        lastName: user.sponsor.lastName,
-        email: user.sponsor.email,
-        phone: user.sponsor.phone,
-        address: user.sponsor.address,
-        city: user.sponsor.city,
-        country: user.sponsor.country,
-        monthlyContribution: 25, // Default amount
-        motivation: 'Submitted from sponsor dashboard',
-        status: 'pending' as const
-      };
-
-      const newRequest = await createSponsorshipRequest(requestData, token);
-      
-      if (newRequest) {
-        // Add to local state
-        setSponsorshipRequests(prev => [newRequest, ...prev]);
-        
-        // Redirect to complete profile/sponsorship form
-        window.location.href = '/complete-profile?flow=sponsorship';
-      }
-    } catch (err) {
-      console.error('Error creating sponsorship request:', err);
-      setError(err instanceof Error ? err.message : 'Failed to create sponsorship request');
-    } finally {
-      setCreating(false);
-    }
+    // Direct users to the sponsorship form now that we use the consolidated flow
+    window.location.href = '/sponsor-a-child';
   };
 
   if (loading) {
@@ -126,9 +85,9 @@ export default function NoChildrenState({ hasProfile }: NoChildrenStateProps) {
     );
   }
 
-  // Has active sponsorship requests
-  if (sponsorshipRequests.length > 0) {
-    const latestRequest = sponsorshipRequests[0];
+  // Has active sponsor profile
+  if (sponsorProfile) {
+    const statusInfo = getSponsorStatusInfo(sponsorProfile);
     
     return (
       <div  >
@@ -140,7 +99,7 @@ export default function NoChildrenState({ hasProfile }: NoChildrenStateProps) {
           </p>
         </div>
 
-        <SponsorshipStatusTimeline request={latestRequest} />
+        <SponsorshipStatusTimeline sponsor={sponsorProfile} />
 
         {/* Show option to sponsor another child if available */}
         {availableChildrenCount > 0 && (

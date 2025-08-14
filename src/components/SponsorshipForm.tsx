@@ -63,10 +63,8 @@ export default function SponsorshipForm() {
         address: user.sponsor.address,
         city: user.sponsor.city,
         country: user.sponsor.country,
-        motivation: formData.motivation,
-        sponsee: formData.sponsee,
-        requestStatus: 'pending',
-        submittedAt: new Date().toISOString(),
+        sponsorshipStatus: 'pending',
+        profileComplete: true,
         ...(formData.preferredAge && { preferredAge: formData.preferredAge }),
         ...(formData.preferredGender && { preferredGender: formData.preferredGender }),
         ...(formData.hearAboutUs && { hearAboutUs: formData.hearAboutUs }),
@@ -75,7 +73,7 @@ export default function SponsorshipForm() {
       // Get JWT token for authenticated request
       const token = localStorage.getItem('jwt');
       
-      const response = await fetch(`${STRAPI_URL}/api/sponsorship-requests`, {
+      const response = await fetch(`${STRAPI_URL}/api/sponsors`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

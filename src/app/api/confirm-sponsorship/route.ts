@@ -4,11 +4,19 @@ import { STRAPI_URL } from '@/lib/utils';
 // Simple token validation (in production, use more secure tokens)
 const VALID_TOKENS = ['SPONSOR_CONFIRM_2024', 'ZEFFY_VERIFY_TOKEN', 'MySecureToken2025'];
 
-interface SponsorshipRequest {
+interface Sponsor {
   id: number;
   documentId: string;
   email: string;
-  requestStatus: string;
+  sponsorshipStatus: string;
+  profileComplete: boolean;
+  firstName?: string;
+  lastName?: string;
+  children?: {
+    id: number;
+    fullName: string;
+    [key: string]: unknown;
+  }[];
   assignedChild?: {
     id: number;
     fullName: string;
@@ -50,46 +58,56 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Check if sponsorship request already exists
-    const existingRequest = await checkExistingSponsorshipRequest(email);
+    // Check if sponsor already exists
+    const existingSponsor = await checkExistingSponsor(email);
 
-    if (existingRequest) {
-      // User already has a sponsorship request
-      if (existingRequest.assignedChild) {
-        // They have an assigned child
-        return NextResponse.json({
-          success: true,
-          status: 'existing-sponsor',
-          message: 'You already have an assigned child',
-          data: existingRequest
-        });
+    if (existingSponsor) {
+      // Sponsor already exists
+      if (existingSponsor.profileComplete) {
+        // Profile is complete
+        if (existingSponsor.assignedChild) {
+          // They have an assigned child
+          return NextResponse.json({
+            success: true,
+            status: 'existing-sponsor',
+            message: 'You already have an assigned child',
+            data: existingSponsor
+          });
+        } else {
+          // Profile complete but no child assigned yet
+          return NextResponse.json({
+            success: true,
+            status: 'profile-complete',
+            message: 'Your profile is complete and under review',
+            data: existingSponsor
+          });
+        }
       } else {
-        // They have a pending request
-        const currentStatus = existingRequest.requestStatus || 'pending';
+        // Profile incomplete - leave for Make.com to complete
         return NextResponse.json({
           success: true,
-          status: `existing-${currentStatus}`,
-          message: 'You already have a sponsorship request',
-          data: existingRequest
+          status: 'profile-pending',
+          message: 'Your profile is being processed',
+          data: existingSponsor
         });
       }
     }
 
-    // Create new minimal sponsorship request
-    const newRequest = await createMinimalSponsorshipRequest(email);
+    // Create new minimal sponsor record
+    const newSponsor = await createMinimalSponsor(email);
 
-    if (newRequest) {
+    if (newSponsor) {
       // Successfully created
       return NextResponse.json({
         success: true,
         status: 'confirmed',
         message: 'Sponsorship request created successfully',
-        data: newRequest
+        data: newSponsor
       });
     } else {
       // Failed to create
       return NextResponse.json(
-        { error: 'Failed to create sponsorship request' },
+        { error: 'Failed to create sponsor record' },
         { status: 500 }
       );
     }
@@ -104,11 +122,10 @@ export async function GET(request: NextRequest) {
 }
 
 /**
- * Check if sponsorship request already exists for email
+ * Check if sponsor already exists for email
  */
-async function checkExistingSponsorshipRequest(email: string): Promise<SponsorshipRequest | null> {
+async function checkExistingSponsor(email: string): Promise<Sponsor | null> {
   try {
-    // Get a system token for API calls (you might need to implement this based on your Strapi setup)
     const systemToken = process.env.STRAPI_API_TOKEN;
     
     if (!systemToken) {
@@ -117,7 +134,7 @@ async function checkExistingSponsorshipRequest(email: string): Promise<Sponsorsh
     }
 
     const response = await fetch(
-      `${STRAPI_URL}/api/sponsorship-requests?filters[email][$eq]=${email}`,
+      `${STRAPI_URL}/api/sponsors?filters[email][$eq]=${email}&populate=children`,
       {
         headers: {
           'Authorization': `Bearer ${systemToken}`,
@@ -131,25 +148,33 @@ async function checkExistingSponsorshipRequest(email: string): Promise<Sponsorsh
         // Content type doesn't exist yet - this is ok
         return null;
       }
-      throw new Error('Failed to fetch sponsorship requests');
+      throw new Error('Failed to fetch sponsors');
     }
 
     const data = await response.json();
-    const requests = data.data || [];
+    const sponsors = data.data || [];
     
-    return requests.length > 0 ? requests[0] : null;
+    if (sponsors.length > 0) {
+      const sponsor = sponsors[0];
+      // Map children array to assignedChild for backward compatibility
+      if (sponsor.children && sponsor.children.length > 0) {
+        sponsor.assignedChild = sponsor.children[0];
+      }
+      return sponsor;
+    }
+    
+    return null;
   } catch (error) {
-    console.error('Error checking existing sponsorship request:', error);
+    console.error('Error checking existing sponsor:', error);
     return null;
   }
 }
 
 /**
- * Create minimal sponsorship request with just email and submitted status
+ * Create minimal sponsor record with just email and submitted status
  */
-async function createMinimalSponsorshipRequest(email: string): Promise<SponsorshipRequest | null> {
+async function createMinimalSponsor(email: string): Promise<Sponsor | null> {
   try {
-    // Get a system token for API calls
     const systemToken = process.env.STRAPI_API_TOKEN;
     
     if (!systemToken) {
@@ -157,40 +182,35 @@ async function createMinimalSponsorshipRequest(email: string): Promise<Sponsorsh
       return null;
     }
 
-    const requestData = {
+    const sponsorData = {
       email: email,
-      firstName: 'Pending', // Will be updated by Make.com
-      lastName: 'Confirmation', // Will be updated by Make.com
-      phone: '',
-      address: '',
-      city: '',
-      country: '',
-      motivation: 'Email confirmation from Zeffy - details to be updated via automation',
-      requestStatus: 'submitted', // Using requestStatus instead of status
-      submittedAt: new Date().toISOString()
+      sponsorshipStatus: 'request_submitted',
+      profileComplete: false,
+      firstName: '', // Will be updated by Make.com
+      lastName: '' // Will be updated by Make.com
     };
 
-    const response = await fetch(`${STRAPI_URL}/api/sponsorship-requests`, {
+    const response = await fetch(`${STRAPI_URL}/api/sponsors`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${systemToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        data: requestData
+        data: sponsorData
       }),
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error('Failed to create sponsorship request:', errorData);
+      console.error('Failed to create sponsor record:', errorData);
       return null;
     }
 
     const result = await response.json();
     return result.data;
   } catch (error) {
-    console.error('Error creating minimal sponsorship request:', error);
+    console.error('Error creating minimal sponsor record:', error);
     return null;
   }
 }
