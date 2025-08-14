@@ -65,13 +65,6 @@ export default function RootLayout({
       <head>
         <link
           rel="preload"
-          href="/fonts/Specify-ExpandedBold.otf"
-          as="font"
-          type="font/otf"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="preload"
           href="/fonts/Specify-NormalMedium.otf"
           as="font"
           type="font/otf"
