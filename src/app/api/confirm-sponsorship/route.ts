@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { STRAPI_URL } from '@/lib/utils';
 
 // Simple token validation (in production, use more secure tokens)
-const VALID_TOKENS = ['SPONSOR_CONFIRM_2024', 'ZEFFY_VERIFY_TOKEN'];
+const VALID_TOKENS = ['SPONSOR_CONFIRM_2024', 'ZEFFY_VERIFY_TOKEN', 'MySecureToken2025'];
 
 interface SponsorshipRequest {
   id: number;
