@@ -251,9 +251,8 @@ export async function getHomePage() {
       'populate[services][fields][0]': 'title',
       'populate[services][fields][1]': 'description',
       'populate[services][fields][2]': 'icon',
-      'populate[services][fields][3]': 'backgroundColor',
-      'populate[services][fields][4]': 'featured',
-      'populate[services][fields][5]': 'order'
+      'populate[services][fields][3]': 'featured',
+      'populate[services][fields][4]': 'order'
     });
     
     const response = await fetch(`${STRAPI_URL}/api/home-page?${populateQuery.toString()}`, {
