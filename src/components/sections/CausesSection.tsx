@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { CausesGallery } from '../CausesGallery';
-import { CauseData } from '@/types/strapi';
+import { CausesGalleryItem } from '../CausesGallery';
 import { getStrapiImageUrl } from '@/lib/utils';
 
 
@@ -14,12 +14,6 @@ interface CausesSectionProps {
     id: number;
     title: string;
     description: string;
-    goalAmount: number;
-    raisedAmount: number;
-    category: string;
-    causeStatus?: string;
-    featured?: boolean;
-    createdAt: string;
     image?: {
       url: string;
       alternativeText?: string;
@@ -38,12 +32,11 @@ export default function CausesSection({
   sectionDescription, 
   causes: rawCauses 
 }: CausesSectionProps) {
-  const [causes, setCauses] = useState<CauseData[]>([]);
+  const [causes, setCauses] = useState<CausesGalleryItem[]>([]);
 
   useEffect(() => {
     // Transform the causes data
     const transformedCauses = rawCauses.map((cause) => {
-      const progress = Math.min(Math.round((cause.raisedAmount / cause.goalAmount) * 100), 100);
       return {
         id: cause.id,
         title: cause.title,
@@ -51,25 +44,12 @@ export default function CausesSection({
         image: cause.image?.url 
           ? getStrapiImageUrl(cause.image.url)
           : '/images/causes/default.webp',
-        href: `/causes/${cause.title.toLowerCase().replace(/\s+/g, '-')}`,
-        progress,
-        amountRaised: cause.raisedAmount,
-        raisedAmount: cause.raisedAmount,
-        goalAmount: cause.goalAmount,
-        category: cause.category,
-        causeStatus: cause.causeStatus || 'active',
-        featured: cause.featured || true,
-        createdAt: new Date(cause.createdAt).toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric'
-        }),
-        goal: cause.description,
         donationLink: cause.link ? {
           url: cause.link.url,
           label: cause.link.label,
           type: cause.link.type,
-          isPopup: true // Default to popup for Zeffy links
+          external: false, // Default to internal links until backend supports it
+          opensInPopup: true // Default donations to popup
         } : undefined
       };
     });

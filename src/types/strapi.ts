@@ -46,9 +46,6 @@ export interface Service extends StrapiEntity {
     title: string;
     description: string;
     icon: string;
-    backgroundColor?: string;
-    featured: boolean;
-    order: number;
     createdAt: string;
     updatedAt: string;
     publishedAt: string;
@@ -61,7 +58,9 @@ export interface Event extends StrapiEntity {
     description: string;
     date: string;
     location: string;
-    registrationLink?: string;
+    registrationLink?: {
+      data: Link;
+    };
     featured: boolean;
     image?: {
       data: StrapiImage;
@@ -76,13 +75,11 @@ export interface Cause extends StrapiEntity {
   attributes: {
     title: string;
     description: string;
-    goalAmount: number;
-    raisedAmount: number;
-    category: string;
-    causeStatus: 'active' | 'completed' | 'paused';
-    featured: boolean;
     image?: {
       data: StrapiImage;
+    };
+    link?: {
+      data: Link;
     };
     createdAt: string;
     updatedAt: string;
@@ -95,9 +92,6 @@ export interface Stat extends StrapiEntity {
     label: string;
     value: number;
     description?: string;
-    icon: string;
-    unit: string;
-    category: 'impact' | 'finance' | 'community';
     createdAt: string;
     updatedAt: string;
     publishedAt: string;
@@ -109,10 +103,9 @@ export interface Link extends StrapiEntity {
     label: string;
     url: string;
     type: 'cta' | 'navigation' | 'social';
-    style?: 'primary' | 'secondary';
     platform?: string;
-    icon?: string;
-    isExternal: boolean;
+    external: boolean;
+    opensInPopup: boolean;
     createdAt: string;
     updatedAt: string;
     publishedAt: string;
@@ -228,9 +221,6 @@ export interface ServiceData {
   title: string;
   description: string;
   icon: string;
-  backgroundColor?: string;
-  featured: boolean;
-  order: number;
 }
 
 export interface EventData {
@@ -239,7 +229,7 @@ export interface EventData {
   description: string;
   date: string;
   location: string;
-  registrationLink?: string;
+  registrationLink?: LinkData;
   featured: boolean;
   image: string;
   href?: string;
@@ -249,17 +239,8 @@ export interface CauseData {
   id: number;
   title: string;
   description: string;
-  goalAmount: number;
-  raisedAmount: number;
-  progress: number;
-  category: string;
-  causeStatus: string;
-  featured: boolean;
   image: string;
-  href: string;
-  goal?: string;
-  createdAt?: string;
-  amountRaised?: number;
+  donationLink?: LinkData;
 }
 
 export interface StatData {
@@ -267,9 +248,6 @@ export interface StatData {
   label: string;
   value: number;
   description?: string;
-  icon: string;
-  unit: string;
-  category: string;
 }
 
 export interface LinkData {
@@ -277,10 +255,9 @@ export interface LinkData {
   label: string;
   url: string;
   type: string;
-  style?: string;
   platform?: string;
-  icon?: string;
-  isExternal: boolean;
+  external: boolean;
+  opensInPopup: boolean;
 }
 
 // Transform functions to convert Strapi data to frontend-friendly format
@@ -290,9 +267,6 @@ export function transformService(service: Service): ServiceData {
     title: service.attributes.title,
     description: service.attributes.description,
     icon: service.attributes.icon,
-    backgroundColor: service.attributes.backgroundColor,
-    featured: service.attributes.featured,
-    order: service.attributes.order,
   };
 }
 
@@ -303,39 +277,24 @@ export function transformEvent(event: Event): EventData {
     description: event.attributes.description,
     date: event.attributes.date,
     location: event.attributes.location,
-    registrationLink: event.attributes.registrationLink,
+    registrationLink: event.attributes.registrationLink?.data ? transformLink(event.attributes.registrationLink.data) : undefined,
     featured: event.attributes.featured,
     image: event.attributes.image?.data?.attributes?.url 
       ? getStrapiImageUrl(event.attributes.image.data.attributes.url)
       : '/images/events/default.png',
-    href: event.attributes.registrationLink,
+    href: event.attributes.registrationLink?.data?.attributes?.url,
   };
 }
 
 export function transformCause(cause: Cause): CauseData {
-  const progress = Math.min(Math.round((cause.attributes.raisedAmount / cause.attributes.goalAmount) * 100), 100);
-  
   return {
     id: cause.id,
     title: cause.attributes.title,
     description: cause.attributes.description,
-    goalAmount: cause.attributes.goalAmount,
-    raisedAmount: cause.attributes.raisedAmount,
-    progress,
-    category: cause.attributes.category,
-    causeStatus: cause.attributes.causeStatus,
-    featured: cause.attributes.featured,
     image: cause.attributes.image?.data?.attributes?.url 
       ? getStrapiImageUrl(cause.attributes.image.data.attributes.url)
       : '/images/causes/default.webp',
-    href: `/causes/${cause.attributes.title.toLowerCase().replace(/\s+/g, '-')}`,
-    goal: cause.attributes.description,
-    createdAt: new Date(cause.attributes.createdAt).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    }),
-    amountRaised: cause.attributes.raisedAmount,
+    donationLink: cause.attributes.link?.data ? transformLink(cause.attributes.link.data) : undefined,
   };
 }
 
@@ -345,9 +304,6 @@ export function transformStat(stat: Stat): StatData {
     label: stat.attributes.label,
     value: stat.attributes.value,
     description: stat.attributes.description,
-    icon: stat.attributes.icon,
-    unit: stat.attributes.unit,
-    category: stat.attributes.category,
   };
 }
 
@@ -357,9 +313,8 @@ export function transformLink(link: Link): LinkData {
     label: link.attributes.label,
     url: link.attributes.url,
     type: link.attributes.type,
-    style: link.attributes.style,
     platform: link.attributes.platform,
-    icon: link.attributes.icon,
-    isExternal: link.attributes.isExternal,
+    external: link.attributes.external,
+    opensInPopup: link.attributes.opensInPopup,
   };
 }

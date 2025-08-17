@@ -17,16 +17,13 @@ export interface CausesGalleryItem {
   id: number;
   title: string;
   description: string;
-  href: string;
   image: string;
-  progress?: number;
-  amountRaised?: number;
-  goalAmount?: number;
   donationLink?: {
     url: string;
     label: string;
     type: string;
-    isPopup?: boolean;
+    external: boolean;
+    opensInPopup: boolean;
   };
 }
 
@@ -153,13 +150,13 @@ const CausesGallery = ({
                             {item.description}
                           </div>
                           {item.donationLink && item.donationLink.url ? (
-                            item.donationLink.isPopup ? (
+                            item.donationLink.opensInPopup ? (
                               <Dialog>
                                 <DialogTrigger asChild>
                                   <button 
                                     className="flex items-center text-sm cursor-pointer bg-transparent border-none p-0 text-primary-foreground hover:opacity-80"
                                   >
-                                    Support this cause{" "}
+                                    {item.donationLink.label || "Support this cause"}{" "}
                                     <ArrowRight className="ml-2 size-5 transition-transform group-hover:translate-x-1" />
                                   </button>
                                 </DialogTrigger>
@@ -180,13 +177,13 @@ const CausesGallery = ({
                               </Dialog>
                             ) : (
                               <Link
-                                href={item.donationLink.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
+                                href={item.donationLink?.url || "#"}
+                                target={item.donationLink?.external ? "_blank" : "_self"}
+                                rel={item.donationLink?.external ? "noopener noreferrer" : undefined}
                                 className="flex items-center text-sm z-20 relative"
                                 onClick={(e) => e.stopPropagation()}
                               >
-                                Support this cause{" "}
+                                {item.donationLink?.label || "Support this cause"}{" "}
                                 <ArrowRight className="ml-2 size-5 transition-transform group-hover:translate-x-1" />
                               </Link>
                             )

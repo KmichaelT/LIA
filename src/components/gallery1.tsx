@@ -75,7 +75,7 @@ const Gallery1 = ({ title, description, sectionTitle, items = [] }: Gallery1Prop
               <div className="relative flex flex-col justify-between gap-4 md:absolute md:inset-0  ">
  
                 <div className='flex h-[80px] items-center gap-2 p-4 transition-opacity delay-200 duration-500 lg:group-data-[state="closed"]:opacity-0'>
-                {item.featured && <Badge variant="default">Featured</Badge>}
+                {item.featured === true && <Badge variant="default">Featured</Badge>}
                 {item.date && <Badge variant="default">{item.date}</Badge>}
                   </div>
                   <div className='flex flex-col gap-2 p-4 transition-all delay-200 delay-250 duration-500 lg:group-data-[state="closed"]:translate-y-4 lg:group-data-[state="closed"]:opacity-0'>

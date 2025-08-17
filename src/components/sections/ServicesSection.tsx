@@ -30,9 +30,6 @@ interface ServicesSectionProps {
     title: string;
     description: string;
     icon: string;
-    backgroundColor?: string;
-    featured: boolean;
-    order: number;
   }>;
 }
 
@@ -92,7 +89,7 @@ export default function ServicesSection({
               icon={getIconComponent(service.icon)}
               title={service.title}
               description={service.description}
-              color={service.backgroundColor || 'bg-gray-200'}
+              color=""
             />
           ))}
         </div>

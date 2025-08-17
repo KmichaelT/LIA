@@ -47,7 +47,7 @@ async function fetchAPI(path: string, urlParamsObject = {}, options = {}) {
 // Services API
 export async function getServices(limit?: number) {
   const params: Record<string, string | number | {limit: number}> = {
-    'sort[0]': 'order:asc',
+    'sort[0]': 'createdAt:asc',
     'populate': '*'
   };
   
@@ -61,8 +61,7 @@ export async function getServices(limit?: number) {
 
 export async function getFeaturedServices() {
   const data = await fetchAPI('/api/services', {
-    'filters[featured][$eq]': true,
-    'sort[0]': 'order:asc',
+    'sort[0]': 'createdAt:asc',
     'populate': '*',
     'pagination[limit]': 4
   });
@@ -122,8 +121,6 @@ export async function getCauses(limit?: number) {
 
 export async function getFeaturedCauses() {
   const data = await fetchAPI('/api/causes', {
-    'filters[featured][$eq]': true,
-    'filters[causeStatus][$eq]': 'active',
     'sort[0]': 'createdAt:desc',
     'populate': '*',
     'pagination[limit]': 5
@@ -133,7 +130,6 @@ export async function getFeaturedCauses() {
 
 export async function getActiveCauses(limit = 5) {
   const data = await fetchAPI('/api/causes', {
-    'filters[causeStatus][$eq]': 'active',
     'sort[0]': 'createdAt:desc',
     'populate': '*',
     'pagination[limit]': limit
@@ -200,27 +196,23 @@ export async function getHomePage() {
       'populate[heroBackgroundImage][fields][2]': 'alternativeText',
       'populate[heroBackgroundImage][fields][3]': 'formats',
       
-      // Populate hero primary button with all fields
-      'populate[heroPrimaryButton][fields][0]': 'label',
-      'populate[heroPrimaryButton][fields][1]': 'url',
-      'populate[heroPrimaryButton][fields][2]': 'type',
-      'populate[heroPrimaryButton][fields][3]': 'style',
-      'populate[heroPrimaryButton][fields][4]': 'isExternal',
+      // Hero button fields - commented out as they've been renamed in backend
+      // 'populate[heroPrimaryButton][fields][0]': 'label',
+      // 'populate[heroPrimaryButton][fields][1]': 'url',
+      // 'populate[heroPrimaryButton][fields][2]': 'type',
+      // 'populate[heroPrimaryButton][fields][3]': 'style',
+      // 'populate[heroPrimaryButton][fields][4]': 'isExternal',
       
-      // Populate hero secondary button with all fields  
-      'populate[heroSecondaryButton][fields][0]': 'label',
-      'populate[heroSecondaryButton][fields][1]': 'url',
-      'populate[heroSecondaryButton][fields][2]': 'type',
-      'populate[heroSecondaryButton][fields][3]': 'style',
-      'populate[heroSecondaryButton][fields][4]': 'isExternal',
+      // 'populate[heroSecondaryButton][fields][0]': 'label',
+      // 'populate[heroSecondaryButton][fields][1]': 'url',
+      // 'populate[heroSecondaryButton][fields][2]': 'type',
+      // 'populate[heroSecondaryButton][fields][3]': 'style',
+      // 'populate[heroSecondaryButton][fields][4]': 'isExternal',
       
       // Populate hero stats
       'populate[heroStats][fields][0]': 'label',
       'populate[heroStats][fields][1]': 'value',
-      'populate[heroStats][fields][2]': 'unit',
-      'populate[heroStats][fields][3]': 'icon',
-      'populate[heroStats][fields][4]': 'category',
-      'populate[heroStats][fields][5]': 'description',
+      'populate[heroStats][fields][2]': 'description',
       
       // Populate causes section with all related causes
       'populate[causes][populate][image][fields][0]': 'url',
@@ -230,12 +222,6 @@ export async function getHomePage() {
       'populate[causes][populate][link][fields][2]': 'type',
       'populate[causes][fields][0]': 'title',
       'populate[causes][fields][1]': 'description',
-      'populate[causes][fields][2]': 'goalAmount',
-      'populate[causes][fields][3]': 'raisedAmount',
-      'populate[causes][fields][4]': 'category',
-      'populate[causes][fields][5]': 'causeStatus',
-      'populate[causes][fields][6]': 'featured',
-      'populate[causes][fields][7]': 'createdAt',
       
       // Populate events section with all related events
       'populate[events][populate][image][fields][0]': 'url',
@@ -244,15 +230,12 @@ export async function getHomePage() {
       'populate[events][fields][1]': 'description',
       'populate[events][fields][2]': 'date',
       'populate[events][fields][3]': 'location',
-      'populate[events][fields][4]': 'registrationLink',
-      'populate[events][fields][5]': 'featured',
+      'populate[events][fields][4]': 'featured',
       
       // Populate services section with all related services
       'populate[services][fields][0]': 'title',
       'populate[services][fields][1]': 'description',
-      'populate[services][fields][2]': 'icon',
-      'populate[services][fields][3]': 'featured',
-      'populate[services][fields][4]': 'order'
+      'populate[services][fields][2]': 'icon'
     });
     
     const response = await fetch(`${STRAPI_URL}/api/home-page?${populateQuery.toString()}`, {
@@ -285,7 +268,26 @@ export async function getAboutUs() {
   const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
   
   try {
-    const response = await fetch(`${STRAPI_URL}/api/about-us?populate=*`, {
+    // Build specific population query for about page with team member fields
+    const populateQuery = new URLSearchParams({
+      // Populate hero image
+      'populate[heroImage][fields][0]': 'url',
+      'populate[heroImage][fields][1]': 'alternativeText',
+      'populate[heroImage][fields][2]': 'name',
+      
+      // Populate team members image
+      'populate[teamMembers][fields][0]': 'url',
+      'populate[teamMembers][fields][1]': 'alternativeText',
+      'populate[teamMembers][fields][2]': 'name',
+      
+      // Populate timeline items
+      'populate[timelineItems][fields][0]': 'title',
+      'populate[timelineItems][fields][1]': 'description',
+      'populate[timelineItems][fields][2]': 'startYear',
+      'populate[timelineItems][fields][3]': 'endYear',
+    });
+    
+    const response = await fetch(`${STRAPI_URL}/api/about-us?${populateQuery.toString()}`, {
       next: { revalidate: 60 }, // Cache for 60 seconds
       signal: controller.signal,
     });

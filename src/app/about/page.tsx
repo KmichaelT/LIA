@@ -3,6 +3,9 @@ import { About1 } from "@/components/about1";
 import { useState, useEffect } from "react";
 import { getAboutUs } from "@/lib/strapi";
 import { STRAPI_URL, getStrapiImageUrl } from "@/lib/utils";
+import { Teams } from "@/components/Teams";
+import TimelineSection from "@/components/TimelineSection";
+import { Button } from "@/components/ui/button";
 
 // Fallback data
 const fallbackContent = {
@@ -58,7 +61,8 @@ const fallbackContent = {
   joinTeam: {
     title: "Join Our Mission",
     description: "Partner with us in transforming lives through education and love. Whether through sponsorship, volunteering, or prayer, you can help us build brighter futures for children in Boreda, Ethiopia."
-  }
+  },
+  teamMember: null as {header: string; description: string; image: string} | null // No default team member, will only show if CMS data is available
 };
 
 export default function About() {
@@ -112,7 +116,12 @@ export default function About() {
             joinTeam: {
               title: aboutData.joinMissionTitle || "Join Our Mission",
               description: aboutData.joinMissionDescription || fallbackContent.joinTeam.description
-            }
+            },
+            teamMember: aboutData.teamMembers?.url ? {
+              header: aboutData.teamMembersHeader || "Our Team",
+              description: aboutData.teamMembersDescription || "Meet the dedicated individuals behind our mission.",
+              image: getStrapiImageUrl(aboutData.teamMembers.url)
+            } : null
           };
           
           setContent(cmsContent);
@@ -138,5 +147,53 @@ export default function About() {
     );
   }
 
-  return <About1 content={content} />;
+  // Create a modified content object without timeline and joinTeam for About1
+  const aboutContentWithoutExtras = {
+    hero: content.hero,
+    image: content.image,
+    missionContent: content.missionContent
+  };
+
+  return (
+    <>
+      <About1 content={aboutContentWithoutExtras} />
+      
+      <TimelineSection
+        title={content.timeline.title}
+        description={content.hero.description}
+        phases={content.timeline.phases}
+        currentPhase={content.timeline.currentPhase}
+      />
+      
+      {content.teamMember && (
+        <Teams 
+          teamMember={content.teamMember}
+          sectionTitle="Our Team"
+          sectionDescription="Meet the dedicated individuals behind our mission to support children in Boreda, Ethiopia."
+        />
+      )}
+      
+      {/* Join Mission Section */}
+      <section className="bg-background py-16">
+          <div className="grid gap-10 md:grid-cols-2">
+            <div>
+              <h2 className="text-2xl font-semibold lg:text-4xl mb-2.5">
+                {content.joinTeam.title}
+              </h2>
+            </div>
+            <div>
+              <p className="text-muted-foreground text-lg">
+                {content.joinTeam.description}
+              </p>
+              <div className="mt-8 flex flex-col items-center gap-2 sm:flex-row">
+                <Button className="w-full sm:w-auto">Join the team</Button>
+                <Button variant="outline" className="w-full sm:w-auto">
+                  become a sponsor
+                </Button>
+              </div>
+            </div>
+          </div>
+      </section>
+    </>
+  );
 }

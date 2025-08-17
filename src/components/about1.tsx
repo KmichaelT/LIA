@@ -20,12 +20,12 @@ interface AboutContent {
     title: string;
     content: string;
   }[];
-  timeline: {
+  timeline?: {
     title: string;
     currentPhase: number;
     phases: TimelinePhase[];
   };
-  joinTeam: {
+  joinTeam?: {
     title: string;
     description: string;
   };
@@ -101,33 +101,35 @@ const About1: React.FC<About1Props> = ({ content }) => {
             </AnimatePresence>
           </div>
         </div>
-        <TimelineSection
-          title={content.timeline.title}
-          description={content.hero.description}
-          phases={content.timeline.phases}
-          currentPhase={content.timeline.currentPhase}
-        />
-        <div className="grid gap-10 md:grid-cols-2">
-
-          <div>
-            <h2 className="mb-2.5">
-              {content.joinTeam.title}
-            </h2>
-          </div>
-          <div>
- 
-            <p className="text-muted-foreground">
-              {content.joinTeam.description}
-            </p>
-                        <div className="mt-8 flex flex-col items-center gap-2 sm:flex-row">
-              <Button className="w-full sm:w-auto">Join the team
-              </Button>
-              <Button variant="outline" className="w-full sm:w-auto">
-                become a sponsor
-              </Button>
+        {content.timeline && (
+          <TimelineSection
+            title={content.timeline.title}
+            description={content.hero.description}
+            phases={content.timeline.phases}
+            currentPhase={content.timeline.currentPhase}
+          />
+        )}
+        
+        {content.joinTeam && (
+          <div className="grid gap-10 md:grid-cols-2">
+            <div>
+              <h2 className="mb-2.5">
+                {content.joinTeam.title}
+              </h2>
+            </div>
+            <div>
+              <p className="text-muted-foreground">
+                {content.joinTeam.description}
+              </p>
+              <div className="mt-8 flex flex-col items-center gap-2 sm:flex-row">
+                <Button className="w-full sm:w-auto">Join the team</Button>
+                <Button variant="outline" className="w-full sm:w-auto">
+                  become a sponsor
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
       </div>
     </section>

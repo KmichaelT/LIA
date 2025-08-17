@@ -2,8 +2,19 @@
 
 import { useEffect, useState } from 'react';
 import { Gallery1 } from '../gallery1';
-import { EventData } from '@/types/strapi';
 import { getStrapiImageUrl } from '@/lib/utils';
+
+interface TransformedEventData {
+  id: number;
+  title: string;
+  description: string;
+  image: string;
+  date: string;
+  location: string;
+  registrationLink?: string;
+  featured: boolean;
+  href?: string;
+}
 
 
 interface EventsSectionProps {
@@ -16,7 +27,11 @@ interface EventsSectionProps {
     description: string;
     date: string;
     location?: string;
-    registrationLink?: string;
+    registrationLink?: {
+      url: string;
+      label: string;
+      type: string;
+    };
     featured?: boolean;
     image?: {
       url: string;
@@ -31,7 +46,7 @@ export default function EventsSection({
   sectionDescription, 
   events: rawEvents 
 }: EventsSectionProps) {
-  const [events, setEvents] = useState<EventData[]>([]);
+  const [events, setEvents] = useState<TransformedEventData[]>([]);
 
   useEffect(() => {
     // Transform the events data
@@ -52,9 +67,9 @@ export default function EventsSection({
           : '/images/events/default.png',
         date: formattedDate,
         location: event.location || 'TBD',
-        registrationLink: event.registrationLink,
-        featured: event.featured || true,
-        href: event.registrationLink || undefined
+        registrationLink: undefined, // Registration link not available from backend yet
+        featured: event.featured === true, // Only show featured badge when explicitly true
+        href: undefined // No registration link available
       };
     });
     setEvents(transformedEvents);
