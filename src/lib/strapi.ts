@@ -192,14 +192,80 @@ export async function getHomePage() {
   const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
   
   try {
-    const response = await fetch(`${STRAPI_URL}/api/home-page?populate=*`, {
+    // Build population query for the new clean homepage structure
+    const populateQuery = new URLSearchParams({
+      // Populate hero background image
+      'populate[heroBackgroundImage][fields][0]': 'url',
+      'populate[heroBackgroundImage][fields][1]': 'name',
+      'populate[heroBackgroundImage][fields][2]': 'alternativeText',
+      'populate[heroBackgroundImage][fields][3]': 'formats',
+      
+      // Populate hero primary button with all fields
+      'populate[heroPrimaryButton][fields][0]': 'label',
+      'populate[heroPrimaryButton][fields][1]': 'url',
+      'populate[heroPrimaryButton][fields][2]': 'type',
+      'populate[heroPrimaryButton][fields][3]': 'style',
+      'populate[heroPrimaryButton][fields][4]': 'isExternal',
+      
+      // Populate hero secondary button with all fields  
+      'populate[heroSecondaryButton][fields][0]': 'label',
+      'populate[heroSecondaryButton][fields][1]': 'url',
+      'populate[heroSecondaryButton][fields][2]': 'type',
+      'populate[heroSecondaryButton][fields][3]': 'style',
+      'populate[heroSecondaryButton][fields][4]': 'isExternal',
+      
+      // Populate hero stats
+      'populate[heroStats][fields][0]': 'label',
+      'populate[heroStats][fields][1]': 'value',
+      'populate[heroStats][fields][2]': 'unit',
+      'populate[heroStats][fields][3]': 'icon',
+      'populate[heroStats][fields][4]': 'category',
+      'populate[heroStats][fields][5]': 'description',
+      
+      // Populate causes section with all related causes
+      'populate[causes][populate][image][fields][0]': 'url',
+      'populate[causes][populate][image][fields][1]': 'alternativeText',
+      'populate[causes][populate][link][fields][0]': 'url',
+      'populate[causes][populate][link][fields][1]': 'label',
+      'populate[causes][populate][link][fields][2]': 'type',
+      'populate[causes][fields][0]': 'title',
+      'populate[causes][fields][1]': 'description',
+      'populate[causes][fields][2]': 'goalAmount',
+      'populate[causes][fields][3]': 'raisedAmount',
+      'populate[causes][fields][4]': 'category',
+      'populate[causes][fields][5]': 'causeStatus',
+      'populate[causes][fields][6]': 'featured',
+      'populate[causes][fields][7]': 'createdAt',
+      
+      // Populate events section with all related events
+      'populate[events][populate][image][fields][0]': 'url',
+      'populate[events][populate][image][fields][1]': 'alternativeText',
+      'populate[events][fields][0]': 'title',
+      'populate[events][fields][1]': 'description',
+      'populate[events][fields][2]': 'date',
+      'populate[events][fields][3]': 'location',
+      'populate[events][fields][4]': 'registrationLink',
+      'populate[events][fields][5]': 'featured',
+      
+      // Populate services section with all related services
+      'populate[services][fields][0]': 'title',
+      'populate[services][fields][1]': 'description',
+      'populate[services][fields][2]': 'icon',
+      'populate[services][fields][3]': 'backgroundColor',
+      'populate[services][fields][4]': 'featured',
+      'populate[services][fields][5]': 'order'
+    });
+    
+    const response = await fetch(`${STRAPI_URL}/api/home-page?${populateQuery.toString()}`, {
       next: { revalidate: 60 }, // Cache for 60 seconds
       signal: controller.signal,
     });
     clearTimeout(timeoutId);
     
     if (!response.ok) {
-      throw new Error('Failed to fetch home page');
+      const errorText = await response.text();
+      console.error('Strapi API Error:', response.status, response.statusText, errorText);
+      throw new Error(`Failed to fetch home page: ${response.status} ${response.statusText}`);
     }
     
     const data = await response.json();

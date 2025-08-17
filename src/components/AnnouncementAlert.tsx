@@ -86,7 +86,7 @@ export default function AnnouncementAlert() {
         <div className="flex items-center space-x-3 flex-1">
           <IconComponent size={20} className="flex-shrink-0" />
           <div className="flex-1">
-            <p className="text-sm font-medium">
+            <p className="text-xl text-white font-medium">
               {announcement.title && (
                 <span className="font-bold mr-2">{announcement.title}:</span>
               )}

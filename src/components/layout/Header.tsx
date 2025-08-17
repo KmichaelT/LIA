@@ -225,11 +225,11 @@ export default function Header() {
       {/* Top Bar for non-announcement alerts only */}
       {announcement && isAnnouncementVisible && announcement.type !== 'announcement' && (
         <div className={`${alertStyles.bg} text-white px-4 py-3`}>
-          <div className=" mx-auto flex items-center justify-between">
+          <div className=" mx-auto flex items-center justify-between container">
             <div className="flex items-center space-x-3 flex-1">
               <IconComponent size={20} className="flex-shrink-0" />
               <div className="flex-1">
-                <p className="text-sm font-medium">
+                <p className="text-sm font-medium text-white">
                   {announcement.title && (
                     <span className="font-bold mr-2">{announcement.title}:</span>
                   )}
@@ -242,7 +242,7 @@ export default function Header() {
                   href={announcement.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`inline-flex items-center space-x-1 text-sm font-medium ${alertStyles.hover} transition-colors whitespace-nowrap`}
+                  className={`inline-flex items-center space-x-1 text-sm font-medium text-white ${alertStyles.hover} transition-colors whitespace-nowrap`}
                 >
                   <span>{announcement.linkText || 'Learn More'}</span>
                   <ExternalLink size={14} />

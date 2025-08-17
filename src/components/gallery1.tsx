@@ -21,23 +21,30 @@ export interface Gallery1Item {
 interface Gallery1Props {
   title?: string;
   description?: string;
+  sectionTitle?: string;
   items: Gallery1Item[];
 }
 
-const Gallery1 = ({ title, description, items = [] }: Gallery1Props) => {
+const Gallery1 = ({ title, description, sectionTitle, items = [] }: Gallery1Props) => {
   const [selection, setSelection] = useState(items.length > 0 ? items[0].id : null);
   
   return (
     <div>
-      {(title || description) && (
+      {(title || description || sectionTitle) && (
  <div className="flex flex-col max-w-2xl gap-4 mb-8">
- <span className="text-secondary font-medium mb-4 inline-block">Events</span>
- <h2 className="text-3xl md:text-4xl font-bold mb-6">
- {title}
- </h2>
- <p className="text-muted-foreground">
- {description}
- </p>
+ {sectionTitle && (
+   <span className="text-secondary font-medium mb-4 inline-block">{sectionTitle}</span>
+ )}
+ {title && (
+   <h2 className="text-3xl md:text-4xl font-bold mb-6">
+     {title}
+   </h2>
+ )}
+ {description && (
+   <p className="text-muted-foreground">
+     {description}
+   </p>
+ )}
 </div>
       )}
       
@@ -65,11 +72,11 @@ const Gallery1 = ({ title, description, items = [] }: Gallery1Props) => {
                 <div className="absolute inset-0 bg-black bg-opacity-50"></div>
               </div>
               
-              <div className="relative flex flex-col justify-between gap-4 md:absolute md:inset-0 md:max-lg:inset-x-[50%] md:max-lg:w-[50%]">
+              <div className="relative flex flex-col justify-between gap-4 md:absolute md:inset-0  ">
  
                 <div className='flex h-[80px] items-center gap-2 p-4 transition-opacity delay-200 duration-500 lg:group-data-[state="closed"]:opacity-0'>
-                {item.featured && <Badge variant="secondary">Featured</Badge>}
-                {item.date && <Badge variant="secondary">{item.date}</Badge>}
+                {item.featured && <Badge variant="default">Featured</Badge>}
+                {item.date && <Badge variant="default">{item.date}</Badge>}
                   </div>
                   <div className='flex flex-col gap-2 p-4 transition-all delay-200 delay-250 duration-500 lg:group-data-[state="closed"]:translate-y-4 lg:group-data-[state="closed"]:opacity-0'>
                   
@@ -78,7 +85,7 @@ const Gallery1 = ({ title, description, items = [] }: Gallery1Props) => {
                     <div className="mb-2 pt-4 text-lg font-bold md:mb-3 md:pt-4 lg:pt-4">
                         {item.title}
                       </div>
-                      <div className="flex mb-4  text-sm  ">
+                      <div className="flex mb-4  text-sm max-w-96 ">
                         {item.description}
                       </div>
                     </div>
