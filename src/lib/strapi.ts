@@ -196,18 +196,18 @@ export async function getHomePage() {
       'populate[heroBackgroundImage][fields][2]': 'alternativeText',
       'populate[heroBackgroundImage][fields][3]': 'formats',
       
-      // Hero button fields - commented out as they've been renamed in backend
-      // 'populate[heroPrimaryButton][fields][0]': 'label',
-      // 'populate[heroPrimaryButton][fields][1]': 'url',
-      // 'populate[heroPrimaryButton][fields][2]': 'type',
-      // 'populate[heroPrimaryButton][fields][3]': 'style',
-      // 'populate[heroPrimaryButton][fields][4]': 'isExternal',
+      // Hero button fields
+      'populate[donateNowButton][fields][0]': 'label',
+      'populate[donateNowButton][fields][1]': 'url',
+      'populate[donateNowButton][fields][2]': 'type',
+      'populate[donateNowButton][fields][3]': 'isExternal',
+      'populate[donateNowButton][fields][4]': 'opensInPopup',
       
-      // 'populate[heroSecondaryButton][fields][0]': 'label',
-      // 'populate[heroSecondaryButton][fields][1]': 'url',
-      // 'populate[heroSecondaryButton][fields][2]': 'type',
-      // 'populate[heroSecondaryButton][fields][3]': 'style',
-      // 'populate[heroSecondaryButton][fields][4]': 'isExternal',
+      'populate[watchVideoButton][fields][0]': 'label',
+      'populate[watchVideoButton][fields][1]': 'url',
+      'populate[watchVideoButton][fields][2]': 'type',
+      'populate[watchVideoButton][fields][3]': 'isExternal',
+      'populate[watchVideoButton][fields][4]': 'opensInPopup',
       
       // Populate hero stats
       'populate[heroStats][fields][0]': 'label',
@@ -220,6 +220,8 @@ export async function getHomePage() {
       'populate[causes][populate][link][fields][0]': 'url',
       'populate[causes][populate][link][fields][1]': 'label',
       'populate[causes][populate][link][fields][2]': 'type',
+      'populate[causes][populate][link][fields][3]': 'isExternal',
+      'populate[causes][populate][link][fields][4]': 'opensInPopup',
       'populate[causes][fields][0]': 'title',
       'populate[causes][fields][1]': 'description',
       

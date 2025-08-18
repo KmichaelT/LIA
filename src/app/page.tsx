@@ -20,8 +20,8 @@ export default async function Home() {
         title={homePageData.heroTitle}
         description={homePageData.heroDescription}
         backgroundImage={homePageData.heroBackgroundImage}
-        primaryButton={homePageData.heroPrimaryButton}
-        secondaryButton={homePageData.heroSecondaryButton}
+        primaryButton={homePageData.donateNowButton}
+        secondaryButton={homePageData.watchVideoButton}
         stats={homePageData.heroStats}
       />
       

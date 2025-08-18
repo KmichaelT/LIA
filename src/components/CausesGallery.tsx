@@ -151,7 +151,7 @@ const CausesGallery = ({
                           </div>
                           {item.donationLink && item.donationLink.url ? (
                             item.donationLink.opensInPopup ? (
-                              <Dialog>
+                              <Dialog >
                                 <DialogTrigger asChild>
                                   <button 
                                     className="flex items-center text-sm cursor-pointer bg-transparent border-none p-0 text-primary-foreground hover:opacity-80"
@@ -160,7 +160,7 @@ const CausesGallery = ({
                                     <ArrowRight className="ml-2 size-5 transition-transform group-hover:translate-x-1" />
                                   </button>
                                 </DialogTrigger>
-                                <DialogContent className="w-[600px] h-[500px] p-0 overflow-hidden">
+                                <DialogContent className="max-w-4xl w-[90vw] h-[80vh] p-0 overflow-hidden flex items-center justify-center">
                                   <iframe
                                     src={(() => {
                                       let url = item.donationLink!.url;
@@ -170,6 +170,7 @@ const CausesGallery = ({
                                         .replace("&modal=true", "");
                                       return url;
                                     })()}
+                                    
                                     className="w-full h-full border-none"
                                     title="Donation Form"
                                   />

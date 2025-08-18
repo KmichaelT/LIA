@@ -6,6 +6,9 @@ import { STRAPI_URL, getStrapiImageUrl } from "@/lib/utils";
 import { Teams } from "@/components/Teams";
 import TimelineSection from "@/components/TimelineSection";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import TeamMembershipForm from "@/components/TeamMembershipForm";
+import Link from "next/link";
 
 // Fallback data
 const fallbackContent = {
@@ -68,6 +71,7 @@ const fallbackContent = {
 export default function About() {
   const [content, setContent] = useState(fallbackContent);
   const [loading, setLoading] = useState(true);
+  const [isTeamDialogOpen, setIsTeamDialogOpen] = useState(false);
 
   useEffect(() => {
     async function fetchAboutData() {
@@ -186,10 +190,24 @@ export default function About() {
                 {content.joinTeam.description}
               </p>
               <div className="mt-8 flex flex-col items-center gap-2 sm:flex-row">
-                <Button className="w-full sm:w-auto">Join the team</Button>
-                <Button variant="outline" className="w-full sm:w-auto">
-                  become a sponsor
-                </Button>
+                <Dialog open={isTeamDialogOpen} onOpenChange={setIsTeamDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="w-full sm:w-auto">Join the team</Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl w-[90vw] max-h-[90vh] overflow-y-auto">
+                    <TeamMembershipForm 
+                      onSuccess={() => {
+                        setTimeout(() => setIsTeamDialogOpen(false), 2000);
+                      }}
+                      onClose={() => setIsTeamDialogOpen(false)}
+                    />
+                  </DialogContent>
+                </Dialog>
+                <Link href="/sponsor-a-child">
+                  <Button variant="outline" className="w-full sm:w-auto">
+                    become a sponsor
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>

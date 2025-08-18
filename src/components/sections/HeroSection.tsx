@@ -5,6 +5,7 @@ import Image from "next/image";
 import { PlayIcon, MoveRight } from "lucide-react";
 import { AspectRatio } from "@/components/aspect-ratio";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useState } from "react";
 import { getStrapiImageUrl } from "@/lib/utils";
 
@@ -24,7 +25,8 @@ interface HeroSectionProps {
     url: string;
     type: string;
     style?: string;
-    isExternal: boolean;
+    isExternal?: boolean;
+    opensInPopup?: boolean;
   };
   secondaryButton?: {
     id: number;
@@ -32,7 +34,8 @@ interface HeroSectionProps {
     url: string;
     type: string;
     style?: string;
-    isExternal: boolean;
+    isExternal?: boolean;
+    opensInPopup?: boolean;
   };
   stats?: Array<{
     id: number;
@@ -85,36 +88,104 @@ export default function HeroSection({
                 <div className="w-fit lg:mx-0">
                   <div className="flex flex-wrap gap-4">
                     {primaryButton && (
-                      <Link href={primaryButton.url} target={primaryButton.isExternal ? "_blank" : "_self"}>
-                        <Button className="group flex h-fit w-fit items-center gap-2 rounded-full px-8 py-3 bg-primary text-white">
-                          <p className="text-sm/5 font-medium text-white">
-                            {primaryButton.label}
-                          </p>
-                          <div className="relative h-6 w-7 overflow-hidden">
-                            <div className="absolute left-0 top-0 flex -translate-x-1/2 items-center transition-all duration-500 group-hover:translate-x-0">
-                              <MoveRight className="!h-6 !w-6 fill-white px-1" />
-                              <MoveRight className="!h-6 !w-6 fill-white px-1" />
+                      (primaryButton.opensInPopup || (primaryButton.type === 'donation' && primaryButton.url?.includes('zeffy'))) ? (
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button className="group flex h-fit w-fit items-center gap-2 rounded-full px-8 py-3 bg-primary text-white">
+                              <p className="text-sm/5 font-medium text-white">
+                                {primaryButton.label}
+                              </p>
+                              <div className="relative h-6 w-7 overflow-hidden">
+                                <div className="absolute left-0 top-0 flex -translate-x-1/2 items-center transition-all duration-500 group-hover:translate-x-0">
+                                  <MoveRight className="!h-6 !w-6 fill-white px-1" />
+                                  <MoveRight className="!h-6 !w-6 fill-white px-1" />
+                                </div>
+                              </div>
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-4xl w-[90vw] h-[80vh] p-0 overflow-hidden flex items-center justify-center">
+                            <iframe
+                              src={primaryButton.url}
+                              className="w-full h-full border-none"
+                              title={primaryButton.label}
+                            />
+                          </DialogContent>
+                        </Dialog>
+                      ) : (
+                        <Link href={primaryButton.url} target={(primaryButton.isExternal || primaryButton.url?.includes('http')) ? "_blank" : "_self"}>
+                          <Button className="group flex h-fit w-fit items-center gap-2 rounded-full px-8 py-3 bg-primary text-white">
+                            <p className="text-sm/5 font-medium text-white">
+                              {primaryButton.label}
+                            </p>
+                            <div className="relative h-6 w-7 overflow-hidden">
+                              <div className="absolute left-0 top-0 flex -translate-x-1/2 items-center transition-all duration-500 group-hover:translate-x-0">
+                                <MoveRight className="!h-6 !w-6 fill-white px-1" />
+                                <MoveRight className="!h-6 !w-6 fill-white px-1" />
+                              </div>
                             </div>
-                          </div>
-                        </Button>
-                      </Link>
+                          </Button>
+                        </Link>
+                      )
                     )}
 
                     {secondaryButton && (
-                      <Button
-                        variant="ghost"
-                        onClick={() => setIsVideoOpen(true)}
-                        className="flex w-fit items-center gap-3 hover:bg-transparent"
-                      >
-                        <div className="relative h-7 w-7 rounded-full p-[3px] before:absolute before:top-0 before:left-0 before:block before:h-full before:w-full before:animate-[spin_5s_ease-in-out_infinite] before:rounded-full before:bg-gradient-to-r before:from-primary before:to-transparent before:content-['']">
-                          <div className="relative z-20 flex h-full w-full rounded-full bg-white">
-                            <PlayIcon className="m-auto !h-3 !w-3 fill-primary stroke-primary" />
+                      (secondaryButton.opensInPopup || (secondaryButton.type === 'donation' && secondaryButton.url?.includes('zeffy'))) ? (
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              className="flex w-fit items-center gap-3 hover:bg-transparent"
+                            >
+                              <div className="relative h-7 w-7 rounded-full p-[3px] before:absolute before:top-0 before:left-0 before:block before:h-full before:w-full before:animate-[spin_5s_ease-in-out_infinite] before:rounded-full before:bg-gradient-to-r before:from-primary before:to-transparent before:content-['']">
+                                <div className="relative z-20 flex h-full w-full rounded-full bg-white">
+                                  <PlayIcon className="m-auto !h-3 !w-3 fill-primary stroke-primary" />
+                                </div>
+                              </div>
+                              <p className="text-sm/5 font-medium text-primary">
+                                {secondaryButton.label}
+                              </p>
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-4xl w-[90vw] h-[80vh] p-0 overflow-hidden flex items-center justify-center">
+                            <iframe
+                              src={secondaryButton.url}
+                              className="w-full h-full border-none"
+                              title={secondaryButton.label}
+                            />
+                          </DialogContent>
+                        </Dialog>
+                      ) : secondaryButton.url === "/video/lia_video.mp4" ? (
+                        <Button
+                          variant="ghost"
+                          onClick={() => setIsVideoOpen(true)}
+                          className="flex w-fit items-center gap-3 hover:bg-transparent"
+                        >
+                          <div className="relative h-7 w-7 rounded-full p-[3px] before:absolute before:top-0 before:left-0 before:block before:h-full before:w-full before:animate-[spin_5s_ease-in-out_infinite] before:rounded-full before:bg-gradient-to-r before:from-primary before:to-transparent before:content-['']">
+                            <div className="relative z-20 flex h-full w-full rounded-full bg-white">
+                              <PlayIcon className="m-auto !h-3 !w-3 fill-primary stroke-primary" />
+                            </div>
                           </div>
-                        </div>
-                        <p className="text-sm/5 font-medium text-primary">
-                          {secondaryButton.label}
-                        </p>
-                      </Button>
+                          <p className="text-sm/5 font-medium text-primary">
+                            {secondaryButton.label}
+                          </p>
+                        </Button>
+                      ) : (
+                        <Link href={secondaryButton.url} target={(secondaryButton.isExternal || secondaryButton.url?.includes('http')) ? "_blank" : "_self"}>
+                          <Button
+                            variant="ghost"
+                            className="flex w-fit items-center gap-3 hover:bg-transparent"
+                          >
+                            <div className="relative h-7 w-7 rounded-full p-[3px] before:absolute before:top-0 before:left-0 before:block before:h-full before:w-full before:animate-[spin_5s_ease-in-out_infinite] before:rounded-full before:bg-gradient-to-r before:from-primary before:to-transparent before:content-['']">
+                              <div className="relative z-20 flex h-full w-full rounded-full bg-white">
+                                <PlayIcon className="m-auto !h-3 !w-3 fill-primary stroke-primary" />
+                              </div>
+                            </div>
+                            <p className="text-sm/5 font-medium text-primary">
+                              {secondaryButton.label}
+                            </p>
+                          </Button>
+                        </Link>
+                      )
                     )}
                   </div>
                 </div>

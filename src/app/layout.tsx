@@ -10,6 +10,9 @@ export const metadata: Metadata = {
   title: "Love In Action – Sponsor a Child & Donate to Charity Online",
   description:
     "Love In Action is a responsive, modern charity foundation empowering you to sponsor children, support fundraising campaigns, and make a tangible difference. Explore our causes, join events, and donate securely online.",
+  icons: {
+    icon: '/favicon.ico',
+  },
   keywords: [
     "child sponsorship",
     "charity foundation",
