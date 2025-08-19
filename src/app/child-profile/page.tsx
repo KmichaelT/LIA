@@ -12,7 +12,7 @@ import { Loader2, Heart, User, ChevronDown, Mail, Phone, MapPin } from 'lucide-r
 import ProtectedRoute from '@/components/ProtectedRoute';
 import TimelineSection from '@/components/TimelineSection';
 import NoChildrenState from '@/components/NoChildrenState';
-import { STRAPI_URL } from '@/lib/utils';
+import { STRAPI_URL, getStrapiImageUrl } from '@/lib/utils';
 
 interface StrapiImage {
   id: number;
@@ -261,7 +261,7 @@ export default function ChildProfilePage() {
                     <div className="bg-white rounded-lg shadow-sm overflow-hidden">
                       {currentChild.images && currentChild.images.length > 0 ? (
                         <Image
-                          src={`${STRAPI_URL}${currentChild.images[0].url}`}
+                          src={getStrapiImageUrl(currentChild.images[0].url)}
                           alt={currentChild.fullName}
                           width={400}
                           height={256}
