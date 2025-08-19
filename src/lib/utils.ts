@@ -15,6 +15,8 @@ export const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || (isDevelopment ?
 // Helper to get full Strapi URL for images
 export function getStrapiImageUrl(url: string): string {
   if (!url) return '';
-  if (url.startsWith('http')) return url;
+  // Return as-is if it's already a full URL (starts with http:// or https://)
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  // Add base URL for relative paths
   return `${STRAPI_URL}${url}`;
 }
