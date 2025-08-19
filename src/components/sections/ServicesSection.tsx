@@ -1,22 +1,41 @@
 'use client';
  
-import {  GraduationCap, Home, Flame, Users } from 'lucide-react';
+import {  GraduationCap, Home, Flame, Users, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 
 interface ServiceCardProps {
   icon: React.ReactNode;
   title: string;
   description: string;
   color: string;
+  hasDetails?: boolean;
+  learnMoreBlog?: {
+    Heading: string;
+    documentId: string;
+  };
 }
 
-const ServiceCard = ({ icon, title, description, color }: ServiceCardProps) => {
+const ServiceCard = ({ icon, title, description, color, hasDetails, learnMoreBlog }: ServiceCardProps) => {
   return (
-    <div className={`p-2 rounded-lg ${color} hover:shadow-lg transition-shadow duration-300 h-full flex flex-col`}>
+    <div className={`p-2 rounded-lg ${color} h-full flex flex-col`}>
       <div className="mb-4 text-lia-brown-dark">
         {icon}
       </div>
       <h3 className="text-xl font-bold mb-3 text-lia-brown-dark">{title}</h3>
-      <p className="text-lia-brown-dark/80 text-sm">{description}</p>
+      <p className="text-lia-brown-dark/80 text-sm mb-4 flex-grow">{description}</p>
+      
+      {/* Conditional Learn More Link - only show if hasDetails is true and learnMoreBlog exists */}
+      {hasDetails === true && learnMoreBlog && learnMoreBlog.documentId && (
+        <div className="mt-auto">
+          <Link 
+            href={`/blog/${learnMoreBlog.documentId}`}
+            className="flex items-center text-sm text-black hover:opacity-80"
+          >
+            Learn More{" "}
+            <ArrowRight className="ml-2 size-5 transition-transform hover:translate-x-1" />
+          </Link>
+        </div>
+      )}
     </div>
   );
 };
@@ -30,6 +49,11 @@ interface ServicesSectionProps {
     title: string;
     description: string;
     icon: string;
+    hasDetails?: boolean;
+    learnMoreBlog?: {
+      Heading: string;
+      documentId: string;
+    };
   }>;
 }
 
@@ -90,6 +114,8 @@ export default function ServicesSection({
               title={service.title}
               description={service.description}
               color=""
+              hasDetails={service.hasDetails}
+              learnMoreBlog={service.learnMoreBlog}
             />
           ))}
         </div>

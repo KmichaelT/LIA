@@ -3,6 +3,9 @@
 import { ArrowUpRight, Plus } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import Link from "next/link";
 
 // Define proper types for the Gallery1 props and items
 export interface Gallery1Item {
@@ -14,8 +17,14 @@ export interface Gallery1Item {
   author?: string;
   comments?: number;
   featured?: boolean;
-
   description?: string;
+  registrationLink?: {
+    url: string;
+    label: string;
+    type: string;
+    isExternal?: boolean;
+    opensInPopup?: boolean;
+  };
 }
 
 interface Gallery1Props {
@@ -58,10 +67,7 @@ const Gallery1 = ({ title, description, sectionTitle, items = [] }: Gallery1Prop
               setSelection(item.id);
             }}
           > 
-            <a
-              href={item.href }
-              className="relative block h-full w-full overflow-hidden rounded-xl bg-primary text-primary-foreground"
-            >
+            <div className="relative block h-full w-full overflow-hidden rounded-xl bg-primary text-primary-foreground">
               {/* Image as full background cover */}
               <div className="absolute inset-0 w-full h-full">
                 <img
@@ -80,7 +86,7 @@ const Gallery1 = ({ title, description, sectionTitle, items = [] }: Gallery1Prop
                   </div>
                   <div className='flex flex-col gap-2 p-4 transition-all delay-200 delay-250 duration-500 lg:group-data-[state="closed"]:translate-y-4 lg:group-data-[state="closed"]:opacity-0'>
                   
-                <div className="flex items-center justify-between gap-2">
+                <div className="flex flex-col gap-2">
                     <div className="text-base font-medium lg:text-lg  overflow-hidden ">
                     <div className="mb-2 pt-4 text-lg font-bold md:mb-3 md:pt-4 lg:pt-4">
                         {item.title}
@@ -89,14 +95,48 @@ const Gallery1 = ({ title, description, sectionTitle, items = [] }: Gallery1Prop
                         {item.description}
                       </div>
                     </div>
-                      {/* <div className="flex size-8 items-center justify-center rounded-full bg-background text-foreground transition-transform group-hover:-translate-y-1 group-hover:translate-x-1 lg:size-10">
-                        <ArrowUpRight className="size-4 lg:size-5" />
-                      </div> */}
-                    </div>
+                    {/* Registration Link */}
+                    {item.registrationLink && item.registrationLink.url && (
+                      <div className="mt-2">
+                        {item.registrationLink.opensInPopup ? (
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="secondary" size="sm" className="w-full sm:w-auto">
+                                {item.registrationLink.label || 'Register'}
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-4xl w-[90vw] h-[80vh] p-0 overflow-hidden flex items-center justify-center">
+                              <iframe
+                                src={item.registrationLink.url}
+                                className="w-full h-full border-none"
+                                title={item.registrationLink.label || 'Registration Form'}
+                              />
+                            </DialogContent>
+                          </Dialog>
+                        ) : item.registrationLink.isExternal ? (
+                          <a 
+                            href={item.registrationLink.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                          >
+                            <Button variant="secondary" size="sm" className="w-full sm:w-auto">
+                              {item.registrationLink.label || 'Register'}
+                            </Button>
+                          </a>
+                        ) : (
+                          <Link href={item.registrationLink.url}>
+                            <Button variant="secondary" size="sm" className="w-full sm:w-auto">
+                              {item.registrationLink.label || 'Register'}
+                            </Button>
+                          </Link>
+                        )}
+                      </div>
+                    )}
+                  </div>
                   </div>
  
               </div>
-            </a>
+            </div>
           </div>
         ))}
       </div>

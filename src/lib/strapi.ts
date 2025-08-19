@@ -217,6 +217,9 @@ export async function getHomePage() {
       // Populate causes section with all related causes
       'populate[causes][populate][image][fields][0]': 'url',
       'populate[causes][populate][image][fields][1]': 'alternativeText',
+      'populate[causes][populate][blogLink][fields][0]': 'Heading',
+      'populate[causes][populate][blogLink][fields][1]': 'documentId',
+      // Note: link field commented out until it exists in CMS
       'populate[causes][populate][link][fields][0]': 'url',
       'populate[causes][populate][link][fields][1]': 'label',
       'populate[causes][populate][link][fields][2]': 'type',
@@ -228,6 +231,11 @@ export async function getHomePage() {
       // Populate events section with all related events
       'populate[events][populate][image][fields][0]': 'url',
       'populate[events][populate][image][fields][1]': 'alternativeText',
+      'populate[events][populate][registrationLink][fields][0]': 'url',
+      'populate[events][populate][registrationLink][fields][1]': 'label',
+      'populate[events][populate][registrationLink][fields][2]': 'type',
+      'populate[events][populate][registrationLink][fields][3]': 'isExternal',
+      'populate[events][populate][registrationLink][fields][4]': 'opensInPopup',
       'populate[events][fields][0]': 'title',
       'populate[events][fields][1]': 'description',
       'populate[events][fields][2]': 'date',
@@ -237,7 +245,10 @@ export async function getHomePage() {
       // Populate services section with all related services
       'populate[services][fields][0]': 'title',
       'populate[services][fields][1]': 'description',
-      'populate[services][fields][2]': 'icon'
+      'populate[services][fields][2]': 'icon',
+      'populate[services][fields][3]': 'hasDetails',
+      'populate[services][populate][learnMoreBlog][fields][0]': 'Heading',
+      'populate[services][populate][learnMoreBlog][fields][1]': 'documentId'
     });
     
     const response = await fetch(`${STRAPI_URL}/api/home-page?${populateQuery.toString()}`, {

@@ -25,6 +25,10 @@ interface CausesSectionProps {
       isExternal?: boolean;
       opensInPopup?: boolean;
     };
+    blogLink?: {
+      Heading: string;
+      documentId: string;
+    };
   }>;
 }
 
@@ -48,10 +52,14 @@ export default function CausesSection({
           : '/images/causes/default.webp',
         donationLink: cause.link ? {
           url: cause.link.url,
-          label: cause.link.label,
-          type: cause.link.type,
-          external: cause.link.isExternal || cause.link.url?.includes('http') || false,
-          opensInPopup: cause.link.opensInPopup || (cause.link.type === 'donation' && cause.link.url?.includes('zeffy')) || false
+          label: cause.link.label || "Support this cause",
+          type: cause.link.type || "donation",
+          external: cause.link.isExternal || false,
+          opensInPopup: cause.link.opensInPopup || false
+        } : undefined,
+        blogLink: cause.blogLink ? {
+          Heading: cause.blogLink.Heading,
+          documentId: cause.blogLink.documentId
         } : undefined
       };
     });

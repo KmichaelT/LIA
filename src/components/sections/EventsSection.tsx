@@ -10,8 +10,15 @@ interface TransformedEventData {
   description: string;
   image: string;
   date: string;
+  dateObject: Date;
   location: string;
-  registrationLink?: string;
+  registrationLink?: {
+    url: string;
+    label: string;
+    type: string;
+    isExternal?: boolean;
+    opensInPopup?: boolean;
+  };
   featured: boolean;
   href?: string;
 }
@@ -31,6 +38,8 @@ interface EventsSectionProps {
       url: string;
       label: string;
       type: string;
+      isExternal?: boolean;
+      opensInPopup?: boolean;
     };
     featured?: boolean;
     image?: {
@@ -66,13 +75,26 @@ export default function EventsSection({
           ? getStrapiImageUrl(event.image.url)
           : '/images/events/default.png',
         date: formattedDate,
+        dateObject: eventDate,
         location: event.location || 'TBD',
-        registrationLink: undefined, // Registration link not available from backend yet
+        registrationLink: event.registrationLink ? {
+          url: event.registrationLink.url,
+          label: event.registrationLink.label || 'Register',
+          type: event.registrationLink.type || 'registration',
+          isExternal: event.registrationLink.isExternal || event.registrationLink.url?.includes('http'),
+          opensInPopup: event.registrationLink.opensInPopup || false
+        } : undefined,
         featured: event.featured === true, // Only show featured badge when explicitly true
-        href: undefined // No registration link available
+        href: event.registrationLink?.url // Use registration link as href if available
       };
     });
-    setEvents(transformedEvents);
+    
+    // Sort events by date (soonest first)
+    const sortedEvents = transformedEvents.sort((a, b) => 
+      a.dateObject.getTime() - b.dateObject.getTime()
+    );
+    
+    setEvents(sortedEvents);
   }, [rawEvents]);
 
   // If no events, don't render section
