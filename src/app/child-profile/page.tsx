@@ -426,7 +426,6 @@ export default function ChildProfilePage() {
                   {hasPendingRequests ? (
                     <>
                       <TimelineSection
-                        
                         phases={[
                           { id: 1, date: "Step 1", title: "Application Received", description: "Your sponsorship application has been submitted and received." },
                           { id: 2, date: "Step 2", title: "Processing", description: "We are reviewing your application and assessing available children." },

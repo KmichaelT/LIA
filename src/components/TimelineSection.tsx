@@ -14,8 +14,8 @@ interface TimelinePhase {
 }
 
 interface TimelineSectionProps {
-  title: string;
-  description: string;
+  title?: string;
+  description?: string;
   phases: TimelinePhase[];
   currentPhase?: number;
 }
@@ -29,14 +29,20 @@ export default function TimelineSection({
   return (
     <section className="bg-background py-16">
       <div className="flex flex-col">
-        <div className="flex flex-col gap-7">
-          <h1 className="text-2xl font-semibold lg:text-4xl">
-            {title}
-          </h1>
-          <p className="max-w-xl text-lg">
-            {description}
-          </p>
-        </div> 
+        {(title || description) && (
+          <div className="flex flex-col gap-7">
+            {title && (
+              <h1 className="text-2xl font-semibold lg:text-4xl">
+                {title}
+              </h1>
+            )}
+            {description && (
+              <p className="max-w-xl text-lg">
+                {description}
+              </p>
+            )}
+          </div>
+        )} 
         <Card className="relative w-full border-none shadow-none md:py-16 bg-transparent">
           <CardContent className="p-0">
             <div className="relative flex flex-col items-center md:mt-12">
