@@ -33,6 +33,7 @@ const fallbackContent = {
   ],
   timeline: {
     title: "Our Journey",
+    description: "Follow our journey from founding to present day impact in supporting children in Boreda, Ethiopia.",
     currentPhase: 3,
     phases: [
       {
@@ -110,6 +111,7 @@ export default function About() {
             ],
             timeline: {
               title: aboutData.timelineTitle || "Our Journey",
+              description: aboutData.timelineDescription || fallbackContent.timeline.description,
               currentPhase: aboutData.timelineItems?.length > 0 
                 ? (aboutData.currentPhase > 0 && aboutData.currentPhase <= aboutData.timelineItems.length 
                    ? aboutData.currentPhase 
@@ -172,7 +174,7 @@ export default function About() {
       
       <TimelineSection
         title={content.timeline.title}
-        description={content.hero.description}
+        description={content.timeline.description}
         phases={content.timeline.phases}
         currentPhase={content.timeline.currentPhase}
       />
