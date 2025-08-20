@@ -234,7 +234,7 @@ export default function ChildProfilePage() {
                     <div className="relative">
                       <button
                         onClick={() => setShowChildDropdown((v) => !v)}
-                        className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-accent transition-all"
+                        className="flex items-center gap-2 px-4 py-2  bg-white text-primary border-2 border-gray-200 rounded-lg hover:bg-gray-200 transition-all"
                         aria-haspopup="listbox"
                         aria-expanded={showChildDropdown}
                         aria-label="Select child"
@@ -422,12 +422,11 @@ export default function ChildProfilePage() {
                 )
               ) : (
                 // STATE: pending or not started
-                <div className="max-w-4xl mx-auto">
+                <div >
                   {hasPendingRequests ? (
                     <>
                       <TimelineSection
-                        title="Your Sponsorship Journey"
-                        description="Track the progress of your sponsorship application"
+                        
                         phases={[
                           { id: 1, date: "Step 1", title: "Application Received", description: "Your sponsorship application has been submitted and received." },
                           { id: 2, date: "Step 2", title: "Processing", description: "We are reviewing your application and assessing available children." },

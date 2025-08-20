@@ -108,10 +108,24 @@ export function getNavigationConfig(categoryInfo: UserCategoryInfo) {
         completeProfileButtonHref: '/complete-profile',
       };
 
-    case 'USER':
     case 'SPONSOR':
+      // Sponsors don't need to see "Sponsor a Child" button
+      return {
+        showLoginButton: false,
+        showSponsorButton: false, // Hide sponsor button for existing sponsors
+        showMyChildrenButton: true,
+        showCompleteProfileButton: false,
+        loginButtonText: 'Login',
+        loginButtonHref: '/login',
+        sponsorButtonText: 'Sponsor a Child',
+        sponsorButtonHref: '/sponsor-a-child',
+        myChildrenButtonHref: '/child-profile',
+        completeProfileButtonHref: '/complete-profile',
+      };
+    
+    case 'USER':
     default:
-      // Authenticated users see both buttons, but they behave differently based on their status
+      // Regular authenticated users can see both buttons
       return {
         showLoginButton: false,
         showSponsorButton: true,
@@ -120,7 +134,7 @@ export function getNavigationConfig(categoryInfo: UserCategoryInfo) {
         loginButtonText: 'Login',
         loginButtonHref: '/login',
         sponsorButtonText: 'Sponsor a Child',
-        sponsorButtonHref: '/sponsor-a-child', // Authenticated users go directly to form
+        sponsorButtonHref: '/sponsor-a-child',
         myChildrenButtonHref: '/child-profile',
         completeProfileButtonHref: '/complete-profile',
       };

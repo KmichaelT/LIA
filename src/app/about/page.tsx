@@ -78,6 +78,13 @@ export default function About() {
       try {
         const aboutData = await getAboutUs();
         
+        // Debug logging for production issue
+        console.log('About data received:', {
+          hasTeamMembers: !!aboutData?.teamMembers,
+          teamMembersType: typeof aboutData?.teamMembers,
+          teamMembersValue: aboutData?.teamMembers
+        });
+        
         if (aboutData) {
           const cmsContent = {
             hero: {
@@ -121,10 +128,11 @@ export default function About() {
               title: aboutData.joinMissionTitle || "Join Our Mission",
               description: aboutData.joinMissionDescription || fallbackContent.joinTeam.description
             },
-            teamMember: aboutData.teamMembers?.url ? {
+            // Show team member section if we have header or description, even without image
+            teamMember: (aboutData.teamMembersHeader || aboutData.teamMembersDescription || aboutData.teamMembers) ? {
               header: aboutData.teamMembersHeader || "Our Team",
-              description: aboutData.teamMembersDescription || "Meet the dedicated individuals behind our mission.",
-              image: getStrapiImageUrl(aboutData.teamMembers.url)
+              description: aboutData.teamMembersDescription || "Meet the dedicated individuals behind our mission to support children in Boreda, Ethiopia.",
+              image: aboutData.teamMembers?.url ? getStrapiImageUrl(aboutData.teamMembers.url) : "/images/team.jpg"
             } : null
           };
           
