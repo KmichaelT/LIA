@@ -21,6 +21,12 @@ interface Sponsor {
     id: number;
     fullName: string;
   } | null;
+  sponsorship?: {
+    id: number;
+    documentId: string;
+    sponsorshipStatus: 'submitted' | 'pending' | 'matched';
+    numberOfChildren: number;
+  };
 }
 
 /**
@@ -349,6 +355,9 @@ async function createMinimalSponsor(email: string): Promise<Sponsor | null> {
       // Still return the sponsor - at least the sponsorship exists
       return sponsor;
     }
+    
+    // This shouldn't be reached, but TypeScript needs it
+    return sponsor;
   } catch (error) {
     console.error('Error creating minimal sponsor record:', error);
     return null;
