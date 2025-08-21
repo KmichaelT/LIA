@@ -174,7 +174,7 @@ export default function ChildProfilePage() {
   
   // Determine display state
   const showChildrenOnly = hasChildren && !activeRequest;
-  const showRequestOnly = !hasChildren && activeRequest;
+  const showRequestOnly = !hasChildren && (activeRequest || (isExisting && !hasChildren)); // Show timeline for pending or data issues
   const showBoth = hasChildren && activeRequest;
   const showRegistration = !isExisting && !activeRequest && !hasChildren; // Only show to completely new users
 
@@ -239,17 +239,21 @@ export default function ChildProfilePage() {
                         : "Track progress or start a new application"}
                     </p>
                     
-                    {/* Debug info - remove this in production */}
-                    {process.env.NODE_ENV === 'development' && (
-                      <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs">
-                        <strong>Debug:</strong> 
-                        isExisting: {isExisting.toString()}, 
-                        hasChildren: {hasChildren.toString()}, 
-                        hasActiveRequest: {!!activeRequest ? activeRequest.sponsorshipStatus : 'none'}, 
-                        showRegistration: {showRegistration.toString()}
-                        {sponsorProfile && (
-                          <div>Profile: {sponsorProfile.email}, ID: {sponsorProfile.id}</div>
-                        )}
+                    {/* Active Request Status - Only show for additional requests (when they already have children) */}
+                    {activeRequest && hasChildren && (
+                      <div className="mt-2 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <span className="text-sm font-medium text-gray-800">
+                              Additional Request: {activeRequest.numberOfChildren} {activeRequest.numberOfChildren === 1 ? 'child' : 'children'}
+                            </span>
+                            <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                              {activeRequest.sponsorshipStatus === 'submitted' ? 'Under Review' : 
+                               activeRequest.sponsorshipStatus === 'pending' ? 'Finding Match' : 
+                               activeRequest.sponsorshipStatus}
+                            </span>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -430,41 +434,18 @@ export default function ChildProfilePage() {
               )}
 
               {/* Active Sponsorship Request Status - shown when there's an active request */}
-              {(showRequestOnly || showBoth) && activeRequest && (
-                <>
-                  {showBoth && (
-                    <Card className="shadow-sm mb-6 border-l-4 border-l-primary">
-                      <CardContent className="pt-6">
-                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                          <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2">Thank you for expanding your support! 🙏</h3>
-                            <p className="text-gray-600">
-                              You requested to sponsor <strong>{activeRequest.numberOfChildren} additional {activeRequest.numberOfChildren === 1 ? 'child' : 'children'}</strong>.
-                              Your request is currently <span className="font-medium text-primary">{activeRequest.sponsorshipStatus}</span>.
-                            </p>
-                          </div>
-                          <div className={`px-3 py-2 rounded-lg text-sm font-medium ${sponsorStatusInfo.bgColor} ${sponsorStatusInfo.textColor}`}>
-                            {activeRequest.sponsorshipStatus === 'submitted' ? 'Under Review' : 'Finding Match'}
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-
-                  {showRequestOnly && (
-                    <TimelineSection
-                      phases={[
-                        { id: 1, date: "Step 1", title: "Request Submitted", description: "Your sponsorship request has been submitted and received." },
-                        { id: 2, date: "Step 2", title: "Finding Match", description: "We are finding the perfect child match for your sponsorship." },
-                        { id: 3, date: "Step 3", title: "Child Assigned", description: "Your sponsored child will be assigned and you'll receive their profile." },
-                      ]}
-                      currentPhase={
-                        activeRequest.sponsorshipStatus === "submitted" ? 1 :
-                        activeRequest.sponsorshipStatus === "pending" ? 2 : 1
-                      }
-                    />
-                  )}
-                </>
+              {showRequestOnly && activeRequest && (
+                <TimelineSection
+                  phases={[
+                    { id: 1, date: "Step 1", title: "Request Submitted", description: "Your sponsorship request has been submitted and received." },
+                    { id: 2, date: "Step 2", title: "Finding Match", description: "We are finding the perfect child match for your sponsorship." },
+                    { id: 3, date: "Step 3", title: "Child Assigned", description: "Your sponsored child will be assigned and you'll receive their profile." },
+                  ]}
+                  currentPhase={
+                    activeRequest.sponsorshipStatus === "submitted" ? 1 :
+                    activeRequest.sponsorshipStatus === "pending" ? 2 : 1
+                  }
+                />
               )}
 
               {/* Registration form for completely new users only */}
@@ -481,19 +462,6 @@ export default function ChildProfilePage() {
                 </div>
               )}
 
-              {/* Message for existing sponsors with no active requests or children */}
-              {isExisting && !activeRequest && !hasChildren && (
-                <div className="text-center">
-                  <div className="bg-white rounded-lg shadow-sm p-10 mb-6">
-                    <div className="text-6xl mb-4">🙏</div>
-                    <h2 className="text-2xl font-semibold mb-3">Ready to Expand Your Impact?</h2>
-                    <p className="text-gray-600 max-w-md mx-auto mb-6">Welcome back! You're ready to sponsor another child. Your previous sponsorship has been completed successfully.</p>
-                    <Button onClick={() => setShowSponsorshipModal(true)} className="bg-primary text-white hover:bg-accent" size="lg">
-                      <Heart className="mr-2 h-5 w-5" /> Sponsor Another Child
-                    </Button>
-                  </div>
-                </div>
-              )}
 
               {/* Sponsor Another Child CTA - shown for existing sponsors */}
               {(showChildrenOnly || showBoth) && (

@@ -231,39 +231,60 @@ async function createMinimalSponsor(email: string): Promise<Sponsor | null> {
     if (!sponsorshipResponse.ok) {
       const sponsorshipErrorData = await sponsorshipResponse.json();
       console.error('Failed to create sponsorship record:', sponsorshipErrorData);
-      // Continue anyway - sponsor was created successfully
-    } else {
-      const sponsorshipResult = await sponsorshipResponse.json();
-      console.log('Successfully created both sponsor and sponsorship records');
-      console.log('Sponsorship data:', sponsorshipResult.data);
       
-      // Now update the sponsor record to link back to the sponsorship (bidirectional relation)
+      // Critical error - we have a sponsor without sponsorship, this breaks the flow
+      // Try to delete the sponsor record to allow retry
+      console.log('Attempting to delete sponsor record to maintain data consistency...');
       try {
-        const updateSponsorResponse = await fetch(`${STRAPI_URL}/api/sponsors/${sponsor.documentId}`, {
-          method: 'PUT',
+        await fetch(`${STRAPI_URL}/api/sponsors/${sponsor.documentId}`, {
+          method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${systemToken}`,
-            'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            data: {
-              sponsorship: sponsorshipResult.data.documentId
-            }
-          }),
         });
-
-        if (updateSponsorResponse.ok) {
-          console.log('Successfully linked sponsorship back to sponsor');
-        } else {
-          const updateError = await updateSponsorResponse.json();
-          console.error('Failed to link sponsorship back to sponsor:', updateError);
-        }
-      } catch (linkError) {
-        console.error('Error linking sponsorship to sponsor:', linkError);
+        console.log('Deleted incomplete sponsor record');
+      } catch (deleteError) {
+        console.error('Failed to delete incomplete sponsor record:', deleteError);
       }
+      
+      return null; // Return null to indicate failure
     }
+    
+    const sponsorshipResult = await sponsorshipResponse.json();
+    console.log('Successfully created sponsorship record:', sponsorshipResult.data);
+    
+    // CRITICAL: Update the sponsor record to link back to the sponsorship (bidirectional relation)
+    // This MUST happen for the relation to work properly in both directions
+    try {
+      const updateSponsorResponse = await fetch(`${STRAPI_URL}/api/sponsors/${sponsor.documentId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${systemToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          data: {
+            sponsorship: sponsorshipResult.data.id // Use the ID, not documentId for relation
+          }
+        }),
+      });
 
-    return sponsor;
+      if (updateSponsorResponse.ok) {
+        const updatedSponsor = await updateSponsorResponse.json();
+        console.log('Successfully linked sponsorship back to sponsor');
+        // Return the updated sponsor with the sponsorship relation
+        return updatedSponsor.data;
+      } else {
+        const updateError = await updateSponsorResponse.json();
+        console.error('Failed to link sponsorship back to sponsor:', updateError);
+        // Still return the sponsor - at least the sponsorship exists
+        return sponsor;
+      }
+    } catch (linkError) {
+      console.error('Error linking sponsorship to sponsor:', linkError);
+      // Still return the sponsor - at least the sponsorship exists
+      return sponsor;
+    }
   } catch (error) {
     console.error('Error creating minimal sponsor record:', error);
     return null;

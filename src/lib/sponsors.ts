@@ -213,13 +213,16 @@ export function getSponsorStatusInfo(sponsor: Sponsor | null) {
     }
   }
 
-  // Check if sponsor exists but has no sponsorship record (existing sponsor who completed their first sponsorship)
+  // Check if sponsor exists but has no sponsorship record (this shouldn't happen normally)
+  // Every sponsor should have at least one sponsorship record from initial registration
   if (isExistingSponsor(sponsor) && !sponsor.sponsorship) {
+    // This is likely a data issue - sponsor was created without sponsorship
+    // Treat as pending to show timeline
     return {
-      status: 'existing',
-      message: 'Ready to sponsor another child',
-      bgColor: 'bg-green-50',
-      textColor: 'text-green-800',
+      status: 'pending',
+      message: 'Your sponsorship request is being processed',
+      bgColor: 'bg-primary/10',
+      textColor: 'text-primary',
       hasChild: false,
       hasActiveRequest: false
     };
