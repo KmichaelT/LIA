@@ -37,11 +37,13 @@ export async function getUserCategory(user: { email: string; sponsor?: { id: num
     // Check for sponsor profile
     const sponsorProfile = await getSponsorProfile(user.email, token);
     if (sponsorProfile) {
-      // Check if they have pending sponsorship (profile exists but no child assigned)
+      // Check if they have pending sponsorship using new sponsorship architecture
+      const hasActiveSponsorship = sponsorProfile.sponsorship && 
+                                  (sponsorProfile.sponsorship.sponsorshipStatus === 'submitted' || 
+                                   sponsorProfile.sponsorship.sponsorshipStatus === 'pending');
+      
       const isPending = !sponsorProfile.assignedChild && 
-                       (sponsorProfile.sponsorshipStatus === 'request_submitted' || 
-                        sponsorProfile.sponsorshipStatus === 'pending' ||
-                        !sponsorProfile.profileComplete);
+                       (hasActiveSponsorship || !sponsorProfile.profileComplete);
       
       if (isPending) {
         pendingRequestsCount = 1;
@@ -59,7 +61,15 @@ export async function getUserCategory(user: { email: string; sponsor?: { id: num
     // Determine category based on sponsorship status
     let category: UserCategory = 'USER';
     
-    if (hasAssignedChildren || hasPendingRequests) {
+    // User is SPONSOR if they have:
+    // 1. Assigned children, OR
+    // 2. Pending requests, OR 
+    // 3. Completed profile with sponsorship record (Make.com edge case)
+    const hasCompletedSponsorProfile = sponsorProfile && 
+                                     sponsorProfile.profileComplete && 
+                                     sponsorProfile.sponsorship;
+    
+    if (hasAssignedChildren || hasPendingRequests || hasCompletedSponsorProfile) {
       category = 'SPONSOR';
     }
 

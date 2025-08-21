@@ -75,6 +75,26 @@ export async function GET(request: NextRequest) {
           });
         } else {
           // Profile complete but no child assigned yet
+          // Check if they have a sponsorship record - if not, create one
+          // This handles the case where Make.com completed the profile before confirmation link was clicked
+          if (!existingSponsor.sponsorship) {
+            console.log('Existing complete sponsor has no sponsorship record - creating one');
+            const sponsorshipCreated = await createSponsorshipForExistingSponsor(existingSponsor.id, existingSponsor.documentId);
+            
+            if (sponsorshipCreated) {
+              // Re-fetch the sponsor with the new sponsorship relation
+              const updatedSponsor = await checkExistingSponsor(email);
+              return NextResponse.json({
+                success: true,
+                status: 'confirmed',
+                message: 'Sponsorship request created successfully',
+                data: updatedSponsor
+              });
+            } else {
+              console.error('Failed to create sponsorship record for existing sponsor');
+            }
+          }
+          
           return NextResponse.json({
             success: true,
             status: 'profile-complete',
@@ -216,6 +236,9 @@ async function createMinimalSponsor(email: string): Promise<Sponsor | null> {
       numberOfChildren: 1, // Default to 1 child request
       sponsor: sponsor.id // Link to the sponsor we just created
     };
+    
+    console.log('Creating sponsorship with data:', JSON.stringify(sponsorshipData));
+    console.log('Target sponsor ID:', sponsor.id, 'DocumentID:', sponsor.documentId);
 
     const sponsorshipResponse = await fetch(`${STRAPI_URL}/api/sponsorships`, {
       method: 'POST',
@@ -255,38 +278,161 @@ async function createMinimalSponsor(email: string): Promise<Sponsor | null> {
     
     // CRITICAL: Update the sponsor record to link back to the sponsorship (bidirectional relation)
     // This MUST happen for the relation to work properly in both directions
-    try {
-      const updateSponsorResponse = await fetch(`${STRAPI_URL}/api/sponsors/${sponsor.documentId}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${systemToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          data: {
-            sponsorship: sponsorshipResult.data.id // Use the ID, not documentId for relation
-          }
-        }),
-      });
+    console.log('Attempting to link sponsorship to sponsor...');
+    console.log('Sponsorship ID:', sponsorshipResult.data.id);
+    console.log('Sponsorship DocumentID:', sponsorshipResult.data.documentId);
+    console.log('Sponsor DocumentID:', sponsor.documentId);
+    
+    // Try multiple approaches for setting the relation
+    const relationApproaches = [
+      { sponsorship: sponsorshipResult.data.id }, // Try with ID
+      { sponsorship: { id: sponsorshipResult.data.id } }, // Try with object containing ID
+      { sponsorship: sponsorshipResult.data.documentId }, // Try with documentId
+      { sponsorship: { connect: [sponsorshipResult.data.id] } }, // Try Strapi v4 connect syntax
+      { sponsorship: { set: [sponsorshipResult.data.id] } } // Try set syntax
+    ];
+    
+    let updateSuccess = false;
+    
+    for (const approach of relationApproaches) {
+      try {
+        console.log('Trying relation approach:', JSON.stringify(approach));
+        const updateSponsorResponse = await fetch(`${STRAPI_URL}/api/sponsors/${sponsor.documentId}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${systemToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            data: approach
+          }),
+        });
 
-      if (updateSponsorResponse.ok) {
-        const updatedSponsor = await updateSponsorResponse.json();
-        console.log('Successfully linked sponsorship back to sponsor');
-        // Return the updated sponsor with the sponsorship relation
-        return updatedSponsor.data;
-      } else {
-        const updateError = await updateSponsorResponse.json();
-        console.error('Failed to link sponsorship back to sponsor:', updateError);
-        // Still return the sponsor - at least the sponsorship exists
-        return sponsor;
+        if (updateSponsorResponse.ok) {
+          const updatedSponsor = await updateSponsorResponse.json();
+          console.log('Successfully linked sponsorship back to sponsor with approach:', JSON.stringify(approach));
+          console.log('Updated sponsor data:', JSON.stringify(updatedSponsor.data));
+          
+          // Verify the relation was established by fetching with population
+          try {
+            const verifyResponse = await fetch(`${STRAPI_URL}/api/sponsors/${sponsor.documentId}?populate=sponsorship`, {
+              headers: {
+                'Authorization': `Bearer ${systemToken}`,
+                'Content-Type': 'application/json',
+              },
+            });
+            
+            if (verifyResponse.ok) {
+              const verifiedSponsor = await verifyResponse.json();
+              console.log('Verification: Sponsor with populated sponsorship:', JSON.stringify(verifiedSponsor.data.sponsorship));
+              updateSuccess = true;
+              return verifiedSponsor.data;
+            }
+          } catch (verifyError) {
+            console.log('Error verifying relation:', verifyError);
+          }
+          
+          updateSuccess = true;
+          // Return the updated sponsor with the sponsorship relation
+          return updatedSponsor.data;
+        } else {
+          const updateError = await updateSponsorResponse.json();
+          console.log('Failed with approach:', JSON.stringify(approach), 'Error:', updateError.error?.message);
+        }
+      } catch (attemptError) {
+        console.log('Error with approach:', JSON.stringify(approach), attemptError);
       }
-    } catch (linkError) {
-      console.error('Error linking sponsorship to sponsor:', linkError);
+    }
+    
+    if (!updateSuccess) {
+      console.error('Failed to link sponsorship back to sponsor with all approaches');
       // Still return the sponsor - at least the sponsorship exists
       return sponsor;
     }
   } catch (error) {
     console.error('Error creating minimal sponsor record:', error);
     return null;
+  }
+}
+
+/**
+ * Create sponsorship record for existing complete sponsor (Make.com edge case)
+ */
+async function createSponsorshipForExistingSponsor(sponsorId: number, sponsorDocumentId: string): Promise<boolean> {
+  try {
+    const systemToken = process.env.STRAPI_API_TOKEN;
+    
+    if (!systemToken) {
+      console.error('STRAPI_API_TOKEN environment variable is missing');
+      return false;
+    }
+
+    // Create the sponsorship record
+    const sponsorshipData = {
+      sponsorshipStatus: 'submitted',
+      numberOfChildren: 1,
+      sponsor: sponsorId
+    };
+    
+    console.log('Creating sponsorship for existing sponsor:', { sponsorId, sponsorDocumentId });
+
+    const sponsorshipResponse = await fetch(`${STRAPI_URL}/api/sponsorships`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${systemToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        data: sponsorshipData
+      }),
+    });
+
+    if (!sponsorshipResponse.ok) {
+      const errorData = await sponsorshipResponse.json();
+      console.error('Failed to create sponsorship for existing sponsor:', errorData);
+      return false;
+    }
+
+    const sponsorshipResult = await sponsorshipResponse.json();
+    console.log('Created sponsorship for existing sponsor:', sponsorshipResult.data);
+    
+    // Update sponsor to link back to sponsorship (bidirectional relation)
+    const relationApproaches = [
+      { sponsorship: sponsorshipResult.data.id },
+      { sponsorship: { id: sponsorshipResult.data.id } },
+      { sponsorship: sponsorshipResult.data.documentId }
+    ];
+    
+    for (const approach of relationApproaches) {
+      try {
+        console.log('Linking sponsorship to existing sponsor with approach:', JSON.stringify(approach));
+        const updateResponse = await fetch(`${STRAPI_URL}/api/sponsors/${sponsorDocumentId}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${systemToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            data: approach
+          }),
+        });
+
+        if (updateResponse.ok) {
+          console.log('Successfully linked sponsorship to existing sponsor');
+          return true;
+        } else {
+          const updateError = await updateResponse.json();
+          console.log('Failed linking approach:', JSON.stringify(approach), 'Error:', updateError.error?.message);
+        }
+      } catch (attemptError) {
+        console.log('Error with linking approach:', JSON.stringify(approach), attemptError);
+      }
+    }
+    
+    console.log('All linking approaches failed, but sponsorship was created');
+    return true; // Sponsorship exists even if relation failed
+  } catch (error) {
+    console.error('Error creating sponsorship for existing sponsor:', error);
+    return false;
   }
 }
