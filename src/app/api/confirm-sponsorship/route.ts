@@ -134,7 +134,7 @@ async function checkExistingSponsor(email: string): Promise<Sponsor | null> {
     }
 
     const response = await fetch(
-      `${STRAPI_URL}/api/sponsors?filters[email][$eq]=${email}&populate=children`,
+      `${STRAPI_URL}/api/sponsors?filters[email][$eq]=${email}&populate[children]=true&populate[sponsorship]=true`,
       {
         headers: {
           'Authorization': `Bearer ${systemToken}`,
@@ -171,7 +171,7 @@ async function checkExistingSponsor(email: string): Promise<Sponsor | null> {
 }
 
 /**
- * Create minimal sponsor record with just email and submitted status
+ * Create minimal sponsor record with sponsorship entry
  */
 async function createMinimalSponsor(email: string): Promise<Sponsor | null> {
   try {
@@ -182,15 +182,15 @@ async function createMinimalSponsor(email: string): Promise<Sponsor | null> {
       return null;
     }
 
+    // First create the sponsor record
     const sponsorData = {
       email: email,
-      sponsorshipStatus: 'request_submitted',
       profileComplete: false,
       firstName: '', // Will be updated by Make.com
       lastName: '' // Will be updated by Make.com
     };
 
-    const response = await fetch(`${STRAPI_URL}/api/sponsors`, {
+    const sponsorResponse = await fetch(`${STRAPI_URL}/api/sponsors`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${systemToken}`,
@@ -201,14 +201,69 @@ async function createMinimalSponsor(email: string): Promise<Sponsor | null> {
       }),
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
+    if (!sponsorResponse.ok) {
+      const errorData = await sponsorResponse.json();
       console.error('Failed to create sponsor record:', errorData);
       return null;
     }
 
-    const result = await response.json();
-    return result.data;
+    const sponsorResult = await sponsorResponse.json();
+    const sponsor = sponsorResult.data;
+
+    // Now create the sponsorship record linked to this sponsor
+    const sponsorshipData = {
+      sponsorshipStatus: 'submitted',
+      numberOfChildren: 1, // Default to 1 child request
+      sponsor: sponsor.id // Link to the sponsor we just created
+    };
+
+    const sponsorshipResponse = await fetch(`${STRAPI_URL}/api/sponsorships`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${systemToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        data: sponsorshipData
+      }),
+    });
+
+    if (!sponsorshipResponse.ok) {
+      const sponsorshipErrorData = await sponsorshipResponse.json();
+      console.error('Failed to create sponsorship record:', sponsorshipErrorData);
+      // Continue anyway - sponsor was created successfully
+    } else {
+      const sponsorshipResult = await sponsorshipResponse.json();
+      console.log('Successfully created both sponsor and sponsorship records');
+      console.log('Sponsorship data:', sponsorshipResult.data);
+      
+      // Now update the sponsor record to link back to the sponsorship (bidirectional relation)
+      try {
+        const updateSponsorResponse = await fetch(`${STRAPI_URL}/api/sponsors/${sponsor.documentId}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${systemToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            data: {
+              sponsorship: sponsorshipResult.data.documentId
+            }
+          }),
+        });
+
+        if (updateSponsorResponse.ok) {
+          console.log('Successfully linked sponsorship back to sponsor');
+        } else {
+          const updateError = await updateSponsorResponse.json();
+          console.error('Failed to link sponsorship back to sponsor:', updateError);
+        }
+      } catch (linkError) {
+        console.error('Error linking sponsorship to sponsor:', linkError);
+      }
+    }
+
+    return sponsor;
   } catch (error) {
     console.error('Error creating minimal sponsor record:', error);
     return null;

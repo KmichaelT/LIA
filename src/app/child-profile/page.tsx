@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useAuth } from "@/contexts/AuthContext";
 import { getUserCategory } from "@/lib/userCategories";
-import { getSponsorProfile, getSponsorStatusInfo, Sponsor } from "@/lib/sponsors";
+import { getSponsorProfile, getSponsorStatusInfo, getActiveSponsorshipRequest, hasMatchedChildren, isExistingSponsor, Sponsor, Sponsorship } from "@/lib/sponsors";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import TimelineSection from "@/components/TimelineSection";
+import AdditionalSponsorshipModal from "@/components/AdditionalSponsorshipModal";
 import { STRAPI_URL, getStrapiImageUrl } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -71,6 +72,7 @@ export default function ChildProfilePage() {
   const [assignedChildren, setAssignedChildren] = useState<ChildProfile[]>([]);
   const [selectedChildIndex, setSelectedChildIndex] = useState(0);
   const [showChildDropdown, setShowChildDropdown] = useState(false);
+  const [showSponsorshipModal, setShowSponsorshipModal] = useState(false);
 
   // Fetch assigned children
   async function fetchAssignedChildren(sponsorId: number, token: string): Promise<ChildProfile[]> {
@@ -124,48 +126,57 @@ export default function ChildProfilePage() {
     }
   }
 
-  useEffect(() => {
-    async function loadUserData() {
-      if (!isAuthenticated || !user) {
-        router.push("/login");
-        return;
-      }
-
-      const token = localStorage.getItem("jwt");
-      if (!token) {
-        router.push("/login");
-        return;
-      }
-
-      try {
-        const categoryInfo = await getUserCategory(user, token);
-        if (categoryInfo.category !== "SPONSOR") {
-          router.push("/sponsor-a-child");
-          return;
-        }
-
-        const profile = await getSponsorProfile(user.email, token);
-        setSponsorProfile(profile);
-
-        if (profile && profile.id) {
-          const children = await fetchAssignedChildren(profile.id, token);
-          setAssignedChildren(children);
-        }
-      } catch (err) {
-        console.error("Error loading user data:", err);
-        setError("Failed to load your sponsorship information");
-      } finally {
-        setLoading(false);
-      }
+  // Extract loadUserData function so it can be called from modal
+  const loadUserData = useCallback(async () => {
+    if (!isAuthenticated || !user) {
+      router.push("/login");
+      return;
     }
 
-    loadUserData();
+    const token = localStorage.getItem("jwt");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    try {
+      const categoryInfo = await getUserCategory(user, token);
+      if (categoryInfo.category !== "SPONSOR") {
+        router.push("/sponsor-a-child");
+        return;
+      }
+
+      const profile = await getSponsorProfile(user.email, token);
+      setSponsorProfile(profile);
+
+      if (profile && profile.id) {
+        const children = await fetchAssignedChildren(profile.id, token);
+        setAssignedChildren(children);
+      }
+    } catch (err) {
+      console.error("Error loading user data:", err);
+      setError("Failed to load your sponsorship information");
+    } finally {
+      setLoading(false);
+    }
   }, [isAuthenticated, user, router]);
+
+  useEffect(() => {
+    loadUserData();
+  }, [loadUserData]);
 
   const currentChild = assignedChildren[selectedChildIndex];
   const hasAssignedChildren = assignedChildren.length > 0;
   const sponsorStatusInfo = getSponsorStatusInfo(sponsorProfile);
-  const hasPendingRequests = sponsorProfile && !sponsorStatusInfo.hasChild;
+  const activeRequest = getActiveSponsorshipRequest(sponsorProfile);
+  const hasChildren = hasMatchedChildren(sponsorProfile);
+  const isExisting = isExistingSponsor(sponsorProfile);
+  
+  // Determine display state
+  const showChildrenOnly = hasChildren && !activeRequest;
+  const showRequestOnly = !hasChildren && activeRequest;
+  const showBoth = hasChildren && activeRequest;
+  const showRegistration = !isExisting && !activeRequest && !hasChildren; // Only show to completely new users
 
   // Helpers
   function calculateAge(dateOfBirth: string): number {
@@ -227,6 +238,20 @@ export default function ChildProfilePage() {
                           : `You are sponsoring ${assignedChildren.length} children`
                         : "Track progress or start a new application"}
                     </p>
+                    
+                    {/* Debug info - remove this in production */}
+                    {process.env.NODE_ENV === 'development' && (
+                      <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs">
+                        <strong>Debug:</strong> 
+                        isExisting: {isExisting.toString()}, 
+                        hasChildren: {hasChildren.toString()}, 
+                        hasActiveRequest: {!!activeRequest ? activeRequest.sponsorshipStatus : 'none'}, 
+                        showRegistration: {showRegistration.toString()}
+                        {sponsorProfile && (
+                          <div>Profile: {sponsorProfile.email}, ID: {sponsorProfile.id}</div>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   {/* Child switcher when multiple */}
@@ -265,210 +290,261 @@ export default function ChildProfilePage() {
                 </div>
               </div>
 
-              {/* STATE: has children */}
-              {hasAssignedChildren ? (
-                currentChild && (
-                  <>
-                    {/* Summary */}
-                    <Card className="mb-6 shadow-sm">
-                      <CardContent >
-                        <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
-                          {/* Photo */}
-                          <div>
-                            {currentChild.images?.length ? (
-                              <div className="rounded-2xl overflow-hidden shadow-sm bg-white">
-                                <Image
-                                  src={getStrapiImageUrl(currentChild.images[0].url)}
-                                  alt={currentChild.images[0].alternativeText || currentChild.fullName}
-                                  width={300}
-                                  height={220}
-                                  className="w-full h-[220px] object-cover"
-                                  priority
-                                />
-                              </div>
-                            ) : (
-                              <div className="w-full h-[220px] bg-gray-200 rounded-2xl flex items-center justify-center">
-                                <User className="h-16 w-16 text-gray-400" />
-                              </div>
-                            )}
-                            {/* Thumbnails if more than one image */}
+              {/* Dynamic content based on sponsor state */}
+              {(showChildrenOnly || showBoth) && hasAssignedChildren && currentChild && (
+                <>
+                  {/* Child Profile Section */}
+                  <Card className="mb-6 shadow-sm">
+                    <CardContent >
+                      <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
+                        {/* Photo */}
+                        <div>
+                          {currentChild.images?.length ? (
+                            <div className="rounded-2xl overflow-hidden shadow-sm bg-white">
+                              <Image
+                                src={getStrapiImageUrl(currentChild.images[0].url)}
+                                alt={currentChild.images[0].alternativeText || currentChild.fullName}
+                                width={300}
+                                height={220}
+                                className="w-full h-[220px] object-cover"
+                                priority
+                              />
+                            </div>
+                          ) : (
+                            <div className="w-full h-[220px] bg-gray-200 rounded-2xl flex items-center justify-center">
+                              <User className="h-16 w-16 text-gray-400" />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Right info */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 content-start">
+                          <div className="md:col-span-2 xl:col-span-3 bg-white rounded-xl p-4 border border-gray-100">
+                            <div className="flex flex-wrap items-center gap-3">
+                              <h2 className="text-2xl font-bold text-gray-900">{currentChild.fullName}</h2>
+                              {getDisplayId(currentChild) && (
+                                <Badge variant="secondary">ID: {getDisplayId(currentChild)}</Badge>
+                              )}
+                            </div>
+                            <p className="text-gray-600 mt-1 flex items-center gap-2">
+                              <MapPin size={16} className="text-gray-500" />
+                              <span className="truncate">{currentChild.location || "Location unavailable"}</span>
+                            </p>
                           </div>
 
-                          {/* Right info */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 content-start">
-                            <div className="md:col-span-2 xl:col-span-3 bg-white rounded-xl p-4 border border-gray-100">
-                              <div className="flex flex-wrap items-center gap-3">
-                                <h2 className="text-2xl font-bold text-gray-900">{currentChild.fullName}</h2>
-                                {getDisplayId(currentChild) && (
-                                  <Badge variant="secondary">ID: {getDisplayId(currentChild)}</Badge>
-                                )}
-                              </div>
-                              <p className="text-gray-600 mt-1 flex items-center gap-2">
-                                <MapPin size={16} className="text-gray-500" />
-                                <span className="truncate">{currentChild.location || "Location unavailable"}</span>
-                              </p>
-                            </div>
+                          <div className="bg-gray-50 rounded-lg p-4">
+                            <div className="flex items-center gap-2 mb-1 text-sm text-gray-600"><BookOpen size={16} /> School</div>
+                            <p className="font-semibold text-gray-900 leading-snug">{currentChild.school}</p>
+                          </div>
 
-                            <div className="bg-gray-50 rounded-lg p-4">
-                              <div className="flex items-center gap-2 mb-1 text-sm text-gray-600"><BookOpen size={16} /> School</div>
-                              <p className="font-semibold text-gray-900 leading-snug">{currentChild.school}</p>
-                            </div>
+                          <div className="bg-gray-50 rounded-lg p-4">
+                            <div className="flex items-center gap-2 mb-1 text-sm text-gray-600"><GraduationCap size={16} /> Current Grade</div>
+                            <p className="font-semibold text-gray-900">{currentChild.currentGrade}</p>
+                          </div>
 
-                            <div className="bg-gray-50 rounded-lg p-4">
-                              <div className="flex items-center gap-2 mb-1 text-sm text-gray-600"><GraduationCap size={16} /> Current Grade</div>
-                              <p className="font-semibold text-gray-900">{currentChild.currentGrade}</p>
-                            </div>
-
-                            <div className="bg-gray-50 rounded-lg p-4">
-                              <div className="flex items-center gap-2 mb-1 text-sm text-gray-600"><Clock size={16} /> Walk to School</div>
-                              <p className="font-semibold text-gray-900">{currentChild.walkToSchool}</p>
-                            </div>
+                          <div className="bg-gray-50 rounded-lg p-4">
+                            <div className="flex items-center gap-2 mb-1 text-sm text-gray-600"><Clock size={16} /> Walk to School</div>
+                            <p className="font-semibold text-gray-900">{currentChild.walkToSchool}</p>
                           </div>
                         </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Details */}
+                  <div className="grid md:grid-cols-2 gap-6 mb-6">
+                    <Card className="shadow-sm">
+                      <CardHeader>
+                        <CardTitle className="text-lg">Personal Details</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <dl className="divide-y divide-gray-100">
+                          <div className="flex items-center justify-between py-2">
+                            <dt className="text-gray-600 font-medium">Age</dt>
+                            <dd className="font-semibold text-gray-900">{calculateAge(currentChild.dateOfBirth)} years</dd>
+                          </div>
+                          <div className="flex items-center justify-between py-2">
+                            <dt className="text-gray-600 font-medium">Date of Birth</dt>
+                            <dd className="font-semibold text-gray-900">{new Date(currentChild.dateOfBirth).toLocaleDateString()}</dd>
+                          </div>
+                          <div className="grid md:grid-cols-2 gap-4 py-2">
+                            <div className="bg-gray-50 rounded-lg p-4">
+                              <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2"><Target size={16} /> Aspiration</h4>
+                              <p className="text-gray-700 text-sm leading-relaxed">{currentChild.aspiration}</p>
+                            </div>
+                            <div className="bg-gray-50 rounded-lg p-4">
+                              <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2"><Heart size={16} /> Hobby</h4>
+                              <p className="text-gray-700 text-sm leading-relaxed">{currentChild.hobby}</p>
+                            </div>
+                          </div>
+                        </dl>
                       </CardContent>
                     </Card>
 
-                    {/* Details */}
-                    <div className="grid md:grid-cols-2 gap-6 mb-6">
-                      <Card className="shadow-sm">
-                        <CardHeader>
-                          <CardTitle className="text-lg">Personal Details</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                          <dl className="divide-y divide-gray-100">
-                            <div className="flex items-center justify-between py-2">
-                              <dt className="text-gray-600 font-medium">Age</dt>
-                              <dd className="font-semibold text-gray-900">{calculateAge(currentChild.dateOfBirth)} years</dd>
-                            </div>
-                            <div className="flex items-center justify-between py-2">
-                              <dt className="text-gray-600 font-medium">Date of Birth</dt>
-                              <dd className="font-semibold text-gray-900">{new Date(currentChild.dateOfBirth).toLocaleDateString()}</dd>
-                            </div>
-                            <div className="grid md:grid-cols-2 gap-4 py-2">
-                              <div className="bg-gray-50 rounded-lg p-4">
-                                <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2"><Target size={16} /> Aspiration</h4>
-                                <p className="text-gray-700 text-sm leading-relaxed">{currentChild.aspiration}</p>
-                              </div>
-                              <div className="bg-gray-50 rounded-lg p-4">
-                                <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2"><Heart size={16} /> Hobby</h4>
-                                <p className="text-gray-700 text-sm leading-relaxed">{currentChild.hobby}</p>
-                              </div>
-                            </div>
-                          </dl>
-                        </CardContent>
-                      </Card>
-
-                      <Card className="shadow-sm">
-                        <CardHeader>
-                          <CardTitle className="text-lg">Family Profile</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                          <div className="bg-gray-50 rounded-lg p-4">
-                            <p className="text-gray-700 leading-relaxed">{currentChild.family}</p>
-                          </div>
-                          <dl className="divide-y divide-gray-100">
-                            <div className="flex items-center justify-between py-2">
-                              <dt className="text-gray-600 font-medium">Time in Program</dt>
-                              <dd className="font-semibold text-gray-900">{calculateTimeInProgram(currentChild.joinedSponsorshipProgram)}</dd>
-                            </div>
-                            <div className="flex items-center justify-between py-2">
-                              <dt className="text-gray-600 font-medium">Joined Program</dt>
-                              <dd className="font-semibold text-gray-900">{new Date(currentChild.joinedSponsorshipProgram).toLocaleDateString()}</dd>
-                            </div>
-                            {currentChild.ageAtJoining && (
-                              <div className="flex items-center justify-between py-2">
-                                <dt className="text-gray-600 font-medium">Age at Joining</dt>
-                                <dd className="font-semibold text-gray-900">{currentChild.ageAtJoining} years</dd>
-                              </div>
-                            )}
-                            {currentChild.gradeAtJoining && (
-                              <div className="flex items-center justify-between py-2">
-                                <dt className="text-gray-600 font-medium">Grade at Joining</dt>
-                                <dd className="font-semibold text-gray-900">{currentChild.gradeAtJoining}</dd>
-                              </div>
-                            )}
-                          </dl>
-                        </CardContent>
-                      </Card>
-                    </div>
-
-                    {/* About section when present */}
-                    {currentChild.about && (
-                      <Card className="shadow-sm mb-6">
-                        <CardHeader>
-                          <CardTitle className="text-lg">About {currentChild.fullName}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <p className="text-gray-700 leading-relaxed">{currentChild.about}</p>
-                        </CardContent>
-                      </Card>
-                    )}
-
-                    {/* CTA */}
                     <Card className="shadow-sm">
-                      <CardContent >
+                      <CardHeader>
+                        <CardTitle className="text-lg">Family Profile</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="bg-gray-50 rounded-lg p-4">
+                          <p className="text-gray-700 leading-relaxed">{currentChild.family}</p>
+                        </div>
+                        <dl className="divide-y divide-gray-100">
+                          <div className="flex items-center justify-between py-2">
+                            <dt className="text-gray-600 font-medium">Time in Program</dt>
+                            <dd className="font-semibold text-gray-900">{calculateTimeInProgram(currentChild.joinedSponsorshipProgram)}</dd>
+                          </div>
+                          <div className="flex items-center justify-between py-2">
+                            <dt className="text-gray-600 font-medium">Joined Program</dt>
+                            <dd className="font-semibold text-gray-900">{new Date(currentChild.joinedSponsorshipProgram).toLocaleDateString()}</dd>
+                          </div>
+                          {currentChild.ageAtJoining && (
+                            <div className="flex items-center justify-between py-2">
+                              <dt className="text-gray-600 font-medium">Age at Joining</dt>
+                              <dd className="font-semibold text-gray-900">{currentChild.ageAtJoining} years</dd>
+                            </div>
+                          )}
+                          {currentChild.gradeAtJoining && (
+                            <div className="flex items-center justify-between py-2">
+                              <dt className="text-gray-600 font-medium">Grade at Joining</dt>
+                              <dd className="font-semibold text-gray-900">{currentChild.gradeAtJoining}</dd>
+                            </div>
+                          )}
+                        </dl>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* About section when present */}
+                  {currentChild.about && (
+                    <Card className="shadow-sm mb-6">
+                      <CardHeader>
+                        <CardTitle className="text-lg">About {currentChild.fullName}</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-gray-700 leading-relaxed">{currentChild.about}</p>
+                      </CardContent>
+                    </Card>
+                  )}
+                </>
+              )}
+
+              {/* Active Sponsorship Request Status - shown when there's an active request */}
+              {(showRequestOnly || showBoth) && activeRequest && (
+                <>
+                  {showBoth && (
+                    <Card className="shadow-sm mb-6 border-l-4 border-l-primary">
+                      <CardContent className="pt-6">
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                           <div>
-                            <h3 className="text-lg font-semibold text-gray-900">Sponsor Another Child</h3>
-                            <p className="text-gray-600 mt-1">There are more children who could benefit from your support.</p>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-2">Thank you for expanding your support! 🙏</h3>
+                            <p className="text-gray-600">
+                              You requested to sponsor <strong>{activeRequest.numberOfChildren} additional {activeRequest.numberOfChildren === 1 ? 'child' : 'children'}</strong>.
+                              Your request is currently <span className="font-medium text-primary">{activeRequest.sponsorshipStatus}</span>.
+                            </p>
                           </div>
-                          <Button onClick={() => router.push("/sponsor-a-child")} className="bg-primary text-white hover:bg-accent">
-                            <Heart className="h-4 w-4 mr-2" /> Sponsor Another Child
-                          </Button>
+                          <div className={`px-3 py-2 rounded-lg text-sm font-medium ${sponsorStatusInfo.bgColor} ${sponsorStatusInfo.textColor}`}>
+                            {activeRequest.sponsorshipStatus === 'submitted' ? 'Under Review' : 'Finding Match'}
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
-                  </>
-                )
-              ) : (
-                // STATE: pending or not started
-                <div >
-                  {hasPendingRequests ? (
-                    <>
-                      <TimelineSection
-                        phases={[
-                          { id: 1, date: "Step 1", title: "Application Received", description: "Your sponsorship application has been submitted and received." },
-                          { id: 2, date: "Step 2", title: "Processing", description: "We are reviewing your application and assessing available children." },
-                          { id: 3, date: "Step 3", title: "Decision", description: "Final decision based on your application and children in need." },
-                        ]}
-                        currentPhase={
-                          sponsorProfile?.sponsorshipStatus === "request_submitted" && !sponsorProfile?.profileComplete ? 1 :
-                          sponsorProfile?.sponsorshipStatus === "pending" || (sponsorProfile?.profileComplete && sponsorProfile?.sponsorshipStatus === "request_submitted") ? 2 :
-                          sponsorProfile?.sponsorshipStatus === "matched" ? 3 : 1
-                        }
-                      />
-
-                      <div className="mt-6 bg-gray-50 border border-gray-200 rounded-lg p-6">
-                        <h4 className="font-medium text-gray-900 mb-2">Questions about your application?</h4>
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-2 sm:space-y-0 text-sm text-gray-600">
-                          <div className="flex items-center gap-2">
-                            <Mail size={16} />
-                            <a href="mailto:support@loveinaction.co" className="hover:text-primary">support@loveinaction.co</a>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Phone size={16} />
-                            <span>+1 (555) 123-4567</span>
-                          </div>
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="text-center">
-                      <div className="bg-white rounded-lg shadow-sm p-10 mb-6">
-                        <div className="text-6xl mb-4">💝</div>
-                        <h2 className="text-2xl font-semibold mb-3">Start Your Sponsorship Journey</h2>
-                        <p className="text-gray-600 max-w-md mx-auto mb-6">You have not submitted a sponsorship application yet. Ready to make a lasting impact on a child's life?</p>
-                        <Button onClick={() => router.push("/sponsor-a-child")} className="bg-primary text-white hover:bg-accent" size="lg">
-                          <Heart className="mr-2 h-5 w-5" /> Start Sponsorship Application
-                        </Button>
-                      </div>
-                    </div>
                   )}
+
+                  {showRequestOnly && (
+                    <TimelineSection
+                      phases={[
+                        { id: 1, date: "Step 1", title: "Request Submitted", description: "Your sponsorship request has been submitted and received." },
+                        { id: 2, date: "Step 2", title: "Finding Match", description: "We are finding the perfect child match for your sponsorship." },
+                        { id: 3, date: "Step 3", title: "Child Assigned", description: "Your sponsored child will be assigned and you'll receive their profile." },
+                      ]}
+                      currentPhase={
+                        activeRequest.sponsorshipStatus === "submitted" ? 1 :
+                        activeRequest.sponsorshipStatus === "pending" ? 2 : 1
+                      }
+                    />
+                  )}
+                </>
+              )}
+
+              {/* Registration form for completely new users only */}
+              {showRegistration && (
+                <div className="text-center">
+                  <div className="bg-white rounded-lg shadow-sm p-10 mb-6">
+                    <div className="text-6xl mb-4">💝</div>
+                    <h2 className="text-2xl font-semibold mb-3">Start Your Sponsorship Journey</h2>
+                    <p className="text-gray-600 max-w-md mx-auto mb-6">You have not submitted a sponsorship application yet. Ready to make a lasting impact on a child's life?</p>
+                    <Button onClick={() => router.push("/sponsor-a-child")} className="bg-primary text-white hover:bg-accent" size="lg">
+                      <Heart className="mr-2 h-5 w-5" /> Start Sponsorship Application
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Message for existing sponsors with no active requests or children */}
+              {isExisting && !activeRequest && !hasChildren && (
+                <div className="text-center">
+                  <div className="bg-white rounded-lg shadow-sm p-10 mb-6">
+                    <div className="text-6xl mb-4">🙏</div>
+                    <h2 className="text-2xl font-semibold mb-3">Ready to Expand Your Impact?</h2>
+                    <p className="text-gray-600 max-w-md mx-auto mb-6">Welcome back! You're ready to sponsor another child. Your previous sponsorship has been completed successfully.</p>
+                    <Button onClick={() => setShowSponsorshipModal(true)} className="bg-primary text-white hover:bg-accent" size="lg">
+                      <Heart className="mr-2 h-5 w-5" /> Sponsor Another Child
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Sponsor Another Child CTA - shown for existing sponsors */}
+              {(showChildrenOnly || showBoth) && (
+                <Card className="shadow-sm">
+                  <CardContent >
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">Sponsor Another Child</h3>
+                        <p className="text-gray-600 mt-1">There are more children who could benefit from your support.</p>
+                      </div>
+                      <Button onClick={() => setShowSponsorshipModal(true)} className="bg-primary text-white hover:bg-accent">
+                        <Heart className="h-4 w-4 mr-2" /> Sponsor Another Child
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Contact Section for pending requests */}
+              {(showRequestOnly || showBoth) && (
+                <div className="mt-6 bg-gray-50 border border-gray-200 rounded-lg p-6">
+                  <h4 className="font-medium text-gray-900 mb-2">Questions about your {showBoth ? 'additional ' : ''}sponsorship request?</h4>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-2 sm:space-y-0 text-sm text-gray-600">
+                    <div className="flex items-center gap-2">
+                      <Mail size={16} />
+                      <a href="mailto:support@loveinaction.co" className="hover:text-primary">support@loveinaction.co</a>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Phone size={16} />
+                      <span>+1 (555) 123-4567</span>
+                    </div>
+                  </div>
                 </div>
               )}
             </>
           )}
         </div>
+
+        {/* Additional Sponsorship Modal */}
+        {sponsorProfile && (
+          <AdditionalSponsorshipModal
+            isOpen={showSponsorshipModal}
+            onClose={() => setShowSponsorshipModal(false)}
+            sponsorId={sponsorProfile.id}
+            sponsorEmail={sponsorProfile.email}
+            onSuccess={() => {
+              // Reload sponsor profile to get updated data
+              loadUserData();
+            }}
+          />
+        )}
       </main>
     </ProtectedRoute>
   );
