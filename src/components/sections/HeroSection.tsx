@@ -76,7 +76,7 @@ export default function HeroSection({
           <div className="flex flex-col justify-between gap-12 lg:flex-row lg:gap-8">
             <div className="mx-auto flex max-w-[43.75rem] flex-col gap-2 lg:mx-0 py-8">
               <div className="flex flex-col gap-6">
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-6"> 
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-6 max-w-xl"> 
                   {heroTitle}
                 </h1>
               </div>

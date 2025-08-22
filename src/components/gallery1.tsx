@@ -4,6 +4,7 @@ import { ArrowUpRight, Plus } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { SimpleTicketButton } from "@/components/ui/ticket-button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import Link from "next/link";
 
@@ -101,9 +102,11 @@ const Gallery1 = ({ title, description, sectionTitle, items = [] }: Gallery1Prop
                         {item.registrationLink.opensInPopup ? (
                           <Dialog>
                             <DialogTrigger asChild>
-                              <Button variant="secondary" size="sm" className="w-full sm:w-auto">
-                                {item.registrationLink.label || 'Register'}
-                              </Button>
+                              <div>
+                                <SimpleTicketButton className="w-full sm:w-auto">
+                                  {item.registrationLink.label || 'Get Tickets'}
+                                </SimpleTicketButton>
+                              </div>
                             </DialogTrigger>
                             <DialogContent className="max-w-4xl w-[90vw] h-[80vh] p-0 overflow-hidden flex items-center justify-center">
                               <iframe
@@ -119,15 +122,15 @@ const Gallery1 = ({ title, description, sectionTitle, items = [] }: Gallery1Prop
                             target="_blank" 
                             rel="noopener noreferrer"
                           >
-                            <Button variant="secondary" size="sm" className="w-full sm:w-auto">
-                              {item.registrationLink.label || 'Register'}
-                            </Button>
+                            <SimpleTicketButton className="w-full sm:w-auto">
+                              {item.registrationLink.label || 'Get Tickets'}
+                            </SimpleTicketButton>
                           </a>
                         ) : (
                           <Link href={item.registrationLink.url}>
-                            <Button variant="secondary" size="sm" className="w-full sm:w-auto">
-                              {item.registrationLink.label || 'Register'}
-                            </Button>
+                            <SimpleTicketButton className="w-full sm:w-auto">
+                              {item.registrationLink.label || 'Get Tickets'}
+                            </SimpleTicketButton>
                           </Link>
                         )}
                       </div>
