@@ -4,11 +4,34 @@ import { useState, useEffect } from "react";
 import { X, Megaphone } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { getTopAnnouncement, type Announcement } from '@/lib/announcements';
+import { getTopAnnouncement, type Announcement, type Link as LinkType } from '@/lib/announcements';
 
 export default function PopupAlert() {
   const [isVisible, setIsVisible] = useState(false);
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
+  
+  // Helper function to get link URL and text
+  const getLinkData = (announcement: Announcement) => {
+    if (!announcement.link) return null;
+    
+    if (typeof announcement.link === 'object') {
+      // It's a Link relation
+      return {
+        url: announcement.link.url,
+        label: announcement.link.label,
+        isExternal: announcement.link.isExternal,
+        opensInPopup: announcement.link.opensInPopup
+      };
+    } else {
+      // Legacy string format
+      return {
+        url: announcement.link,
+        label: announcement.linkText || 'Learn More',
+        isExternal: announcement.link.includes('http'),
+        opensInPopup: false
+      };
+    }
+  };
   
   useEffect(() => {
     async function loadAnnouncementPopup() {
@@ -42,6 +65,8 @@ export default function PopupAlert() {
   
   if (!isVisible) return null;
   
+  const linkData = announcement ? getLinkData(announcement) : null;
+  
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="relative w-full max-w-md bg-white p-6 rounded-lg shadow-lg">
@@ -63,10 +88,14 @@ export default function PopupAlert() {
             {announcement?.message || 'We have an important announcement for you.'}
           </p>
           <div className="flex justify-center space-x-4">
-            {announcement?.link && (
-              <Link href={announcement.link} target="_blank" rel="noopener noreferrer">
+            {linkData && (
+              <Link 
+                href={linkData.url} 
+                target={linkData.isExternal ? "_blank" : "_self"} 
+                rel={linkData.isExternal ? "noopener noreferrer" : undefined}
+              >
                 <Button className="bg-secondary text-white hover:bg-secondary/90">
-                  {announcement.linkText || 'Learn More'}
+                  {linkData.label}
                 </Button>
               </Link>
             )}

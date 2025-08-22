@@ -2,12 +2,35 @@
 
 import React, { useState, useEffect } from 'react';
 import { X, ExternalLink, Megaphone, Info, AlertTriangle, CheckCircle } from 'lucide-react';
-import { getTopAnnouncement, type Announcement } from '@/lib/announcements';
+import { getTopAnnouncement, type Announcement, type Link as LinkType } from '@/lib/announcements';
 
 export default function AnnouncementAlert() {
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
+
+  // Helper function to get link URL and text
+  const getLinkData = (announcement: Announcement) => {
+    if (!announcement.link) return null;
+    
+    if (typeof announcement.link === 'object') {
+      // It's a Link relation
+      return {
+        url: announcement.link.url,
+        label: announcement.link.label,
+        isExternal: announcement.link.isExternal,
+        opensInPopup: announcement.link.opensInPopup
+      };
+    } else {
+      // Legacy string format
+      return {
+        url: announcement.link,
+        label: announcement.linkText || 'Learn More',
+        isExternal: announcement.link.includes('http'),
+        opensInPopup: false
+      };
+    }
+  };
 
   useEffect(() => {
     async function loadAnnouncement() {
@@ -94,17 +117,20 @@ export default function AnnouncementAlert() {
             </p>
           </div>
           
-          {announcement.link && (
-            <a
-              href={announcement.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`inline-flex items-center space-x-1 text-sm font-medium ${alertStyles.hover} transition-colors whitespace-nowrap`}
-            >
-              <span>{announcement.linkText || 'Learn More'}</span>
-              <ExternalLink size={14} />
-            </a>
-          )}
+          {(() => {
+            const linkData = getLinkData(announcement);
+            return linkData && (
+              <a
+                href={linkData.url}
+                target={linkData.isExternal ? "_blank" : "_self"}
+                rel={linkData.isExternal ? "noopener noreferrer" : undefined}
+                className={`inline-flex items-center space-x-1 text-sm font-medium ${alertStyles.hover} transition-colors whitespace-nowrap`}
+              >
+                <span>{linkData.label}</span>
+                {linkData.isExternal && <ExternalLink size={14} />}
+              </a>
+            );
+          })()}
         </div>
 
         <button

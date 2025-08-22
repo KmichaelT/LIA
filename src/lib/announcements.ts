@@ -1,12 +1,22 @@
 import { STRAPI_URL } from '@/lib/utils';
 
+export interface Link {
+  id: number;
+  documentId: string;
+  url: string;
+  label: string;
+  type?: string;
+  isExternal?: boolean;
+  opensInPopup?: boolean;
+}
+
 export interface Announcement {
   id: number;
   documentId: string;
   title: string;
   message: string;
-  link?: string;
-  linkText?: string;
+  link?: Link | string; // Support both relation and legacy string format
+  linkText?: string; // For backward compatibility
   isActive: boolean;
   type?: 'announcement' | 'info' | 'warning' | 'success';
   priority?: number;
@@ -20,13 +30,13 @@ export interface Announcement {
  * Fetch active announcements from Strapi
  */
 export async function getActiveAnnouncements(): Promise<Announcement[]> {
-  // Try multiple endpoint variations
+  // Try multiple endpoint variations with link population
   const endpoints = [
-    `${STRAPI_URL}/api/alerts/active`,
-    `${STRAPI_URL}/api/alerts?filters[isActive][$eq]=true`,
-    `${STRAPI_URL}/api/alerts`,
-    `${STRAPI_URL}/api/announcements?filters[isActive][$eq]=true`,
-    `${STRAPI_URL}/api/announcements`
+    `${STRAPI_URL}/api/alerts/active?populate=link`,
+    `${STRAPI_URL}/api/alerts?filters[isActive][$eq]=true&populate=link`,
+    `${STRAPI_URL}/api/alerts?populate=link`,
+    `${STRAPI_URL}/api/announcements?filters[isActive][$eq]=true&populate=link`,
+    `${STRAPI_URL}/api/announcements?populate=link`
   ];
   
   for (const endpoint of endpoints) {
@@ -51,21 +61,46 @@ export async function getActiveAnnouncements(): Promise<Announcement[]> {
 
         if (alerts.length > 0) {
           // Map alerts to announcement format
-          const mappedAlerts = alerts.map((alert: Record<string, unknown>) => ({
-            id: alert.id,
-            documentId: alert.documentId || String(alert.id),
-            title: alert.title || '',
-            message: alert.message || alert.description || '',
-            link: alert.link || alert.url || '',
-            linkText: alert.linkText || alert.buttonText || 'Learn More',
-            isActive: alert.isActive !== undefined ? alert.isActive : true,
-            type: alert.type || 'announcement',
-            priority: alert.priority || 0,
-            startDate: alert.startDate,
-            endDate: alert.endDate,
-            createdAt: alert.createdAt,
-            updatedAt: alert.updatedAt
-          }));
+          const mappedAlerts = alerts.map((alert: Record<string, unknown>) => {
+            // Handle link relation or legacy string format
+            let linkData: Link | string | undefined;
+            
+            if (alert.link && typeof alert.link === 'object' && (alert.link as Record<string, unknown>).url) {
+              // It's a Link relation
+              const linkObj = alert.link as Record<string, unknown>;
+              linkData = {
+                id: Number(linkObj.id),
+                documentId: String(linkObj.documentId),
+                url: String(linkObj.url),
+                label: String(linkObj.label || linkObj.text || 'Learn More'),
+                type: linkObj.type ? String(linkObj.type) : undefined,
+                isExternal: Boolean(linkObj.isExternal),
+                opensInPopup: Boolean(linkObj.opensInPopup)
+              };
+            } else if (typeof alert.link === 'string' && alert.link) {
+              // Legacy string format
+              linkData = alert.link;
+            } else if (alert.url) {
+              // Fallback to url field
+              linkData = alert.url as string;
+            }
+
+            return {
+              id: alert.id,
+              documentId: alert.documentId || String(alert.id),
+              title: alert.title || '',
+              message: alert.message || alert.description || '',
+              link: linkData,
+              linkText: alert.linkText || alert.buttonText || (typeof linkData === 'object' ? linkData.label : 'Learn More'),
+              isActive: alert.isActive !== undefined ? alert.isActive : true,
+              type: alert.type || 'announcement',
+              priority: alert.priority || 0,
+              startDate: alert.startDate,
+              endDate: alert.endDate,
+              createdAt: alert.createdAt,
+              updatedAt: alert.updatedAt
+            };
+          });
           
           return mappedAlerts;
         }
@@ -92,7 +127,7 @@ export async function getTopAnnouncement(): Promise<Announcement | null> {
 export async function getAlert(id: string | number): Promise<Announcement | null> {
   try {
     const response = await fetch(
-      `${STRAPI_URL}/api/alerts/${id}`,
+      `${STRAPI_URL}/api/alerts/${id}?populate=link`,
       {
         cache: 'no-store',
         headers: {
@@ -113,14 +148,37 @@ export async function getAlert(id: string | number): Promise<Announcement | null
     const data = await response.json();
     const alert = data.data || data;
 
+    // Handle link relation or legacy string format
+    let linkData: Link | string | undefined;
+    
+    if (alert.link && typeof alert.link === 'object' && (alert.link as Record<string, unknown>).url) {
+      // It's a Link relation
+      const linkObj = alert.link as Record<string, unknown>;
+      linkData = {
+        id: Number(linkObj.id),
+        documentId: String(linkObj.documentId),
+        url: String(linkObj.url),
+        label: String(linkObj.label || linkObj.text || 'Learn More'),
+        type: linkObj.type ? String(linkObj.type) : undefined,
+        isExternal: Boolean(linkObj.isExternal),
+        opensInPopup: Boolean(linkObj.opensInPopup)
+      };
+    } else if (typeof alert.link === 'string' && alert.link) {
+      // Legacy string format
+      linkData = alert.link;
+    } else if (alert.url) {
+      // Fallback to url field
+      linkData = alert.url as string;
+    }
+
     // Map alert to announcement format
     return {
       id: alert.id,
       documentId: alert.documentId || alert.id.toString(),
       title: alert.title || '',
       message: alert.message || alert.description || '',
-      link: alert.link || alert.url || '',
-      linkText: alert.linkText || alert.buttonText || 'Learn More',
+      link: linkData,
+      linkText: alert.linkText || alert.buttonText || (typeof linkData === 'object' ? linkData.label : 'Learn More'),
       isActive: alert.isActive !== undefined ? alert.isActive : true,
       priority: alert.priority || 0,
       startDate: alert.startDate,
