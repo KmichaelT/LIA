@@ -120,7 +120,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Create new minimal sponsor record
-    const newSponsor = await createMinimalSponsor(email);
+    const newSponsor = await createMinimalSponsor(email, request);
 
     if (newSponsor) {
       // Successfully created
@@ -199,7 +199,7 @@ async function checkExistingSponsor(email: string): Promise<Sponsor | null> {
 /**
  * Create minimal sponsor record with sponsorship entry
  */
-async function createMinimalSponsor(email: string): Promise<Sponsor | null> {
+async function createMinimalSponsor(email: string, request?: NextRequest): Promise<Sponsor | null> {
   try {
     const systemToken = process.env.STRAPI_API_TOKEN;
     
@@ -282,6 +282,32 @@ async function createMinimalSponsor(email: string): Promise<Sponsor | null> {
     const sponsorshipResult = await sponsorshipResponse.json();
     console.log('Successfully created sponsorship record:', sponsorshipResult.data);
     
+    // CRITICAL FIX: Immediately ensure bidirectional relation for Strapi v5 admin visibility
+    // This is needed because Strapi v5's admin panel requires both sides to be explicitly set
+    try {
+      console.log('🔗 FIX: Ensuring bidirectional relation for admin panel visibility...');
+      const baseUrl = request ? request.nextUrl.origin : `http://localhost:${process.env.PORT || 3000}`;
+      const ensureResponse = await fetch(`${baseUrl}/api/admin/ensure-bidirectional-relation`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sponsorshipId: sponsorshipResult.data.id,
+          sponsorId: sponsor.id
+        }),
+      });
+      
+      if (ensureResponse.ok) {
+        const ensureResult = await ensureResponse.json();
+        console.log('🔗 FIX: Bidirectional relation ensured:', ensureResult);
+      } else {
+        console.log('🔗 FIX: Failed to ensure bidirectional relation, will try manual approaches');
+      }
+    } catch (ensureError) {
+      console.log('🔗 FIX: Error ensuring bidirectional relation:', ensureError);
+    }
+    
     // ENHANCED: Update the sponsor record to link back to the sponsorship (bidirectional relation)
     console.log('🔗 PRODUCTION DEBUG: Starting bidirectional relation establishment for new sponsor...');
     console.log('🔗 Environment:', process.env.NODE_ENV);
@@ -290,22 +316,23 @@ async function createMinimalSponsor(email: string): Promise<Sponsor | null> {
     console.log('🔗 Created Sponsorship Data:', JSON.stringify(sponsorshipResult.data, null, 2));
     
     // Extended relation approaches for Strapi v5 production compatibility
+    // IMPORTANT: Try documentId first as Strapi v5 admin panel needs it
     const relationApproaches = [
-      // Standard ID approaches
+      // DocumentId approaches FIRST (these work for admin panel visibility)
+      { sponsorship: sponsorshipResult.data.documentId },
+      { sponsorship: { documentId: sponsorshipResult.data.documentId } },
+      { sponsorship: { connect: [{ documentId: sponsorshipResult.data.documentId }] } },
+      
+      // Then standard ID approaches as fallback
       { sponsorship: sponsorshipResult.data.id },
       { sponsorship: { id: sponsorshipResult.data.id } },
-      { sponsorship: sponsorshipResult.data.documentId },
-      
-      // Strapi v5 specific approaches
       { sponsorship: { connect: [sponsorshipResult.data.id] } },
       { sponsorship: { set: [sponsorshipResult.data.id] } },
       { sponsorship: { connect: [{ id: sponsorshipResult.data.id }] } },
-      { sponsorship: { connect: [sponsorshipResult.data.documentId] } },
       
       // Alternative formats
       { sponsorship: [sponsorshipResult.data.id] },
       { sponsorship: [{ id: sponsorshipResult.data.id }] },
-      { sponsorship: { documentId: sponsorshipResult.data.documentId } },
     ];
     
     let updateSuccess = false;
@@ -451,22 +478,23 @@ async function createSponsorshipForExistingSponsor(sponsorId: number, sponsorDoc
     console.log('🔗 Created Sponsorship Data:', JSON.stringify(sponsorshipResult.data, null, 2));
     
     // Extended relation approaches for Strapi v5 production compatibility
+    // IMPORTANT: Try documentId first as Strapi v5 admin panel needs it
     const relationApproaches = [
-      // Standard ID approaches
+      // DocumentId approaches FIRST (these work for admin panel visibility)
+      { sponsorship: sponsorshipResult.data.documentId },
+      { sponsorship: { documentId: sponsorshipResult.data.documentId } },
+      { sponsorship: { connect: [{ documentId: sponsorshipResult.data.documentId }] } },
+      
+      // Then standard ID approaches as fallback
       { sponsorship: sponsorshipResult.data.id },
       { sponsorship: { id: sponsorshipResult.data.id } },
-      { sponsorship: sponsorshipResult.data.documentId },
-      
-      // Strapi v5 specific approaches
       { sponsorship: { connect: [sponsorshipResult.data.id] } },
       { sponsorship: { set: [sponsorshipResult.data.id] } },
       { sponsorship: { connect: [{ id: sponsorshipResult.data.id }] } },
-      { sponsorship: { connect: [sponsorshipResult.data.documentId] } },
       
       // Alternative formats
       { sponsorship: [sponsorshipResult.data.id] },
       { sponsorship: [{ id: sponsorshipResult.data.id }] },
-      { sponsorship: { documentId: sponsorshipResult.data.documentId } },
     ];
     
     let relationSuccess = false;
