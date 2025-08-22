@@ -282,27 +282,40 @@ async function createMinimalSponsor(email: string): Promise<Sponsor | null> {
     const sponsorshipResult = await sponsorshipResponse.json();
     console.log('Successfully created sponsorship record:', sponsorshipResult.data);
     
-    // CRITICAL: Update the sponsor record to link back to the sponsorship (bidirectional relation)
-    // This MUST happen for the relation to work properly in both directions
-    console.log('Attempting to link sponsorship to sponsor...');
-    console.log('Sponsorship ID:', sponsorshipResult.data.id);
-    console.log('Sponsorship DocumentID:', sponsorshipResult.data.documentId);
-    console.log('Sponsor DocumentID:', sponsor.documentId);
+    // ENHANCED: Update the sponsor record to link back to the sponsorship (bidirectional relation)
+    console.log('🔗 PRODUCTION DEBUG: Starting bidirectional relation establishment for new sponsor...');
+    console.log('🔗 Environment:', process.env.NODE_ENV);
+    console.log('🔗 Strapi URL:', STRAPI_URL);
+    console.log('🔗 Sponsor Document ID:', sponsor.documentId);
+    console.log('🔗 Created Sponsorship Data:', JSON.stringify(sponsorshipResult.data, null, 2));
     
-    // Try multiple approaches for setting the relation
+    // Extended relation approaches for Strapi v5 production compatibility
     const relationApproaches = [
-      { sponsorship: sponsorshipResult.data.id }, // Try with ID
-      { sponsorship: { id: sponsorshipResult.data.id } }, // Try with object containing ID
-      { sponsorship: sponsorshipResult.data.documentId }, // Try with documentId
-      { sponsorship: { connect: [sponsorshipResult.data.id] } }, // Try Strapi v4 connect syntax
-      { sponsorship: { set: [sponsorshipResult.data.id] } } // Try set syntax
+      // Standard ID approaches
+      { sponsorship: sponsorshipResult.data.id },
+      { sponsorship: { id: sponsorshipResult.data.id } },
+      { sponsorship: sponsorshipResult.data.documentId },
+      
+      // Strapi v5 specific approaches
+      { sponsorship: { connect: [sponsorshipResult.data.id] } },
+      { sponsorship: { set: [sponsorshipResult.data.id] } },
+      { sponsorship: { connect: [{ id: sponsorshipResult.data.id }] } },
+      { sponsorship: { connect: [sponsorshipResult.data.documentId] } },
+      
+      // Alternative formats
+      { sponsorship: [sponsorshipResult.data.id] },
+      { sponsorship: [{ id: sponsorshipResult.data.id }] },
+      { sponsorship: { documentId: sponsorshipResult.data.documentId } },
     ];
     
     let updateSuccess = false;
+    let lastError = null;
     
-    for (const approach of relationApproaches) {
+    for (let i = 0; i < relationApproaches.length; i++) {
+      const approach = relationApproaches[i];
       try {
-        console.log('Trying relation approach:', JSON.stringify(approach));
+        console.log(`🔗 Attempt ${i + 1}/${relationApproaches.length}: Trying approach:`, JSON.stringify(approach));
+        
         const updateSponsorResponse = await fetch(`${STRAPI_URL}/api/sponsors/${sponsor.documentId}`, {
           method: 'PUT',
           headers: {
@@ -314,10 +327,12 @@ async function createMinimalSponsor(email: string): Promise<Sponsor | null> {
           }),
         });
 
+        console.log(`🔗 Attempt ${i + 1}: Response status:`, updateSponsorResponse.status);
+
         if (updateSponsorResponse.ok) {
           const updatedSponsor = await updateSponsorResponse.json();
-          console.log('Successfully linked sponsorship back to sponsor with approach:', JSON.stringify(approach));
-          console.log('Updated sponsor data:', JSON.stringify(updatedSponsor.data));
+          console.log(`🔗 SUCCESS: Approach ${i + 1} worked!`);
+          console.log('🔗 Update result:', JSON.stringify(updatedSponsor.data, null, 2));
           
           // Verify the relation was established by fetching with population
           try {
@@ -330,28 +345,51 @@ async function createMinimalSponsor(email: string): Promise<Sponsor | null> {
             
             if (verifyResponse.ok) {
               const verifiedSponsor = await verifyResponse.json();
-              console.log('Verification: Sponsor with populated sponsorship:', JSON.stringify(verifiedSponsor.data.sponsorship));
-              updateSuccess = true;
-              return verifiedSponsor.data;
+              const hasSponsorship = verifiedSponsor.data.sponsorship && verifiedSponsor.data.sponsorship.id;
+              console.log('🔗 VERIFICATION: Relation established?', hasSponsorship);
+              console.log('🔗 VERIFICATION: Sponsorship data:', JSON.stringify(verifiedSponsor.data.sponsorship, null, 2));
+              
+              if (hasSponsorship) {
+                updateSuccess = true;
+                console.log('🔗 CONFIRMED: Bidirectional relation successfully established!');
+                return verifiedSponsor.data;
+              } else {
+                console.log('🔗 WARNING: API returned OK but relation not found in verification');
+              }
+            } else {
+              console.log('🔗 WARNING: Verification request failed with status:', verifyResponse.status);
             }
           } catch (verifyError) {
-            console.log('Error verifying relation:', verifyError);
+            console.log('🔗 WARNING: Error verifying relation:', verifyError);
           }
           
+          // Even if verification failed, mark as success if update worked
           updateSuccess = true;
-          // Return the updated sponsor with the sponsorship relation
           return updatedSponsor.data;
         } else {
           const updateError = await updateSponsorResponse.json();
-          console.log('Failed with approach:', JSON.stringify(approach), 'Error:', updateError.error?.message);
+          lastError = updateError;
+          console.log(`🔗 FAILED: Approach ${i + 1} failed with status ${updateSponsorResponse.status}`);
+          console.log('🔗 Error details:', JSON.stringify(updateError, null, 2));
         }
       } catch (attemptError) {
-        console.log('Error with approach:', JSON.stringify(approach), attemptError);
+        lastError = attemptError;
+        console.log(`🔗 EXCEPTION: Attempt ${i + 1} threw error:`, attemptError);
       }
     }
     
     if (!updateSuccess) {
-      console.error('Failed to link sponsorship back to sponsor with all approaches');
+      console.log('🔗 CRITICAL: All relation approaches failed!');
+      console.log('🔗 Last error:', JSON.stringify(lastError, null, 2));
+      console.log('🔗 Sponsorship was created but relation failed - this needs manual intervention');
+      
+      // Log the sponsorship info for manual debugging
+      console.log('🔗 ORPHANED SPONSORSHIP INFO:');
+      console.log('🔗 - Sponsorship ID:', sponsorshipResult.data.id);
+      console.log('🔗 - Sponsorship Document ID:', sponsorshipResult.data.documentId);
+      console.log('🔗 - Target Sponsor Document ID:', sponsor.documentId);
+      console.log('🔗 - Environment:', process.env.NODE_ENV);
+      
       // Still return the sponsor - at least the sponsorship exists
       return sponsor;
     }
@@ -405,16 +443,40 @@ async function createSponsorshipForExistingSponsor(sponsorId: number, sponsorDoc
     const sponsorshipResult = await sponsorshipResponse.json();
     console.log('Created sponsorship for existing sponsor:', sponsorshipResult.data);
     
-    // Update sponsor to link back to sponsorship (bidirectional relation)
+    // ENHANCED: Update sponsor to link back to sponsorship (bidirectional relation)
+    console.log('🔗 PRODUCTION DEBUG: Starting bidirectional relation establishment...');
+    console.log('🔗 Environment:', process.env.NODE_ENV);
+    console.log('🔗 Strapi URL:', STRAPI_URL);
+    console.log('🔗 Target Sponsor Document ID:', sponsorDocumentId);
+    console.log('🔗 Created Sponsorship Data:', JSON.stringify(sponsorshipResult.data, null, 2));
+    
+    // Extended relation approaches for Strapi v5 production compatibility
     const relationApproaches = [
+      // Standard ID approaches
       { sponsorship: sponsorshipResult.data.id },
       { sponsorship: { id: sponsorshipResult.data.id } },
-      { sponsorship: sponsorshipResult.data.documentId }
+      { sponsorship: sponsorshipResult.data.documentId },
+      
+      // Strapi v5 specific approaches
+      { sponsorship: { connect: [sponsorshipResult.data.id] } },
+      { sponsorship: { set: [sponsorshipResult.data.id] } },
+      { sponsorship: { connect: [{ id: sponsorshipResult.data.id }] } },
+      { sponsorship: { connect: [sponsorshipResult.data.documentId] } },
+      
+      // Alternative formats
+      { sponsorship: [sponsorshipResult.data.id] },
+      { sponsorship: [{ id: sponsorshipResult.data.id }] },
+      { sponsorship: { documentId: sponsorshipResult.data.documentId } },
     ];
     
-    for (const approach of relationApproaches) {
+    let relationSuccess = false;
+    let lastError = null;
+    
+    for (let i = 0; i < relationApproaches.length; i++) {
+      const approach = relationApproaches[i];
       try {
-        console.log('Linking sponsorship to existing sponsor with approach:', JSON.stringify(approach));
+        console.log(`🔗 Attempt ${i + 1}/${relationApproaches.length}: Trying approach:`, JSON.stringify(approach));
+        
         const updateResponse = await fetch(`${STRAPI_URL}/api/sponsors/${sponsorDocumentId}`, {
           method: 'PUT',
           headers: {
@@ -426,20 +488,62 @@ async function createSponsorshipForExistingSponsor(sponsorId: number, sponsorDoc
           }),
         });
 
+        console.log(`🔗 Attempt ${i + 1}: Response status:`, updateResponse.status);
+        
         if (updateResponse.ok) {
-          console.log('Successfully linked sponsorship to existing sponsor');
-          return true;
+          const updateResult = await updateResponse.json();
+          console.log(`🔗 SUCCESS: Approach ${i + 1} worked!`);
+          console.log('🔗 Update result:', JSON.stringify(updateResult.data, null, 2));
+          
+          // Verify the relation was actually established
+          const verifyResponse = await fetch(`${STRAPI_URL}/api/sponsors/${sponsorDocumentId}?populate=sponsorship`, {
+            headers: {
+              'Authorization': `Bearer ${systemToken}`,
+              'Content-Type': 'application/json',
+            },
+          });
+          
+          if (verifyResponse.ok) {
+            const verifiedData = await verifyResponse.json();
+            const hasSponsorship = verifiedData.data.sponsorship && verifiedData.data.sponsorship.id;
+            console.log('🔗 VERIFICATION: Relation established?', hasSponsorship);
+            console.log('🔗 VERIFICATION: Sponsorship data:', JSON.stringify(verifiedData.data.sponsorship, null, 2));
+            
+            if (hasSponsorship) {
+              relationSuccess = true;
+              console.log('🔗 CONFIRMED: Bidirectional relation successfully established!');
+              return true;
+            } else {
+              console.log('🔗 WARNING: API returned OK but relation not found in verification');
+            }
+          } else {
+            console.log('🔗 WARNING: Verification request failed with status:', verifyResponse.status);
+          }
         } else {
           const updateError = await updateResponse.json();
-          console.log('Failed linking approach:', JSON.stringify(approach), 'Error:', updateError.error?.message);
+          lastError = updateError;
+          console.log(`🔗 FAILED: Attempt ${i + 1} failed with status ${updateResponse.status}`);
+          console.log('🔗 Error details:', JSON.stringify(updateError, null, 2));
         }
       } catch (attemptError) {
-        console.log('Error with linking approach:', JSON.stringify(approach), attemptError);
+        lastError = attemptError;
+        console.log(`🔗 EXCEPTION: Attempt ${i + 1} threw error:`, attemptError);
       }
     }
     
-    console.log('All linking approaches failed, but sponsorship was created');
-    return true; // Sponsorship exists even if relation failed
+    // All approaches failed
+    console.log('🔗 CRITICAL: All relation approaches failed!');
+    console.log('🔗 Last error:', JSON.stringify(lastError, null, 2));
+    console.log('🔗 Sponsorship was created but relation failed - this needs manual intervention');
+    
+    // Log the sponsorship info for manual debugging
+    console.log('🔗 ORPHANED SPONSORSHIP INFO:');
+    console.log('🔗 - Sponsorship ID:', sponsorshipResult.data.id);
+    console.log('🔗 - Sponsorship Document ID:', sponsorshipResult.data.documentId);
+    console.log('🔗 - Target Sponsor Document ID:', sponsorDocumentId);
+    console.log('🔗 - Environment:', process.env.NODE_ENV);
+    
+    return false; // Indicate relation failed
   } catch (error) {
     console.error('Error creating sponsorship for existing sponsor:', error);
     return false;

@@ -86,6 +86,47 @@ export async function POST(request: NextRequest) {
     const result = await response.json();
     console.log('Successfully updated sponsorship:', result.data);
     
+    // ENHANCED: Verify bidirectional relation after update
+    console.log('🔗 VERIFICATION: Checking bidirectional relation after sponsorship update...');
+    try {
+      // First get the sponsor's documentId
+      const sponsorLookupResponse = await fetch(`${STRAPI_URL}/api/sponsors?filters[id][$eq]=${sponsorId}`, {
+        headers: {
+          'Authorization': `Bearer ${systemToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (sponsorLookupResponse.ok) {
+        const sponsorLookupData = await sponsorLookupResponse.json();
+        const sponsors = sponsorLookupData.data || [];
+        
+        if (sponsors.length > 0) {
+          const sponsorDocumentId = sponsors[0].documentId;
+          
+          const sponsorResponse = await fetch(`${STRAPI_URL}/api/sponsors/${sponsorDocumentId}?populate=sponsorship`, {
+            headers: {
+              'Authorization': `Bearer ${systemToken}`,
+              'Content-Type': 'application/json',
+            },
+          });
+          
+          if (sponsorResponse.ok) {
+            const sponsorData = await sponsorResponse.json();
+            const hasSponsorship = sponsorData.data.sponsorship && sponsorData.data.sponsorship.id;
+            console.log('🔗 VERIFICATION: Sponsor has sponsorship relation?', hasSponsorship);
+            
+            if (!hasSponsorship) {
+              console.log('🔗 WARNING: Sponsorship updated but bidirectional relation missing!');
+              console.log('🔗 This sponsorship may need manual repair via /api/admin/fix-relations');
+            }
+          }
+        }
+      }
+    } catch (verifyError) {
+      console.log('🔗 WARNING: Failed to verify relation:', verifyError);
+    }
+    
     return NextResponse.json({
       success: true,
       message: `Successfully updated sponsorship request for ${numberOfChildren} children`,
