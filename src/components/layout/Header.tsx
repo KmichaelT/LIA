@@ -108,25 +108,18 @@ export default function Header() {
 
   // Helper function to get link URL and text
   const getLinkData = (announcement: Announcement) => {
-    if (!announcement.link) return null;
+    // Use simplified link structure
+    const url = announcement.linkUrl || announcement.link || announcement.actionLink;
+    const label = announcement.linkText || 'Learn More';
     
-    if (typeof announcement.link === 'object') {
-      // It's a Link relation
-      return {
-        url: announcement.link.url,
-        label: announcement.link.label,
-        isExternal: announcement.link.isExternal,
-        opensInPopup: announcement.link.opensInPopup
-      };
-    } else {
-      // Legacy string format
-      return {
-        url: announcement.link,
-        label: announcement.linkText || 'Learn More',
-        isExternal: announcement.link.includes('http'),
-        opensInPopup: false
-      };
-    }
+    if (!url) return null;
+    
+    return {
+      url: url,
+      label: label,
+      isExternal: url.includes('http'),
+      opensInPopup: false
+    };
   };
   const { user, logout, isAuthenticated } = useAuth();
 
