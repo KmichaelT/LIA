@@ -27,6 +27,7 @@ import AdditionalSponsorshipModal from "@/components/AdditionalSponsorshipModal"
 import { STRAPI_URL, getStrapiImageUrl } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import ImageSlider from "@/components/ImageSlider";
 
 interface StrapiImage {
   id: number;
@@ -301,21 +302,16 @@ export default function ChildProfilePage() {
                   <Card className="mb-6 shadow-sm">
                     <CardContent >
                       <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
-                        {/* Photo */}
+                        {/* Photo Gallery */}
                         <div>
                           {currentChild.images?.length ? (
-                            <div className="rounded-2xl overflow-hidden shadow-sm bg-white">
-                              <Image
-                                src={getStrapiImageUrl(currentChild.images[0].url)}
-                                alt={currentChild.images[0].alternativeText || currentChild.fullName}
-                                width={300}
-                                height={220}
-                                className="w-full h-[220px] object-cover"
-                                priority
-                              />
-                            </div>
+                            <ImageSlider
+                              images={currentChild.images}
+                              alt={currentChild.fullName}
+                              className="w-full"
+                            />
                           ) : (
-                            <div className="w-full h-[220px] bg-gray-200 rounded-2xl flex items-center justify-center">
+                            <div className="w-full h-[300px] bg-gray-200 rounded-2xl flex items-center justify-center">
                               <User className="h-16 w-16 text-gray-400" />
                             </div>
                           )}
