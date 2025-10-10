@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { STRAPI_URL } from '@/lib/utils';
 
-export default function EmailConfirmationPage() {
+function EmailConfirmationContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
@@ -161,5 +161,25 @@ export default function EmailConfirmationPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function EmailConfirmationPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="mx-auto h-12 w-12 animate-spin text-blue-600 mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            Confirming Your Email
+          </h2>
+          <p className="text-gray-600">
+            Please wait while we verify your email address...
+          </p>
+        </div>
+      </div>
+    }>
+      <EmailConfirmationContent />
+    </Suspense>
   );
 }

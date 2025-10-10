@@ -24,6 +24,23 @@ export default function ImageSlider({ images, alt, className = "" }: ImageSlider
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
+  // Define navigation functions first
+  const goToPrevious = useCallback(() => {
+    setCurrentIndex((prevIndex) => 
+      prevIndex === 0 ? images.length - 1 : prevIndex - 1
+    );
+  }, [images.length]);
+
+  const goToNext = useCallback(() => {
+    setCurrentIndex((prevIndex) => 
+      prevIndex === images.length - 1 ? 0 : prevIndex + 1
+    );
+  }, [images.length]);
+
+  const goToSlide = useCallback((index: number) => {
+    setCurrentIndex(index);
+  }, []);
+
   // Handle keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -47,23 +64,7 @@ export default function ImageSlider({ images, alt, className = "" }: ImageSlider
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isFullscreen]);
-
-  const goToPrevious = useCallback(() => {
-    setCurrentIndex((prevIndex) => 
-      prevIndex === 0 ? images.length - 1 : prevIndex - 1
-    );
-  }, [images.length]);
-
-  const goToNext = useCallback(() => {
-    setCurrentIndex((prevIndex) => 
-      prevIndex === images.length - 1 ? 0 : prevIndex + 1
-    );
-  }, [images.length]);
-
-  const goToSlide = useCallback((index: number) => {
-    setCurrentIndex(index);
-  }, []);
+  }, [isFullscreen, goToPrevious, goToNext]);
 
   const openFullscreen = useCallback(() => {
     setIsFullscreen(true);
