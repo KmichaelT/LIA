@@ -27,7 +27,7 @@ import AdditionalSponsorshipModal from "@/components/AdditionalSponsorshipModal"
 import { STRAPI_URL, getStrapiImageUrl } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import ImageSlider from "@/components/ImageSlider";
+import GallerySlider from "@/components/GallerySlider";
 
 interface StrapiImage {
   id: number;
@@ -302,14 +302,20 @@ export default function ChildProfilePage() {
                   <Card className="mb-6 shadow-sm">
                     <CardContent >
                       <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
-                        {/* Photo Gallery */}
+                        {/* Main Profile Photo - First Image Only */}
                         <div>
                           {currentChild.images?.length ? (
-                            <ImageSlider
-                              images={currentChild.images}
-                              alt={currentChild.fullName}
-                              className="w-full"
-                            />
+                            <div className="rounded-2xl overflow-hidden shadow-sm bg-white">
+                              <div className="relative" style={{ height: '300px' }}>
+                                <Image
+                                  src={getStrapiImageUrl(currentChild.images[0].url)}
+                                  alt={currentChild.images[0].alternativeText || currentChild.fullName}
+                                  fill
+                                  className="object-contain"
+                                  priority
+                                />
+                              </div>
+                            </div>
                           ) : (
                             <div className="w-full h-[300px] bg-gray-200 rounded-2xl flex items-center justify-center">
                               <User className="h-16 w-16 text-gray-400" />
@@ -461,7 +467,7 @@ export default function ChildProfilePage() {
 
               {/* Sponsor Another Child CTA - shown for existing sponsors */}
               {(showChildrenOnly || showBoth) && (
-                <Card className="shadow-sm">
+                <Card className="shadow-sm mb-6">
                   <CardContent >
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                       <div>
@@ -474,6 +480,14 @@ export default function ChildProfilePage() {
                     </div>
                   </CardContent>
                 </Card>
+              )}
+
+              {/* Photo Gallery - Show remaining images (if more than 1 image) */}
+              {(showChildrenOnly || showBoth) && hasAssignedChildren && currentChild && currentChild.images && currentChild.images.length > 1 && (
+                <GallerySlider
+                  images={currentChild.images.slice(1)} 
+                  childName={currentChild.fullName}
+                />
               )}
 
               {/* Contact Section for pending requests */}
