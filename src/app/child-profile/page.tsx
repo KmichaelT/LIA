@@ -328,9 +328,9 @@ export default function ChildProfilePage() {
                           <div className="md:col-span-2 xl:col-span-3 bg-white rounded-xl p-4 border border-gray-100">
                             <div className="flex flex-wrap items-center gap-3">
                               <h2 className="text-2xl font-bold text-gray-900">{currentChild.fullName}</h2>
-                              {getDisplayId(currentChild) && (
+                              {/* {getDisplayId(currentChild) && (
                                 <Badge variant="secondary">ID: {getDisplayId(currentChild)}</Badge>
-                              )}
+                              )} */}
                             </div>
                             <p className="text-gray-600 mt-1 flex items-center gap-2">
                               <MapPin size={16} className="text-gray-500" />
