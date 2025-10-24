@@ -38,16 +38,26 @@ interface About1Props {
 const About1: React.FC<About1Props> = ({ content }) => {
   const [currentContentIndex, setCurrentContentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     if (!isHovered && content.missionContent.length > 1) {
-      const interval = setInterval(() => {
-        setCurrentContentIndex((prev) => 
-          (prev + 1) % content.missionContent.length
-        );
-      }, 4000);
+      setProgress(0);
+      const progressInterval = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 100) {
+            setCurrentContentIndex((current) => 
+              (current + 1) % content.missionContent.length
+            );
+            return 0;
+          }
+          return prev + 2.5; // 100% in 4000ms (100/40 = 2.5% per 100ms)
+        });
+      }, 100);
 
-      return () => clearInterval(interval);
+      return () => clearInterval(progressInterval);
+    } else {
+      setProgress(0);
     }
   }, [isHovered, content.missionContent.length]);
 
@@ -55,7 +65,7 @@ const About1: React.FC<About1Props> = ({ content }) => {
   return (
     <section className="py-32">
       <div  >
-        <div className="flex flex-col gap-28">
+        <div className="flex flex-col gap-12">
         <div className="flex flex-col gap-7">
           <h1>
             {content.hero.title}
@@ -71,34 +81,69 @@ const About1: React.FC<About1Props> = ({ content }) => {
             className="size-full max-h-96 rounded-2xl object-cover"
           />
           <div 
-            className="flex flex-col justify-between gap-10 rounded-2xl bg-muted p-10"
+            className="flex gap-4 rounded-2xl bg-muted p-10"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
-            <AnimatePresence mode="wait">
-              <motion.p 
-                key={`title-${currentContentIndex}`}
-                className="text-sm text-muted-foreground"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
-                transition={{ duration: 0.5 }}
-              >
-                {currentContent.title}
-              </motion.p>
-            </AnimatePresence>
-            <AnimatePresence mode="wait">
-              <motion.p 
-                key={`content-${currentContentIndex}`}
-                className="text-lg font-medium"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-              >
-                {currentContent.content}
-              </motion.p>
-            </AnimatePresence>
+            {/* Content Section */}
+            <div className="flex-1 flex flex-col gap-4">
+              <AnimatePresence mode="wait">
+                <motion.p 
+                  key={`title-${currentContentIndex}`}
+                  className="text-sm text-muted-foreground"
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -15 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  {currentContent.title}
+                </motion.p>
+              </AnimatePresence>
+              <AnimatePresence mode="wait">
+                <motion.p 
+                  key={`content-${currentContentIndex}`}
+                  className="text-lg font-medium"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.5, delay: 0.1 }}
+                >
+                  {currentContent.content}
+                </motion.p>
+              </AnimatePresence>
+            </div>
+            
+            {/* Vertical Navigation Indicators */}
+            <div className="flex flex-col items-center gap-3">
+              {/* Vertical Progress Bar */}
+              {!isHovered && content.missionContent.length > 1 && (
+                <div className="h-16 w-1 bg-muted-foreground/20 rounded-full overflow-hidden">
+                  <div 
+                    className="w-full bg-primary transition-all duration-100 ease-linear"
+                    style={{ height: `${progress}%` }}
+                  />
+                </div>
+              )}
+              
+              {/* Vertical Navigation Dots */}
+              <div className="flex flex-col gap-2">
+                {content.missionContent.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => {
+                      setCurrentContentIndex(index);
+                      setProgress(0);
+                    }}
+                    className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                      index === currentContentIndex 
+                        ? 'bg-primary scale-125' 
+                        : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
+                    }`}
+                    aria-label={`Go to ${content.missionContent[index].title}`}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
         {content.timeline && (
