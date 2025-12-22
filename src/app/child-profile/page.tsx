@@ -167,6 +167,7 @@ export default function ChildProfilePage() {
   }, [loadUserData]);
 
   const currentChild = assignedChildren[selectedChildIndex];
+  console.log("currentChild", currentChild);
   const hasAssignedChildren = assignedChildren.length > 0;
   const sponsorStatusInfo = getSponsorStatusInfo(sponsorProfile);
   const activeRequest = getActiveSponsorshipRequest(sponsorProfile);
@@ -207,6 +208,14 @@ export default function ChildProfilePage() {
     const numeric = Number(child.id);
     if (!Number.isNaN(numeric)) return `LIA-${numeric.toString().padStart(5, "0")}`;
     return "";
+  }
+
+  // Helper function to check if a media item is a video
+  function isVideo(media: StrapiImage): boolean {
+    if (!media.name) return false;
+    const videoExtensions = ['.mp4', '.mov', '.avi', '.webm', '.mkv', '.flv', '.wmv', '.m4v'];
+    const extension = media.name.toLowerCase().substring(media.name.lastIndexOf('.'));
+    return videoExtensions.includes(extension);
   }
 
   return (
@@ -302,18 +311,29 @@ export default function ChildProfilePage() {
                   <Card className="mb-6 shadow-sm">
                     <CardContent >
                       <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
-                        {/* Main Profile Photo - First Image Only */}
+                        {/* Main Profile Photo/Video - First Media Only */}
                         <div>
                           {currentChild.images?.length ? (
                             <div className="rounded-2xl overflow-hidden shadow-sm bg-white">
                               <div className="relative" style={{ height: '300px' }}>
-                                <Image
-                                  src={getStrapiImageUrl(currentChild.images[0].url)}
-                                  alt={currentChild.images[0].alternativeText || currentChild.fullName}
-                                  fill
-                                  className="object-contain"
-                                  priority
-                                />
+                                {isVideo(currentChild.images[0]) ? (
+                                  <video
+                                    src={getStrapiImageUrl(currentChild.images[0].url)}
+                                    controls
+                                    className="w-full h-full object-contain"
+                                    style={{ maxHeight: '300px' }}
+                                  >
+                                    Your browser does not support the video tag.
+                                  </video>
+                                ) : (
+                                  <Image
+                                    src={getStrapiImageUrl(currentChild.images[0].url)}
+                                    alt={currentChild.images[0].alternativeText || currentChild.fullName}
+                                    fill
+                                    className="object-contain"
+                                    priority
+                                  />
+                                )}
                               </div>
                             </div>
                           ) : (
