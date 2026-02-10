@@ -42,6 +42,7 @@ export interface StrapiEntity {
 
 // Collection Types
 export interface Service extends StrapiEntity {
+  documentId?: string;
   attributes: {
     title: string;
     description: string;
@@ -218,6 +219,7 @@ export interface AboutUs extends StrapiEntity {
 // Utility Types for Frontend Use
 export interface ServiceData {
   id: number;
+  documentId?: string;
   title: string;
   description: string;
   icon: string;
@@ -264,6 +266,7 @@ export interface LinkData {
 export function transformService(service: Service): ServiceData {
   return {
     id: service.id,
+    documentId: service.documentId,
     title: service.attributes.title,
     description: service.attributes.description,
     icon: service.attributes.icon,

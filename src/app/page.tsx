@@ -7,6 +7,7 @@ import { getHomePage } from "@/lib/strapi";
 
 export default async function Home() {
   const homePageData = await getHomePage();
+  console.log("Home Page Data:", homePageData);
   
   // If no homepage data, show nothing (no fallbacks)
   if (!homePageData) {

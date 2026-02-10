@@ -8,36 +8,40 @@ interface ServiceCardProps {
   title: string;
   description: string;
   color: string;
+  href?: string;
   hasDetails?: boolean;
-  learnMoreBlog?: {
-    Heading: string;
-    documentId: string;
-  };
 }
 
-const ServiceCard = ({ icon, title, description, color, hasDetails, learnMoreBlog }: ServiceCardProps) => {
-  return (
+const ServiceCard = ({ icon, title, description, color, hasDetails, href }: ServiceCardProps) => {
+  const shortDescription =
+    description.length > 70 ? `${description.slice(0, 70).trimEnd()}...` : description;
+
+  const content = (
     <div className={`p-2 rounded-lg ${color} h-full flex flex-col`}>
       <div className="mb-4 text-lia-brown-dark">
         {icon}
       </div>
       <h3 className="text-xl font-bold mb-3 text-lia-brown-dark">{title}</h3>
-      <p className="text-lia-brown-dark/80 text-sm mb-4 flex-grow">{description}</p>
-      
-      {/* Conditional Learn More Link - only show if hasDetails is true and learnMoreBlog exists */}
-      {hasDetails === true && learnMoreBlog && learnMoreBlog.documentId && (
-        <div className="mt-auto">
-          <Link 
-            href={`/blog/${learnMoreBlog.documentId}`}
-            className="flex items-center text-sm text-black hover:opacity-80"
-          >
-            Learn More{" "}
-            <ArrowRight className="ml-2 size-5 transition-transform hover:translate-x-1" />
-          </Link>
+      <p className="text-lia-brown-dark/80 text-sm mb-4 flex-grow">{shortDescription}</p>
+
+      {hasDetails && (
+        <div className="mt-auto flex items-center text-sm text-black">
+          View Details{" "}
+          <ArrowRight className="ml-2 size-5 transition-transform group-hover:translate-x-1" />
         </div>
       )}
     </div>
   );
+
+  if (href) {
+    return (
+      <Link href={href} className="group block">
+        {content}
+      </Link>
+    );
+  }
+
+  return content;
 };
 
 interface ServicesSectionProps {
@@ -46,14 +50,11 @@ interface ServicesSectionProps {
   sectionDescription?: string;
   services: Array<{
     id: number;
+    documentId?: string;
     title: string;
     description: string;
     icon: string;
     hasDetails?: boolean;
-    learnMoreBlog?: {
-      Heading: string;
-      documentId: string;
-    };
   }>;
 }
 
@@ -115,7 +116,11 @@ export default function ServicesSection({
               description={service.description}
               color=""
               hasDetails={service.hasDetails}
-              learnMoreBlog={service.learnMoreBlog}
+              href={
+                service.hasDetails
+                  ? `/services/${service.documentId ?? service.id}`
+                  : undefined
+              }
             />
           ))}
         </div>
