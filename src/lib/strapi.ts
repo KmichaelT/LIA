@@ -255,6 +255,8 @@ export async function getHomePage() {
       next: { revalidate: 60 }, // Cache for 60 seconds
       signal: controller.signal,
     });
+
+    
     clearTimeout(timeoutId);
     
     if (!response.ok) {
