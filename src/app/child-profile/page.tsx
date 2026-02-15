@@ -75,6 +75,8 @@ export default function ChildProfilePage() {
   const [showChildDropdown, setShowChildDropdown] = useState(false);
   const [showSponsorshipModal, setShowSponsorshipModal] = useState(false);
 
+
+
   // Fetch assigned children
   async function fetchAssignedChildren(sponsorId: number, token: string): Promise<ChildProfile[]> {
     try {
@@ -218,6 +220,31 @@ export default function ChildProfilePage() {
     return videoExtensions.includes(extension);
   }
 
+    // sponsors stat
+    // put near other derived values in ChildProfilePage()
+  const activeChildrenCount = assignedChildren.length;
+  const pendingChildrenCount = activeRequest?.numberOfChildren ?? 0;
+
+  // funding start: sponsorship created date (fallback: first child's joined date)
+  const fundingStartDate = sponsorProfile?.sponsorship?.createdAt
+    ? new Date(sponsorProfile.sponsorship.createdAt)
+    : assignedChildren[0]?.joinedSponsorshipProgram
+    ? new Date(assignedChildren[0].joinedSponsorshipProgram)
+    : null;
+
+  const monthsActive = fundingStartDate
+    ? Math.max(
+        1,
+        (new Date().getFullYear() - fundingStartDate.getFullYear()) * 12 +
+          (new Date().getMonth() - fundingStartDate.getMonth())
+      )
+    : 0;
+
+  const monthlyPerChild = 25;
+  const estimatedMonthlyTotal = activeChildrenCount * monthlyPerChild;
+  const estimatedLifetimeTotal = estimatedMonthlyTotal * monthsActive;
+  // end sponsors stat
+
   return (
     <ProtectedRoute>
       <main className="min-h-screen bg-gray-50 py-28">
@@ -237,6 +264,15 @@ export default function ChildProfilePage() {
           ) : (
             <>
               {/* Header */}
+              {/* sponsor stat */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <Card><CardContent className="p-4"><p className="text-sm text-gray-500">Children Supported</p><p className="text-2xl font-bold">{activeChildrenCount}</p></CardContent></Card>
+                <Card><CardContent className="p-4"><p className="text-sm text-gray-500">Pending Child Requests</p><p className="text-2xl font-bold">{pendingChildrenCount}</p></CardContent></Card>
+                <Card><CardContent className="p-4"><p className="text-sm text-gray-500">Monthly Contribution</p><p className="text-2xl font-bold">${estimatedMonthlyTotal}</p></CardContent></Card>
+                <Card><CardContent className="p-4"><p className="text-sm text-gray-500">Funding Duration</p><p className="text-2xl font-bold">{monthsActive} mo</p></CardContent></Card>
+              </div>
+              {/* sponsor stat */}
+
               <div className="mb-6">
                 <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
                   <div>
