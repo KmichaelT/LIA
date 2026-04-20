@@ -47,6 +47,9 @@ export interface Service extends StrapiEntity {
     title: string;
     description: string;
     icon: string;
+    image?: {
+      data: StrapiImage;
+    };
     createdAt: string;
     updatedAt: string;
     publishedAt: string;
@@ -223,6 +226,7 @@ export interface ServiceData {
   title: string;
   description: string;
   icon: string;
+  image?: string;
 }
 
 export interface EventData {
@@ -270,6 +274,9 @@ export function transformService(service: Service): ServiceData {
     title: service.attributes.title,
     description: service.attributes.description,
     icon: service.attributes.icon,
+    image: service.attributes.image?.data?.attributes?.url
+      ? getStrapiImageUrl(service.attributes.image.data.attributes.url)
+      : undefined,
   };
 }
 

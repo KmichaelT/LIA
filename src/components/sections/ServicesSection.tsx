@@ -2,6 +2,7 @@
  
 import {  GraduationCap, Home, Flame, Users, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { getStrapiImageUrl } from '@/lib/utils';
 
 interface ServiceCardProps {
   icon: React.ReactNode;
@@ -10,26 +11,45 @@ interface ServiceCardProps {
   color: string;
   href?: string;
   hasDetails?: boolean;
+  image?: {
+    url: string;
+    alternativeText?: string;
+  };
 }
 
-const ServiceCard = ({ icon, title, description, color, hasDetails, href }: ServiceCardProps) => {
+const ServiceCard = ({ icon, title, description, color, hasDetails, href, image }: ServiceCardProps) => {
   const shortDescription =
     description.length > 70 ? `${description.slice(0, 70).trimEnd()}...` : description;
 
   const content = (
-    <div className={`p-2 rounded-lg ${color} h-full flex flex-col`}>
-      <div className="mb-4 text-lia-brown-dark">
-        {icon}
-      </div>
-      <h3 className="text-xl font-bold mb-3 text-lia-brown-dark">{title}</h3>
-      <p className="text-lia-brown-dark/80 text-sm mb-4 flex-grow">{shortDescription}</p>
-
-      {hasDetails && (
-        <div className="mt-auto flex items-center text-sm text-black">
-          View Details{" "}
-          <ArrowRight className="ml-2 size-5 transition-transform group-hover:translate-x-1" />
+    <div className={`rounded-lg ${color} h-full flex flex-col overflow-hidden bg-white`}>
+      {image?.url ? (
+        <div className="aspect-[4/3] w-full overflow-hidden rounded-t-lg bg-slate-100">
+          <img
+            src={getStrapiImageUrl(image.url)}
+            alt={image.alternativeText || title}
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        </div>
+      ) : (
+        <div className="px-4 pt-4 mb-4 text-lia-brown-dark">
+          {icon}
         </div>
       )}
+      <div className="flex flex-1 flex-col p-4">
+        <div className="mb-3 flex items-center gap-3 text-lia-brown-dark">
+          <div className="shrink-0">{icon}</div>
+          <h3 className="text-xl font-bold">{title}</h3>
+        </div>
+        <p className="text-lia-brown-dark/80 text-sm mb-4 flex-grow">{shortDescription}</p>
+
+        {hasDetails && (
+          <div className="mt-auto flex items-center text-sm text-black">
+            View Details{" "}
+            <ArrowRight className="ml-2 size-5 transition-transform group-hover:translate-x-1" />
+          </div>
+        )}
+      </div>
     </div>
   );
 
@@ -55,6 +75,10 @@ interface ServicesSectionProps {
     description: string;
     icon: string;
     hasDetails?: boolean;
+    image?: {
+      url: string;
+      alternativeText?: string;
+    };
   }>;
 }
 
@@ -116,6 +140,7 @@ export default function ServicesSection({
               description={service.description}
               color=""
               hasDetails={service.hasDetails}
+              image={service.image}
               href={
                 service.hasDetails
                   ? `/services/${service.documentId ?? service.id}`

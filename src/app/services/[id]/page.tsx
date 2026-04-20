@@ -1,5 +1,16 @@
-import { STRAPI_URL } from "@/lib/utils";
+import { getStrapiImageUrl, STRAPI_URL } from "@/lib/utils";
 import { GraduationCap, Home, Flame, Users } from "lucide-react";
+
+interface StrapiMediaV5 {
+  url?: string;
+  alternativeText?: string;
+}
+
+interface StrapiMediaV4 {
+  data?: {
+    attributes?: StrapiMediaV5;
+  };
+}
 
 interface StrapiServiceV5 {
   id: number;
@@ -7,6 +18,7 @@ interface StrapiServiceV5 {
   title?: string;
   description?: string;
   icon?: string;
+  image?: StrapiMediaV5 | StrapiMediaV4;
   createdAt?: string;
   updatedAt?: string;
   publishedAt?: string;
@@ -18,6 +30,7 @@ interface StrapiServiceV4 {
     title?: string;
     description?: string;
     icon?: string;
+    image?: StrapiMediaV4;
     createdAt?: string;
     updatedAt?: string;
     publishedAt?: string;
@@ -32,6 +45,11 @@ function normalizeService(raw: StrapiServiceResponse | null) {
   const description =
     (raw as StrapiServiceV5).description ?? (raw as StrapiServiceV4).attributes?.description;
   const icon = (raw as StrapiServiceV5).icon ?? (raw as StrapiServiceV4).attributes?.icon;
+  const image =
+    ((raw as StrapiServiceV5).image as StrapiMediaV5 | undefined)?.url
+      ? ((raw as StrapiServiceV5).image as StrapiMediaV5)
+      : ((raw as StrapiServiceV5).image as StrapiMediaV4 | undefined)?.data?.attributes ??
+        (raw as StrapiServiceV4).attributes?.image?.data?.attributes;
 
   if (!title) return null;
 
@@ -40,6 +58,12 @@ function normalizeService(raw: StrapiServiceResponse | null) {
     title,
     description: description ?? "",
     icon: icon ?? "Home",
+    image: image?.url
+      ? {
+          url: image.url,
+          alternativeText: image.alternativeText,
+        }
+      : undefined,
   };
 }
 
@@ -48,7 +72,7 @@ async function getService(id: string) {
   const timeoutId = setTimeout(() => controller.abort(), 8000);
 
   try {
-    const response = await fetch(`${STRAPI_URL}/api/services/${id}`, {
+    const response = await fetch(`${STRAPI_URL}/api/services/${id}?populate=image`, {
       next: { revalidate: 60 },
       signal: controller.signal,
     });
@@ -70,9 +94,11 @@ async function getService(id: string) {
   const fallbackTimeoutId = setTimeout(() => fallbackController.abort(), 8000);
   try {
     const response = await fetch(
-      `${STRAPI_URL}/api/services?filters[documentId][$eq]=${encodeURIComponent(id)}`,
+      `${STRAPI_URL}/api/services?filters[documentId][$eq]=${encodeURIComponent(id)}&populate=image`,
       { next: { revalidate: 60 }, signal: fallbackController.signal }
     );
+
+   
     clearTimeout(fallbackTimeoutId);
 
     if (!response.ok) return null;
@@ -129,8 +155,19 @@ export default async function ServiceDetailPage({
     <main className="min-h-screen">
       <section className="py-16">
         <div className="max-w-4xl mx-auto px-4">
-          <div className="mb-6 text-lia-brown-dark">{getIconComponent(service.icon)}</div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">{service.title}</h1>
+          {service.image?.url && (
+            <div className="mb-8 overflow-hidden rounded-2xl bg-slate-100">
+              <img
+                src={getStrapiImageUrl(service.image.url)}
+                alt={service.image.alternativeText || service.title}
+                className="h-auto w-full object-cover"
+              />
+            </div>
+          )}
+          <div className="mb-6 flex items-center gap-4 text-lia-brown-dark">
+            <div className="shrink-0">{getIconComponent(service.icon)}</div>
+            <h1 className="text-4xl md:text-5xl font-bold">{service.title}</h1>
+          </div>
           <p className="text-lg text-muted-foreground">{service.description}</p>
         </div>
       </section>
