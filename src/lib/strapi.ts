@@ -247,6 +247,8 @@ export async function getHomePage() {
       'populate[services][fields][1]': 'description',
       'populate[services][fields][2]': 'icon',
       'populate[services][fields][3]': 'hasDetails',
+      'populate[services][populate][image][fields][0]': 'url',
+      'populate[services][populate][image][fields][1]': 'alternativeText',
       'populate[services][populate][learnMoreBlog][fields][0]': 'Heading',
       'populate[services][populate][learnMoreBlog][fields][1]': 'documentId'
     });
