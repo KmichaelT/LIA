@@ -140,7 +140,7 @@ export default function SponsorLetterModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent className="max-w-xl">
+      <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Mail className="h-5 w-5 text-primary" />
@@ -161,13 +161,6 @@ export default function SponsorLetterModal({
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="rounded-lg border bg-gray-50 p-4">
-              <h3 className="text-sm font-semibold text-gray-900">Letter Details</h3>
-              <p className="mt-1 text-sm text-gray-600">
-                Send a note to {childName} directly in the app, or attach a prepared document.
-              </p>
-            </div>
-
             <div className="space-y-4">
               <div>
                 <Label htmlFor="letter-subject">Subject</Label>
