@@ -24,6 +24,7 @@ import {
 import ProtectedRoute from "@/components/ProtectedRoute";
 import TimelineSection from "@/components/TimelineSection";
 import AdditionalSponsorshipModal from "@/components/AdditionalSponsorshipModal";
+import SponsorLetterModal from "@/components/SponsorLetterModal";
 import { STRAPI_URL, getStrapiImageUrl } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -74,6 +75,7 @@ export default function ChildProfilePage() {
   const [selectedChildIndex, setSelectedChildIndex] = useState(0);
   const [showChildDropdown, setShowChildDropdown] = useState(false);
   const [showSponsorshipModal, setShowSponsorshipModal] = useState(false);
+  const [showLetterModal, setShowLetterModal] = useState(false);
 
 
 
@@ -305,36 +307,45 @@ export default function ChildProfilePage() {
                   </div>
 
                   {/* Child switcher when multiple */}
-                  {hasAssignedChildren && assignedChildren.length > 1 && (
-                    <div className="relative">
-                      <button
-                        onClick={() => setShowChildDropdown((v) => !v)}
-                        className="flex items-center gap-2 px-4 py-2  bg-white text-primary border-2 border-gray-200 rounded-lg hover:bg-gray-200 transition-all"
-                        aria-haspopup="listbox"
-                        aria-expanded={showChildDropdown}
-                        aria-label="Select child"
-                      >
-                        <User size={16} />
-                        <span className="truncate max-w-[220px]">Viewing: {currentChild?.fullName}</span>
-                        <ChevronDown size={16} />
-                      </button>
+                  {hasAssignedChildren && (
+                    <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+                      {assignedChildren.length > 1 && (
+                        <div className="relative">
+                          <button
+                            onClick={() => setShowChildDropdown((v) => !v)}
+                            className="flex items-center gap-2 px-4 py-2 bg-white text-primary border-2 border-gray-200 rounded-lg hover:bg-gray-200 transition-all"
+                            aria-haspopup="listbox"
+                            aria-expanded={showChildDropdown}
+                            aria-label="Select child"
+                          >
+                            <User size={16} />
+                            <span className="truncate max-w-[220px]">Viewing: {currentChild?.fullName}</span>
+                            <ChevronDown size={16} />
+                          </button>
 
-                      {showChildDropdown && (
-                        <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-xl shadow-xl z-10 overflow-hidden" role="listbox">
-                          {assignedChildren.map((child, index) => (
-                            <button
-                              key={`${child.id}-${index}`}
-                              onClick={() => { setSelectedChildIndex(index); setShowChildDropdown(false); }}
-                              className={`w-full text-left px-4 py-3 hover:bg-gray-50 ${index === selectedChildIndex ? "bg-primary/10 text-primary" : ""}`}
-                              role="option"
-                              aria-selected={index === selectedChildIndex}
-                            >
-                              <div className="font-medium leading-tight truncate">{child.fullName}</div>
-                              <div className="text-xs text-gray-500">Grade {child.currentGrade}</div>
-                            </button>
-                          ))}
+                          {showChildDropdown && (
+                            <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-xl shadow-xl z-10 overflow-hidden" role="listbox">
+                              {assignedChildren.map((child, index) => (
+                                <button
+                                  key={`${child.id}-${index}`}
+                                  onClick={() => { setSelectedChildIndex(index); setShowChildDropdown(false); }}
+                                  className={`w-full text-left px-4 py-3 hover:bg-gray-50 ${index === selectedChildIndex ? "bg-primary/10 text-primary" : ""}`}
+                                  role="option"
+                                  aria-selected={index === selectedChildIndex}
+                                >
+                                  <div className="font-medium leading-tight truncate">{child.fullName}</div>
+                                  <div className="text-xs text-gray-500">Grade {child.currentGrade}</div>
+                                </button>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       )}
+
+                      <Button onClick={() => setShowLetterModal(true)} className="bg-primary text-white hover:bg-accent">
+                        <Mail className="mr-2 h-4 w-4" />
+                        Send Letter
+                      </Button>
                     </div>
                   )}
                 </div>
@@ -577,6 +588,16 @@ export default function ChildProfilePage() {
               // Reload sponsor profile to get updated data
               loadUserData();
             }}
+          />
+        )}
+
+        {currentChild && (
+          <SponsorLetterModal
+            isOpen={showLetterModal}
+            onClose={() => setShowLetterModal(false)}
+            childDocumentId={currentChild.documentId}
+            childId={currentChild.id}
+            childName={currentChild.fullName}
           />
         )}
       </main>
