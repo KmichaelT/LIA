@@ -552,7 +552,7 @@ export default function ChildProfilePage() {
               {/* Photo Gallery - Show remaining images (if more than 1 image) */}
               {(showChildrenOnly || showBoth) && hasAssignedChildren && currentChild && currentChild.images && currentChild.images.length > 1 && (
                 <GallerySlider
-                  images={currentChild.images.slice(1)} 
+                  images={currentChild.images} 
                   childName={currentChild.fullName}
                 />
               )}
