@@ -1,0 +1,277 @@
+.sports-banner {
+  position: relative;
+  left: 50%;
+  z-index: 30;
+  width: 100vw;
+  margin-top: 24px;
+  margin-left: -50vw;
+  overflow: hidden;
+  background: linear-gradient(90deg, #12631d 0%, #075d17 56%, #075515 100%);
+  color: #fff;
+}
+
+.sports-banner-photo {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: calc(max((100vw - 1336px) / 2, 0px) + 190px);
+  background-image:
+    linear-gradient(90deg, rgba(5, 82, 20, 0.05), #12631d 94%),
+    url("/images/events/sport.png");
+  background-position: center, 55% 72%;
+  background-size: cover, 430px auto;
+}
+
+.sports-banner-inner {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.25fr 1.15fr 1.15fr auto;
+  align-items: center;
+  gap: 28px;
+  width: 100%;
+  max-width: 1336px;
+  min-height: 112px;
+  margin: 0 auto;
+  padding: 16px 72px 16px 205px;
+}
+
+.sports-banner-title {
+  min-width: 260px;
+}
+
+.sports-banner-eyebrow {
+  color: #f5c928;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.05;
+}
+
+.sports-banner-heading {
+  margin-top: 4px;
+  color: #fff;
+  font-size: 31px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.035em;
+  white-space: nowrap;
+}
+
+.sports-banner-details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-left: 20px;
+  border-left: 1px solid rgba(255, 255, 255, 0.55);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.sports-banner-details div {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  white-space: nowrap;
+}
+
+.sports-banner-details svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  stroke-width: 2;
+}
+
+.sports-banner-description {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  max-width: 255px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.sports-banner-description strong {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sports-banner-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+}
+
+.sports-register-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  min-width: 150px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: #fff;
+  color: #14551c;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sports-register-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.sports-register-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.sports-site-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.sports-site-link svg {
+  width: 14px;
+  height: 14px;
+}
+
+.sports-site-link:hover {
+  text-decoration: underline;
+}
+
+.sports-banner-close {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  display: grid;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  transform: translateY(-50%);
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  opacity: 0.9;
+}
+
+.sports-banner-close svg {
+  width: 21px;
+  height: 21px;
+}
+
+.sports-banner-close:hover {
+  opacity: 1;
+}
+
+@media (max-width: 1150px) {
+  .sports-banner-inner {
+    grid-template-columns: 1fr 1fr;
+    padding: 22px 58px 22px 190px;
+  }
+
+  .sports-banner-description {
+    max-width: 100%;
+  }
+
+  .sports-banner-actions {
+    align-items: flex-start;
+  }
+}
+
+@media (min-width: 1600px) {
+  .sports-banner-inner {
+    max-width: 1600px;
+    grid-template-columns: 1.25fr 1.1fr 1.2fr auto;
+    gap: 42px;
+    padding-right: 90px;
+    padding-left: 230px;
+  }
+
+  .sports-banner-photo {
+    width: calc((100vw - 1600px) / 2 + 215px);
+  }
+
+  .sports-banner-description {
+    max-width: 290px;
+  }
+}
+
+@media (min-width: 2200px) {
+  .sports-banner-inner {
+    max-width: 1800px;
+    grid-template-columns: 1.3fr 1.15fr 1.2fr auto;
+    gap: 56px;
+    padding-left: 250px;
+  }
+
+  .sports-banner-photo {
+    width: calc((100vw - 1800px) / 2 + 235px);
+  }
+}
+
+@media (max-width: 767px) {
+  .sports-banner {
+    margin-top: 16px;
+  }
+
+  .sports-banner-photo {
+    width: 100%;
+    opacity: 0.16;
+    background-position: center;
+    background-size: cover;
+  }
+
+  .sports-banner-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 18px;
+    padding: 24px 48px 24px 24px;
+  }
+
+  .sports-banner-title {
+    min-width: 0;
+  }
+
+  .sports-banner-eyebrow {
+    font-size: 17px;
+  }
+
+  .sports-banner-heading {
+    font-size: clamp(27px, 9vw, 34px);
+    white-space: normal;
+  }
+
+  .sports-banner-details {
+    padding-left: 0;
+    border-left: 0;
+    font-size: 13px;
+  }
+
+  .sports-banner-details div {
+    white-space: normal;
+  }
+
+  .sports-banner-description {
+    font-size: 13px;
+  }
+
+  .sports-register-button {
+    width: 100%;
+  }
+
+  .sports-banner-close {
+    top: 12px;
+    right: 10px;
+    transform: none;
+  }
+}
