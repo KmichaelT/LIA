@@ -4,6 +4,7 @@ import CausesSection from "@/components/sections/CausesSection";
 import EventsSection from "@/components/sections/EventsSection";
 import { Gallery4 } from "@/components/gallery4";
 import { getHomePage } from "@/lib/strapi";
+import SportsBanner from "@/components/SportsBanner";
 
 export default async function Home() {
   const homePageData = await getHomePage();
@@ -16,6 +17,8 @@ export default async function Home() {
   
   return (
     <>
+      <SportsBanner />
+
       {/* Hero Section - always render if data exists */}
       <HeroSection 
         title={homePageData.heroTitle}
