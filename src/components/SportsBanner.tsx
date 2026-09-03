@@ -12,6 +12,7 @@ import { useState } from "react";
 import "./SportsBanner.css";
 
 const SPORTS_SITE_URL = "https://liast26.naevyn.com";
+const SPORTS_SITE_REGISTER_URL = "https://liast26.naevyn.com/event/register";
 const EVENT_DATE = new Date("2026-09-19T23:59:59-04:00");
 
 export default function SportsBanner() {
@@ -45,7 +46,7 @@ export default function SportsBanner() {
 
         <div className="sports-banner-actions">
           <a
-            href={SPORTS_SITE_URL}
+            href={SPORTS_SITE_REGISTER_URL}
             className="sports-register-button"
             target="_blank"
             rel="noopener noreferrer"
