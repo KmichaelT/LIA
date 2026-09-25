@@ -2,7 +2,6 @@ import HeroSection from "@/components/sections/HeroSection";
 import ServicesSection from "@/components/sections/ServicesSection";
 import CausesSection from "@/components/sections/CausesSection";
 import EventsSection from "@/components/sections/EventsSection";
-import { Gallery4 } from "@/components/gallery4";
 import { getHomePage } from "@/lib/strapi";
 import SportsBanner from "@/components/SportsBanner";
 

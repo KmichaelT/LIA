@@ -29,6 +29,7 @@ import { STRAPI_URL, getStrapiImageUrl } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import GallerySlider from "@/components/GallerySlider";
+import AcademicResults from "@/components/AcademicResults";
 
 interface StrapiImage {
   id: number;
@@ -499,6 +500,8 @@ export default function ChildProfilePage() {
                       </CardContent>
                     </Card>
                   )}
+
+                  <AcademicResults child={currentChild} />
                 </>
               )}
 
